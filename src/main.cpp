@@ -1,4 +1,4 @@
-#include "videoplayer.h"
+#include "../headers/videoplayer.h"
 
 #include <QApplication>
 

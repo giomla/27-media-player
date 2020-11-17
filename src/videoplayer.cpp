@@ -1,4 +1,4 @@
-#include "videoplayer.h"
+#include "../headers/videoplayer.h"
 #include "ui_videoplayer.h"
 #include <QtWidgets>
 #include <QGraphicsVideoItem>
