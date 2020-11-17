@@ -16,17 +16,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    main.cpp \
-    videoplayer.cpp
+    src/main.cpp \
+    src/videoplayer.cpp
 
 HEADERS += \
-    videoplayer.h
+    headers/videoplayer.h
 
 FORMS += \
-    videoplayer.ui
+    res/videoplayer.ui
 
 TRANSLATIONS += \
-    VideoPlayer_en_US.ts
+    res/VideoPlayer_en_US.ts
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
