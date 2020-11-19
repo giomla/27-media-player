@@ -20,7 +20,13 @@ public:
 
 public slots:
     void openFile(); //TODO
-    void play(); //TODO
+    void playOnClick(); //TODO
+
+signals:
+    void play();
+    void stop();
+    void pause();
+
 
 private slots:
     void mediaStateChanged(QMediaPlayer::State state);
@@ -28,9 +34,14 @@ private slots:
 
 private:
     QMediaPlayer* m_mediaPlayer = nullptr;
-    QGraphicsVideoItem* m_videoItem = nullptr;
-    QAbstractButton* m_playButton = nullptr;
-    QSlider* m_Slider = nullptr;
+        QMediaPlayer::State m_playerState = QMediaPlayer::StoppedState;
+        QGraphicsVideoItem* m_videoItem = nullptr;
+        QAbstractButton* m_playButton = nullptr;
+        QAbstractButton* m_stopButton = nullptr;
+        QAbstractButton* m_forwardButton = nullptr;
+        QAbstractButton* m_backwardButton = nullptr;
+        QSlider* m_Slider = nullptr;
+
 
 };
 #endif // VIDEOPLAYER_H

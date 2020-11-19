@@ -22,16 +22,35 @@ videoplayer::videoplayer(QWidget *parent)
         m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
         m_playButton->setFixedSize(30,30);
 
+        m_stopButton= new QPushButton;
+        m_stopButton->setEnabled(false);
+        m_stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
+        m_stopButton->setFixedSize(30,30);
+
+        m_forwardButton= new QPushButton;
+        m_forwardButton->setEnabled(false);
+        m_forwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
+        m_forwardButton->setFixedSize(30,30);
+        m_backwardButton= new QPushButton;
+        m_backwardButton->setEnabled(false);
+        m_backwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
+        m_backwardButton->setFixedSize(30,30);
+
         m_Slider = new QSlider(Qt::Horizontal);
         m_Slider->setRange(0, 0);
 
-        QAbstractButton *openButton = new QPushButton(tr("Otvori Fajl"));
+        QAbstractButton *openButton = new QPushButton(tr("Open"));
 
         //TODO Connection za playButton, Slider i openButton
+        connect(m_playButton,&QAbstractButton::clicked,this,&videoplayer::playOnClick);
+        connect(openButton,&QAbstractButton::clicked,this,&videoplayer::openFile);
 
         QHBoxLayout* commandsLayout = new QHBoxLayout();
-        commandsLayout->setMargin(0);
+        commandsLayout->setMargin(1);
+        commandsLayout->addWidget(m_backwardButton);
         commandsLayout->addWidget(m_playButton);
+        commandsLayout->addWidget(m_stopButton);
+        commandsLayout->addWidget(m_forwardButton);
         commandsLayout->addWidget(m_Slider);
         commandsLayout->addWidget(openButton);
 
@@ -67,7 +86,7 @@ void videoplayer::openFile(){
     //TO DO
 }
 
-void videoplayer::play(){
+void videoplayer::playOnClick(){
     //TO DO
 }
 
