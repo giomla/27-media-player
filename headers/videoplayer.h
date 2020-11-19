@@ -17,6 +17,8 @@ public:
     videoplayer(QWidget *parent = nullptr);
     ~videoplayer();
     bool isAvaliable() const;
+    QMediaPlayer::State state() const;
+
 
 public slots:
     void openFile(); //TODO

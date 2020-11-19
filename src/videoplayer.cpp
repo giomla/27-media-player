@@ -71,14 +71,33 @@ bool videoplayer::isAvaliable() const{
     return m_mediaPlayer->isAvailable();
 }
 
+
+QMediaPlayer::State videoplayer::state() const
+{
+    return m_playerState;
+}
+
 void videoplayer::mediaStateChanged(QMediaPlayer::State state){
-    switch(state){
-        case QMediaPlayer::PlayingState:
-	  m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-            break;
-        default:
-	  m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-            break;
+    if(m_playerState != state){
+        m_playerState = state;
+
+        switch(state){
+            case QMediaPlayer::PlayingState:
+                m_stopButton->setEnabled(true);
+                m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+                break;
+            case QMediaPlayer::StoppedState:
+                m_stopButton->setEnabled(false);
+                m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+                break;
+            case QMediaPlayer::PausedState:
+                m_stopButton->setEnabled(true);
+                m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+                break;
+            default:
+                 m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+                 break;
+        }
     }
 }
 
@@ -87,7 +106,15 @@ void videoplayer::openFile(){
 }
 
 void videoplayer::playOnClick(){
-    //TO DO
+    switch (m_playerState) {
+        case QMediaPlayer::StoppedState:
+        case QMediaPlayer::PausedState:
+            emit play();
+            break;
+        case QMediaPlayer::PlayingState:
+            emit pause();
+            break;
+        }
 }
 
 //Ostale funckije potrebne pri konekciji
