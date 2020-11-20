@@ -18,17 +18,20 @@ public:
     ~videoplayer();
     bool isAvaliable() const;
     QMediaPlayer::State state() const;
+    bool isMuted() const;
 
 
 public slots:
     void openFile(); //TODO
-    void playOnClick(); //TODO
+    void playClicked();
+    void muteClicked();
+    void setMuted(bool muted);
 
 signals:
     void play();
     void stop();
     void pause();
-
+    void changeMuting(bool muting);
 
 private slots:
     void mediaStateChanged(QMediaPlayer::State state);
@@ -36,13 +39,15 @@ private slots:
 
 private:
     QMediaPlayer* m_mediaPlayer = nullptr;
-        QMediaPlayer::State m_playerState = QMediaPlayer::StoppedState;
-        QGraphicsVideoItem* m_videoItem = nullptr;
-        QAbstractButton* m_playButton = nullptr;
-        QAbstractButton* m_stopButton = nullptr;
-        QAbstractButton* m_forwardButton = nullptr;
-        QAbstractButton* m_backwardButton = nullptr;
-        QSlider* m_Slider = nullptr;
+    bool m_playerMuted = false;
+    QMediaPlayer::State m_playerState = QMediaPlayer::StoppedState;
+    QGraphicsVideoItem* m_videoItem = nullptr;
+    QAbstractButton* m_playButton = nullptr;
+    QAbstractButton* m_stopButton = nullptr;
+    QAbstractButton* m_forwardButton = nullptr;
+    QAbstractButton* m_backwardButton = nullptr;
+    QAbstractButton* m_muteButton = nullptr;
+    QSlider* m_Slider = nullptr;
 
 
 };

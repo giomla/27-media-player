@@ -31,26 +31,36 @@ videoplayer::videoplayer(QWidget *parent)
         m_forwardButton->setEnabled(false);
         m_forwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
         m_forwardButton->setFixedSize(30,30);
+
         m_backwardButton= new QPushButton;
         m_backwardButton->setEnabled(false);
         m_backwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
         m_backwardButton->setFixedSize(30,30);
+
+        m_muteButton = new QPushButton(this);
+        m_muteButton->setEnabled(false);
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+        m_muteButton->setFixedSize(30,30);
 
         m_Slider = new QSlider(Qt::Horizontal);
         m_Slider->setRange(0, 0);
 
         QAbstractButton *openButton = new QPushButton(tr("Open"));
 
-        //TODO Connection za playButton, Slider i openButton
-        connect(m_playButton,&QAbstractButton::clicked,this,&videoplayer::playOnClick);
+        //Connection for open, play and mute buttons
+        // TODO - conncetions for stop,forward, backward
+        connect(m_playButton,&QAbstractButton::clicked,this,&videoplayer::playClicked);
         connect(openButton,&QAbstractButton::clicked,this,&videoplayer::openFile);
+        connect(m_muteButton, &QAbstractButton::clicked, this, &videoplayer::muteClicked);
+
 
         QHBoxLayout* commandsLayout = new QHBoxLayout();
-        commandsLayout->setMargin(1);
+        commandsLayout->setMargin(0);
         commandsLayout->addWidget(m_backwardButton);
         commandsLayout->addWidget(m_playButton);
         commandsLayout->addWidget(m_stopButton);
         commandsLayout->addWidget(m_forwardButton);
+        commandsLayout->addWidget(m_muteButton);
         commandsLayout->addWidget(m_Slider);
         commandsLayout->addWidget(openButton);
 
@@ -70,7 +80,6 @@ videoplayer::~videoplayer(){}
 bool videoplayer::isAvaliable() const{
     return m_mediaPlayer->isAvailable();
 }
-
 
 QMediaPlayer::State videoplayer::state() const
 {
@@ -105,7 +114,7 @@ void videoplayer::openFile(){
     //TO DO
 }
 
-void videoplayer::playOnClick(){
+void videoplayer::playClicked(){
     switch (m_playerState) {
         case QMediaPlayer::StoppedState:
         case QMediaPlayer::PausedState:
@@ -115,6 +124,26 @@ void videoplayer::playOnClick(){
             emit pause();
             break;
         }
+}
+
+bool videoplayer::isMuted() const
+{
+    return m_playerMuted;
+}
+
+void videoplayer::setMuted(bool muted)
+{
+    if (muted != m_playerMuted) {
+        m_playerMuted = muted;
+
+        m_muteButton->setIcon(style()->standardIcon(muted
+                ? QStyle::SP_MediaVolumeMuted
+                : QStyle::SP_MediaVolume));
+    }
+}
+
+void videoplayer::muteClicked(){
+    emit changeMuting(!m_playerMuted);
 }
 
 //Ostale funckije potrebne pri konekciji
