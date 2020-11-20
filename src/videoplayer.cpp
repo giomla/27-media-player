@@ -15,7 +15,39 @@ videoplayer::videoplayer(QWidget *parent)
         QGraphicsView* graphicsView = new QGraphicsView(scene); //Postavljanje pogleda na scenu
 
         scene->addItem(m_videoItem);// Dodavanje itema na scenu
-
+        //menu bar
+        m_menuBar = new QMenuBar();
+        QMenu *file = new QMenu("File");
+        QMenu *edit = new QMenu("Edit");
+        QMenu *audio = new QMenu("Audio");
+        QMenu *video = new QMenu("Video");
+        QMenu *help = new QMenu("Help");
+        //file padajuci meni
+        file->addAction("Open file");
+        file->addAction("Open folder");
+        file->addAction("Exit");
+        //edit padajuci meni
+        edit->addAction("Copy");
+        edit->addAction("Cut");
+        edit->addAction("Paste");
+        edit->addAction("Delete");
+        edit->addAction("Select all");
+        //audio padajuci meni
+        audio->addAction("Increase volume");
+        audio->addAction("Decrease volume");
+        audio->addAction("Mute");
+        //video padajuci meni
+        video->addAction("Brightness increase");
+        video->addAction("Brightness decrease");
+        video->addAction("Contrast increase");
+        video->addAction("Contrast decrease");
+        //help padajuci meni
+        help->addAction("Licence");
+        //povezivanje menija u jedan meni bar
+        m_menuBar->addMenu(file);
+        m_menuBar->addMenu(edit);
+        m_menuBar->addMenu(audio);
+        m_menuBar->addMenu(help);
 
         m_playButton = new QPushButton;
         m_playButton->setEnabled(false);

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QWidget>
+#include <QMenuBar>
 #include <QMediaPlayer>
 
 class QAbstractButton;
@@ -48,7 +49,7 @@ private:
     QAbstractButton* m_backwardButton = nullptr;
     QAbstractButton* m_muteButton = nullptr;
     QSlider* m_Slider = nullptr;
-
+    QMenuBar *m_menuBar = nullptr;
 
 };
 #endif // VIDEOPLAYER_H
