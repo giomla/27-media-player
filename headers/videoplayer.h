@@ -20,6 +20,7 @@ public:
     bool isAvaliable() const;
     QMediaPlayer::State state() const;
     bool isMuted() const;
+    void createMenuBar();
 
 
 public slots:
