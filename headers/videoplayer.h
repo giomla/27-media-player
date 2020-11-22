@@ -1,10 +1,15 @@
 #ifndef VIDEOPLAYER_H
 #define VIDEOPLAYER_H
 
+//maximum speed of playback rate, and default step of forward and backward rate play buttons
+#define MAX_PLAYBACK_RATE 4.00
+#define PLAYBACK_STEP 0.25
+
 #include <QMainWindow>
 #include <QWidget>
 #include <QMenuBar>
 #include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 class QAbstractButton;
 class QSlider;
@@ -24,10 +29,17 @@ public:
 
 
 public slots:
-    void openFile(); //TODO
+    void openFile();
+    void durationChanged(qint64 duration);
+    void calcVideoFactor(QSizeF size);
+    void positionChanged(qint64 progress);
     void playClicked();
+    void stopClicked();
+    void forwardClicked();
+    void backwardClicked();
     void muteClicked();
     void setMuted(bool muted);
+    void seek(int seconds);
 
 signals:
     void play();
@@ -41,6 +53,7 @@ private slots:
 
 private:
     QMediaPlayer* m_mediaPlayer = nullptr;
+    QMediaPlaylist *m_playlist = nullptr;
     bool m_playerMuted = false;
     QMediaPlayer::State m_playerState = QMediaPlayer::StoppedState;
     QGraphicsVideoItem* m_videoItem = nullptr;
@@ -51,6 +64,6 @@ private:
     QAbstractButton* m_muteButton = nullptr;
     QSlider* m_Slider = nullptr;
     QMenuBar *m_menuBar = nullptr;
-
+    qint64 m_duration;
 };
 #endif // VIDEOPLAYER_H
