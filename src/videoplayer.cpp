@@ -202,7 +202,12 @@ void videoplayer::seek(int seconds)
 //hence the commented out lines of code, might work just fine on other platforms
 void videoplayer::muteClicked()
 {
-    emit changeMuting(!m_playerMuted);
+    if(m_mediaPlayer->isMuted()==false){
+        m_mediaPlayer->setMuted(true);
+    }
+    else{
+        m_mediaPlayer->setMuted(false);
+    }
 }
 void videoplayer::createMenuBar(){
     m_menuBar = new QMenuBar();
