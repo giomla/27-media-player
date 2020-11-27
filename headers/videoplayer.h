@@ -11,6 +11,9 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include <QKeySequence>
+#include <QGraphicsVideoItem>
+#include <QGraphicsView>
+#include <QGraphicsScene>
 class QAbstractButton;
 class QSlider;
 class QGraphicsVideoItem;
@@ -60,6 +63,8 @@ private:
     bool m_playerMuted = false;
     QMediaPlayer::State m_playerState = QMediaPlayer::StoppedState;
     QGraphicsVideoItem* m_videoItem = nullptr;
+    QGraphicsScene* m_scene = nullptr; //Pravljenje scene
+    QGraphicsView* m_graphicsView = nullptr;
     QAbstractButton* m_playButton = nullptr;
     QAbstractButton* m_stopButton = nullptr;
     QAbstractButton* m_forwardButton = nullptr;
@@ -68,5 +73,7 @@ private:
     QSlider* m_Slider = nullptr;
     QMenuBar *m_menuBar = nullptr;
     qint64 m_duration;
+protected:
+    void resizeEvent(QResizeEvent *) override;
 };
 #endif // VIDEOPLAYER_H

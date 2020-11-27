@@ -1,8 +1,8 @@
 #include "../headers/videoplayer.h"
 #include "ui_videoplayer.h"
 #include <QtWidgets>
-#include <QGraphicsVideoItem>
 #include <cstdlib>
+
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
@@ -14,11 +14,10 @@ videoplayer::videoplayer(QWidget *parent)
 
         m_videoItem = new QGraphicsVideoItem;
         m_videoItem->setSize(QSizeF(screenGeometry.width()/3, screenGeometry.height()/2));
-
-        QGraphicsScene* scene = new QGraphicsScene(this); //Pravljenje scene
-        QGraphicsView* graphicsView = new QGraphicsView(scene); //Postavljanje pogleda na scenu
-
-        scene->addItem(m_videoItem);// Dodavanje itema na scenu
+        m_videoItem->setAspectRatioMode(Qt::AspectRatioMode::KeepAspectRatio);
+        m_scene = new QGraphicsScene(this); //Pravljenje scene
+        m_graphicsView = new QGraphicsView(m_scene); //Postavljanje pogleda na scenu
+        m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         //menu bar creation
         this->createMenuBar();
 
@@ -80,7 +79,7 @@ videoplayer::videoplayer(QWidget *parent)
 
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->addWidget(m_menuBar);
-        layout->addWidget(graphicsView);
+        layout->addWidget(m_graphicsView);
         layout->addLayout(commandsLayout);
 
 
@@ -144,26 +143,29 @@ void videoplayer::mediaStateChanged(QMediaPlayer::State state){
 //https://bugreports.qt.io/browse/QTBUG-28850
 
 void videoplayer::calcVideoFactor(QSizeF size){
+     QRectF rect = QRectF(0,0,size.width(),size.height());
      m_videoItem->setSize(QSizeF(size.width(),size.height()));
+     m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
 }
+
+void videoplayer::resizeEvent(QResizeEvent *){
+
+    const QRectF rect = m_graphicsView->rect();
+    m_videoItem->setSize(QSizeF(rect.width(),rect.height()));
+    m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
+}
+
 //TODO implementation of a true playlist with lists of urls and loading it up in the playlist
-//TODO aditional checks for supported files only to appear in file dialog
 void videoplayer::openFile(){
-    QFileDialog dialog(this);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setWindowTitle(tr("Open Files"));
-    dialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).value(0, QDir::homePath()));
+    QString filename = QFileDialog::getOpenFileName(this, "Open File",
+                                                          QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).value(0, QDir::homePath()),
+                                                          "Video File(*.mkv *.mp4 *.avi)");
 
-    if (dialog.exec() == QDialog::Accepted){
-        //we make a dummy playlist , with one video
-        //for development and testing purposes
+    m_playlist->addMedia(QMediaContent(QUrl::fromLocalFile(filename)));
 
-        m_playlist->addMedia(QFileDialog::getOpenFileUrl());
-        m_playlist->setCurrentIndex(1);
-        m_mediaPlayer->play();
-    }
+    m_playlist->setCurrentIndex(1);
+    m_mediaPlayer->play();
 }
-
 void videoplayer::playClicked(){
     switch (m_playerState) {
         case QMediaPlayer::StoppedState:
