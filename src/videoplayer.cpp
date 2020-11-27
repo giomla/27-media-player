@@ -2,6 +2,7 @@
 #include "ui_videoplayer.h"
 #include <QtWidgets>
 #include <QGraphicsVideoItem>
+#include <cstdlib>
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
@@ -194,6 +195,14 @@ void videoplayer::setMuted(bool muted)
     }
 }
 
+void videoplayer::volumeIncrease(){
+    m_mediaPlayer->setVolume(m_mediaPlayer->volume() + 5);
+}
+
+void videoplayer::volumeDecrease(){
+    m_mediaPlayer->setVolume(m_mediaPlayer->volume() - 5);
+}
+
 void videoplayer::seek(int seconds)
 {
     m_mediaPlayer->setPosition(seconds * 1000);
@@ -217,30 +226,55 @@ void videoplayer::createMenuBar(){
     QMenu *video = new QMenu("Video");
     QMenu *help = new QMenu("Help");
     //file padajuci meni
-    file->addAction("Open file");
-    file->addAction("Open folder");
-    file->addAction("Exit");
+    QAction* openFile = file->addAction("Open file");
+    QAction* openFolder = file->addAction("Open folder");
+    QAction* exit = file->addAction("Abort"); // iz nekog razloga ne izbacuje EXIT akciju
     //edit padajuci meni
-    edit->addAction("Copy");
-    edit->addAction("Cut");
-    edit->addAction("Paste");
-    edit->addAction("Delete");
-    edit->addAction("Select all");
+    QAction* copy = edit->addAction("Copy");
+    QAction* cut = edit->addAction("Cut");
+    QAction* paste = edit->addAction("Paste");
+    QAction* del = edit->addAction("Delete");
+    QAction* selectAll = edit->addAction("Select all");
     //audio padajuci meni
-    audio->addAction("Increase volume");
-    audio->addAction("Decrease volume");
-    audio->addAction("Mute");
+    QAction* incVol = audio->addAction("Increase volume");
+    QAction* decVol = audio->addAction("Decrease volume");
+    QAction* mute = audio->addAction("Mute");
     //video padajuci meni
-    video->addAction("Brightness increase");
-    video->addAction("Brightness decrease");
-    video->addAction("Contrast increase");
-    video->addAction("Contrast decrease");
+    QAction* incBrightness = video->addAction("Brightness increase");
+    QAction* decBrightness = video->addAction("Brightness decrease");
+    QAction* incContrast = video->addAction("Contrast increase");
+    QAction* decContrast = video->addAction("Contrast decrease");
     //help padajuci meni
     help->addAction("Licence");
+    //povezivanje akcija sa funkcijama pri kliku
+    connect(openFile, &QAction::triggered, this, &videoplayer::openFile);
+    connect(exit, &QAction::triggered, this, &videoplayer::exit);
+    connect(incVol, &QAction::triggered, this, &videoplayer::volumeIncrease);
+    connect(decVol, &QAction::triggered, this, &videoplayer::volumeDecrease);
+    connect(mute, &QAction::triggered, this, &videoplayer::muteClicked);
+    //TODO: ostale funkcije za rad
+    //precice na tastaturi
+    openFile->setShortcut(QKeySequence::Open); // CTRL + O
+    openFolder->setShortcut(Qt::CTRL + Qt::Key_F);
+    exit->setShortcut(Qt::CTRL + Qt::Key_Q);
+    copy->setShortcut(QKeySequence::Copy);
+    paste->setShortcut(QKeySequence::Paste);
+    del->setShortcut(QKeySequence::Delete);
+    cut->setShortcut(QKeySequence::Cut);
+    selectAll->setShortcut(Qt::CTRL + Qt::Key_A);
+    incVol->setShortcut(Qt::Key_Plus);
+    decVol->setShortcut(Qt::Key_Minus);
+    mute->setShortcut(Qt::Key_M);
+    incBrightness->setShortcut(Qt::SHIFT + Qt::Key_B);
+    decBrightness->setShortcut(Qt::Key_B);
+    incContrast->setShortcut(Qt::SHIFT + Qt::Key_C);
+    decContrast->setShortcut(Qt::Key_C);
+
     //povezivanje menija u jedan meni bar
     m_menuBar->addMenu(file);
     m_menuBar->addMenu(edit);
     m_menuBar->addMenu(audio);
+    m_menuBar->addMenu(video);
     m_menuBar->addMenu(help);
 }
 //Ostale funckije potrebne pri konekciji
@@ -281,3 +315,8 @@ void videoplayer::backwardClicked()
     else if (value >= (-MAX_PLAYBACK_RATE))
         m_mediaPlayer->setPlaybackRate(value);
 }
+
+void videoplayer::exit(){
+    std::exit(EXIT_SUCCESS);
+}
+

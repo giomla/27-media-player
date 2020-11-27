@@ -10,7 +10,7 @@
 #include <QMenuBar>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
-
+#include <QKeySequence>
 class QAbstractButton;
 class QSlider;
 class QGraphicsVideoItem;
@@ -38,8 +38,11 @@ public slots:
     void forwardClicked();
     void backwardClicked();
     void muteClicked();
+    void volumeIncrease();
+    void volumeDecrease();
     void setMuted(bool muted);
     void seek(int seconds);
+    void exit();
 
 signals:
     void play();
