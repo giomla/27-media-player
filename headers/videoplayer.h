@@ -26,6 +26,8 @@ public:
     QMediaPlayer::State state() const;
     bool isMuted() const;
     void createMenuBar();
+    int volume() const;
+
 
 
 public slots:
@@ -43,15 +45,18 @@ public slots:
     void setMuted(bool muted);
     void seek(int seconds);
     void exit();
+    void setVolume(qint64 vol);
 
 signals:
     void play();
     void stop();
     void pause();
-    void changeMuting(bool muting);
+    void changeVolume(int volume);
 
 private slots:
     void mediaStateChanged(QMediaPlayer::State state);
+    void onVolumeSliderChanged();
+
     //TODO
 
 private:
@@ -66,6 +71,7 @@ private:
     QAbstractButton* m_backwardButton = nullptr;
     QAbstractButton* m_muteButton = nullptr;
     QSlider* m_Slider = nullptr;
+    QSlider* m_volumeSlider = nullptr;
     QMenuBar *m_menuBar = nullptr;
     qint64 m_duration;
 };

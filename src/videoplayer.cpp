@@ -52,9 +52,15 @@ videoplayer::videoplayer(QWidget *parent)
         m_Slider->setRange(0, m_mediaPlayer->duration()/1000);
         m_Slider->setEnabled(false);
 
+        m_volumeSlider = new QSlider(Qt::Vertical);
+        m_volumeSlider->setRange(0,100);
+        m_volumeSlider->setFixedSize(10,50);
+        m_volumeSlider->setValue(50);
+
         QAbstractButton *openButton = new QPushButton(tr("Open"));
 
         //Connection for different controls
+        connect(m_volumeSlider,&QSlider::valueChanged,this,&videoplayer::onVolumeSliderChanged);
         connect(m_Slider, &QSlider::sliderMoved, this, &videoplayer::seek);
         connect(m_mediaPlayer, &QMediaPlayer::durationChanged, this, &videoplayer::durationChanged);
         connect(m_mediaPlayer, &QMediaPlayer::positionChanged, this, &videoplayer::positionChanged);
@@ -74,6 +80,7 @@ videoplayer::videoplayer(QWidget *parent)
         commandsLayout->addWidget(m_stopButton);
         commandsLayout->addWidget(m_forwardButton);
         commandsLayout->addWidget(m_muteButton);
+        commandsLayout->addWidget(m_volumeSlider);
         commandsLayout->addWidget(m_Slider);
         commandsLayout->addWidget(openButton);
 
@@ -314,6 +321,28 @@ void videoplayer::backwardClicked()
         m_mediaPlayer->setPlaybackRate(0.01);
     else if (value >= (-MAX_PLAYBACK_RATE))
         m_mediaPlayer->setPlaybackRate(value);
+}
+
+int videoplayer::volume() const{
+    qreal linearVolume =  QAudio::convertVolume(m_volumeSlider->value() / qreal(100),
+                                                    QAudio::LogarithmicVolumeScale,
+                                                    QAudio::LinearVolumeScale);
+
+    return qRound(linearVolume * 100);
+}
+
+void videoplayer::setVolume(qint64 volume)
+{
+    qreal logarithmicVolume = QAudio::convertVolume(volume / qreal(100),
+                                                    QAudio::LinearVolumeScale,
+                                                    QAudio::LogarithmicVolumeScale);
+
+    m_volumeSlider->setValue(qRound(logarithmicVolume * 100));
+}
+
+void videoplayer::onVolumeSliderChanged()
+{
+    m_mediaPlayer->setVolume(volume());
 }
 
 void videoplayer::exit(){
