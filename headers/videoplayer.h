@@ -32,7 +32,7 @@ public:
     void createMenuBar();
     int volume() const;
     void updateDurationInfo(qint64 currInfo);
-
+    void fitView();
 
 public slots:
     void openFile();
@@ -89,5 +89,6 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void showEvent(QShowEvent *) override;
 };
 #endif // VIDEOPLAYER_H
