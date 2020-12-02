@@ -55,11 +55,13 @@ videoplayer::videoplayer(QWidget *parent)
         m_volumeSlider->setRange(0,100);
         m_volumeSlider->setFixedSize(10,50);
         m_volumeSlider->setValue(50);
+        m_volumeSlider->setEnabled(false);
 
         m_durationInfo = new QLabel(this);
+        m_durationInfo->setEnabled(false);
 
 
-        QAbstractButton *openButton = new QPushButton(tr("Open"));
+        m_openButton = new QPushButton(tr("Open"));
 
         //Connection for different controls
 
@@ -68,7 +70,7 @@ videoplayer::videoplayer(QWidget *parent)
         connect(m_mediaPlayer, &QMediaPlayer::durationChanged, this, &videoplayer::durationChanged);
         connect(m_mediaPlayer, &QMediaPlayer::positionChanged, this, &videoplayer::positionChanged);
         connect(m_playButton,&QAbstractButton::clicked,this,&videoplayer::playClicked);
-        connect(openButton , &QAbstractButton::clicked,this,&videoplayer::openFile);
+        connect(m_openButton , &QAbstractButton::clicked,this,&videoplayer::openFile);
         connect(m_muteButton, &QAbstractButton::clicked, this, &videoplayer::muteClicked);
         connect(m_forwardButton,&QAbstractButton::clicked, this, &videoplayer::forwardClicked);
         connect(m_backwardButton,&QAbstractButton::clicked, this, &videoplayer::backwardClicked);
@@ -86,7 +88,7 @@ videoplayer::videoplayer(QWidget *parent)
         commandsLayout->addWidget(m_volumeSlider);
         commandsLayout->addWidget(m_Slider);
         commandsLayout->addWidget(m_durationInfo);
-        commandsLayout->addWidget(openButton);
+        commandsLayout->addWidget(m_openButton);
 
 
         QVBoxLayout* layout = new QVBoxLayout(this);
@@ -94,6 +96,13 @@ videoplayer::videoplayer(QWidget *parent)
         layout->addWidget(m_graphicsView);
         layout->addLayout(commandsLayout);
 
+        m_rightClickMenu = new QMenu(this);
+        m_rightClickMenu->addAction("Play/Pause",this, SLOT(playClicked()));
+        m_rightClickMenu->addSeparator();
+        m_rightClickMenu->addAction("Leave",this,SLOT(exit()));
+
+
+        m_rightClickMenu->setHidden(true);
 
         m_mediaPlayer->setVideoOutput(m_videoItem);
 
@@ -153,6 +162,8 @@ void videoplayer::mediaStateChanged(QMediaPlayer::State state){
                 m_Slider->setEnabled(true);
                 m_muteButton->setEnabled(true);
                 m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+                m_volumeSlider->setEnabled(true);
+                m_durationInfo->setEnabled(true);
                 break;
             case QMediaPlayer::StoppedState:
                 m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
@@ -193,6 +204,7 @@ void videoplayer::openFile(){
     m_playlist->addMedia(QMediaContent(QUrl::fromLocalFile(filename)));
 
     m_playlist->setCurrentIndex(1);
+    m_graphicsView->setFocus();
     m_mediaPlayer->play();
 }
 void videoplayer::playClicked(){
@@ -293,8 +305,8 @@ void videoplayer::createMenuBar(){
     del->setShortcut(QKeySequence::Delete);
     cut->setShortcut(QKeySequence::Cut);
     selectAll->setShortcut(Qt::CTRL + Qt::Key_A);
-    incVol->setShortcut(Qt::Key_Plus);
-    decVol->setShortcut(Qt::Key_Minus);
+    //incVol->setShortcut(Qt::Key_Plus);
+    //decVol->setShortcut(Qt::Key_Minus);
     mute->setShortcut(Qt::Key_M);
     incBrightness->setShortcut(Qt::SHIFT + Qt::Key_B);
     decBrightness->setShortcut(Qt::Key_B);
@@ -373,3 +385,97 @@ void videoplayer::exit(){
     std::exit(EXIT_SUCCESS);
 }
 
+void videoplayer::keyPressEvent(QKeyEvent *event){
+    if(event->key() == Qt::Key_Space)
+        m_playButton->click();
+
+    else if(event->key()==Qt::Key_Plus)
+        m_volumeSlider->triggerAction(QAbstractSlider::SliderAction::SliderSingleStepAdd);
+
+    else if(event->key()==Qt::Key_Minus)
+        m_volumeSlider->triggerAction(QAbstractSlider::SliderAction::SliderSingleStepSub);
+
+    else if(event->key()==Qt::Key_F){
+        if(!isFullScreen()){
+
+            m_playButton->hide();
+            m_muteButton->hide();
+            m_forwardButton->hide();
+            m_backwardButton->hide();
+            m_stopButton->hide();
+            m_Slider->hide();
+            m_muteButton->hide();
+            m_playButton->hide();
+            m_menuBar->hide();
+            m_openButton->hide();
+            m_volumeSlider->hide();
+            m_durationInfo->hide();
+            showFullScreen();
+        }else{
+            showNormal();
+            m_playButton->show();
+            m_muteButton->show();
+            m_forwardButton->show();
+            m_backwardButton->show();
+            m_stopButton->show();
+            m_Slider->show();
+            m_muteButton->show();
+            m_playButton->show();
+            m_menuBar->show();
+            m_openButton->show();
+            m_volumeSlider->show();
+            m_durationInfo->show();
+        }
+    }
+
+    else if(event->key()==Qt::Key_Period)
+        m_forwardButton->click();
+
+    else if(event->key()==Qt::Key_Comma)
+        m_backwardButton->click();
+}
+
+void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if(event->buttons()==Qt::MouseEventCreatedDoubleClick && m_graphicsView->underMouse()){
+        if(!isFullScreen()){
+            m_playButton->hide();
+            m_muteButton->hide();
+            m_forwardButton->hide();
+            m_backwardButton->hide();
+            m_stopButton->hide();
+            m_Slider->hide();
+            m_muteButton->hide();
+            m_playButton->hide();
+            m_menuBar->hide();
+            m_openButton->hide();
+            m_volumeSlider->hide();
+            m_durationInfo->hide();
+            showFullScreen();
+            m_playButton->click();
+        }else if(isFullScreen()){
+            showNormal();
+            m_playButton->show();
+            m_muteButton->show();
+            m_forwardButton->show();
+            m_backwardButton->show();
+            m_stopButton->show();
+            m_Slider->show();
+            m_muteButton->show();
+            m_playButton->show();
+            m_menuBar->show();
+            m_openButton->show();
+            m_volumeSlider->show();
+            m_durationInfo->show();
+            m_playButton->click();
+          }
+
+    }
+}
+
+void videoplayer::mousePressEvent(QMouseEvent *event){
+    if(event->button()==Qt::LeftButton && m_graphicsView->underMouse())
+        m_playButton->click();
+    else if(event->button()==Qt::RightButton && m_graphicsView->underMouse())
+        m_rightClickMenu->popup(QCursor::pos());
+}

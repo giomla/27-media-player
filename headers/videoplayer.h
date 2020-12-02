@@ -77,12 +77,17 @@ private:
     QAbstractButton* m_forwardButton = nullptr;
     QAbstractButton* m_backwardButton = nullptr;
     QAbstractButton* m_muteButton = nullptr;
+    QAbstractButton* m_openButton = nullptr;
     QSlider* m_Slider = nullptr;
     QSlider* m_volumeSlider = nullptr;
     QLabel* m_durationInfo=nullptr;
     QMenuBar *m_menuBar = nullptr;
+    QMenu *m_rightClickMenu = nullptr;
     qint64 m_duration;
 protected:
     void resizeEvent(QResizeEvent *) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
 #endif // VIDEOPLAYER_H
