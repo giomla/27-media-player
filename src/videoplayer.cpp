@@ -56,9 +56,13 @@ videoplayer::videoplayer(QWidget *parent)
         m_volumeSlider->setFixedSize(10,50);
         m_volumeSlider->setValue(50);
 
+        m_durationInfo = new QLabel(this);
+
+
         QAbstractButton *openButton = new QPushButton(tr("Open"));
 
         //Connection for different controls
+
         connect(m_volumeSlider,&QSlider::valueChanged,this,&videoplayer::onVolumeSliderChanged);
         connect(m_Slider, &QSlider::sliderMoved, this, &videoplayer::seek);
         connect(m_mediaPlayer, &QMediaPlayer::durationChanged, this, &videoplayer::durationChanged);
@@ -81,6 +85,7 @@ videoplayer::videoplayer(QWidget *parent)
         commandsLayout->addWidget(m_muteButton);
         commandsLayout->addWidget(m_volumeSlider);
         commandsLayout->addWidget(m_Slider);
+        commandsLayout->addWidget(m_durationInfo);
         commandsLayout->addWidget(openButton);
 
 
@@ -104,7 +109,24 @@ bool videoplayer::isAvaliable() const{
 void videoplayer::positionChanged(qint64 progress){
     if (!m_Slider->isSliderDown())
         m_Slider->setValue(progress/1000);
+    updateDurationInfo(progress/1000);
 }
+
+void videoplayer::updateDurationInfo(qint64 currInfo){
+    QString tStr;
+    if (currInfo || m_duration) {
+        QTime currentTime((currInfo / 3600) % 60, (currInfo / 60) % 60,
+            currInfo % 60, (currInfo * 1000) % 1000);
+        QTime totalTime((m_duration / 3600) % 60, (m_duration / 60) % 60,
+            m_duration % 60, (m_duration * 1000) % 1000);
+        QString format = "mm:ss";
+        if (m_duration > 3600)
+            format = "hh:mm:ss";
+        tStr = currentTime.toString(format) + " / " + totalTime.toString(format);
+    }
+    m_durationInfo->setText(tStr);
+}
+
 
 QMediaPlayer::State videoplayer::state() const
 {

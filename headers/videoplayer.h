@@ -14,6 +14,7 @@
 #include <QGraphicsVideoItem>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QLabel>
 class QAbstractButton;
 class QSlider;
 class QGraphicsVideoItem;
@@ -30,7 +31,7 @@ public:
     bool isMuted() const;
     void createMenuBar();
     int volume() const;
-
+    void updateDurationInfo(qint64 currInfo);
 
 
 public slots:
@@ -49,6 +50,7 @@ public slots:
     void seek(int seconds);
     void exit();
     void setVolume(qint64 vol);
+
 
 signals:
     void play();
@@ -77,6 +79,7 @@ private:
     QAbstractButton* m_muteButton = nullptr;
     QSlider* m_Slider = nullptr;
     QSlider* m_volumeSlider = nullptr;
+    QLabel* m_durationInfo=nullptr;
     QMenuBar *m_menuBar = nullptr;
     qint64 m_duration;
 protected:
