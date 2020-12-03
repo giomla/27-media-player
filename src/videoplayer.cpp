@@ -86,15 +86,20 @@ videoplayer::videoplayer(QWidget *parent)
         commandsLayout->addWidget(m_forwardButton);
         commandsLayout->addWidget(m_muteButton);
         commandsLayout->addWidget(m_volumeSlider);
-        commandsLayout->addWidget(m_Slider);
-        commandsLayout->addWidget(m_durationInfo);
         commandsLayout->addWidget(m_openButton);
+
+        QHBoxLayout* videoDuration = new QHBoxLayout();
+        videoDuration->setMargin(0);
+        videoDuration->addWidget(m_Slider);
+        videoDuration->addWidget(m_durationInfo);
 
 
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->addWidget(m_menuBar);
         layout->addWidget(m_graphicsView);
+        layout->addLayout(videoDuration);
         layout->addLayout(commandsLayout);
+
 
         m_rightClickMenu = new QMenu(this);
         m_rightClickMenu->addAction("Play/Pause",this, SLOT(playClicked()));
