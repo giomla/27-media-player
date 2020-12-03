@@ -6,6 +6,7 @@
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
+
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
        // screenGeometry koji moze da nam vrati duzinu sirinu ekrana kao i broj ekrana.
@@ -17,6 +18,7 @@ videoplayer::videoplayer(QWidget *parent)
         m_videoItem->setAspectRatioMode(Qt::AspectRatioMode::KeepAspectRatio);
         m_scene = new QGraphicsScene(this); //Pravljenje scene
         m_graphicsView = new QGraphicsView(m_scene); //Postavljanje pogleda na scenu
+        m_graphicsView->setContentsMargins(-1,-1,-1,-1);
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         //menu bar creation
         this->createMenuBar();
@@ -191,13 +193,19 @@ void videoplayer::calcVideoFactor(QSizeF size){
      QRectF rect = QRectF(0,0,size.width(),size.height());
      m_videoItem->setSize(QSizeF(size.width(),size.height()));
      m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
+     m_graphicsView->setSceneRect(0,0,size.width(),size.height());
 }
-
+void videoplayer::showEvent(QShowEvent *){
+    fitView();
+}
 void videoplayer::resizeEvent(QResizeEvent *){
-
+    fitView();
+}
+void videoplayer::fitView(){
     const QRectF rect = m_graphicsView->rect();
     m_videoItem->setSize(QSizeF(rect.width(),rect.height()));
     m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
+    m_graphicsView->setSceneRect(rect);
 }
 
 //TODO implementation of a true playlist with lists of urls and loading it up in the playlist
