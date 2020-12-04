@@ -7,6 +7,7 @@
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
+
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
        // screenGeometry koji moze da nam vrati duzinu sirinu ekrana kao i broj ekrana.
