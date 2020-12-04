@@ -2,11 +2,12 @@
 #include "ui_videoplayer.h"
 #include <QtWidgets>
 #include <cstdlib>
+#include <iostream>
 
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
-
+        this->setStyleSheet("background-color:#222222");
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
        // screenGeometry koji moze da nam vrati duzinu sirinu ekrana kao i broj ekrana.
@@ -14,7 +15,7 @@ videoplayer::videoplayer(QWidget *parent)
         m_mediaPlayer->setPlaylist(m_playlist);
 
         m_videoItem = new QGraphicsVideoItem;
-        m_videoItem->setSize(QSizeF(screenGeometry.width()/3, screenGeometry.height()/2));
+        m_videoItem->setSize(QSizeF(screenGeometry.width()/3, screenGeometry.height()));
         m_videoItem->setAspectRatioMode(Qt::AspectRatioMode::KeepAspectRatio);
         m_scene = new QGraphicsScene(this); //Pravljenje scene
         m_graphicsView = new QGraphicsView(m_scene); //Postavljanje pogleda na scenu
@@ -22,26 +23,28 @@ videoplayer::videoplayer(QWidget *parent)
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         //menu bar creation
         this->createMenuBar();
+        m_graphicsView->setStyleSheet("background-color:#444444");
 
         m_playButton = new QPushButton;
         m_playButton->setEnabled(false);
         m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        m_playButton->setFixedSize(30,30);
+        m_playButton->setFixedSize(screenGeometry.width()/12,screenGeometry.height()/20);
 
         m_stopButton= new QPushButton;
         m_stopButton->setEnabled(false);
         m_stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-        m_stopButton->setFixedSize(30,30);
+        m_stopButton->setFixedSize(screenGeometry.width()/12,screenGeometry.height()/20);
 
         m_forwardButton= new QPushButton;
         m_forwardButton->setEnabled(false);
         m_forwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
-        m_forwardButton->setFixedSize(30,30);
+        m_forwardButton->setFixedSize(screenGeometry.width()/12,screenGeometry.height()/20);
+        m_forwardButton->setStyleSheet("padding:0px");
 
         m_backwardButton= new QPushButton;
         m_backwardButton->setEnabled(false);
         m_backwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
-        m_backwardButton->setFixedSize(30,30);
+        m_backwardButton->setFixedSize(screenGeometry.width()/12,screenGeometry.height()/20);
 
         m_muteButton = new QPushButton(this);
         m_muteButton->setEnabled(false);
@@ -53,17 +56,22 @@ videoplayer::videoplayer(QWidget *parent)
         m_Slider->setRange(0, m_mediaPlayer->duration()/1000);
         m_Slider->setEnabled(false);
 
-        m_volumeSlider = new QSlider(Qt::Vertical);
+        m_volumeSlider = new QSlider(Qt::Horizontal);
         m_volumeSlider->setRange(0,100);
-        m_volumeSlider->setFixedSize(10,50);
-        m_volumeSlider->setValue(50);
+        m_volumeSlider->setFixedSize(screenGeometry.width()/15,screenGeometry.height()/50);
+        m_volumeSlider->setValue(100);
         m_volumeSlider->setEnabled(false);
 
-        m_durationInfo = new QLabel(this);
+        m_durationInfo = new QLabel("00:00:00/00:00:00",this);
         m_durationInfo->setEnabled(false);
+        m_durationInfo->setStyleSheet("color: rgb(255,255,255)");
+        m_durationInfo->setAlignment(Qt::AlignCenter);
+        m_durationInfo->setFixedSize(2*screenGeometry.width()/15,screenGeometry.height()/20);
 
 
         m_openButton = new QPushButton(tr("Open"));
+        m_openButton->setStyleSheet("color: rgb(255,255,255)");
+        m_openButton->setFixedSize(screenGeometry.width()/15,screenGeometry.height()/30);
 
         //Connection for different controls
 
@@ -80,23 +88,28 @@ videoplayer::videoplayer(QWidget *parent)
         //when another video is loaded up, the native resolution of the video changes
         //so we monitor for that, so we can adjust the resolution accordingly
         connect(m_videoItem, &QGraphicsVideoItem::nativeSizeChanged, this, &videoplayer::calcVideoFactor);
+
         QHBoxLayout* commandsLayout = new QHBoxLayout();
         commandsLayout->setMargin(0);
+        commandsLayout->addWidget(m_durationInfo);
         commandsLayout->addWidget(m_backwardButton);
         commandsLayout->addWidget(m_playButton);
         commandsLayout->addWidget(m_stopButton);
         commandsLayout->addWidget(m_forwardButton);
         commandsLayout->addWidget(m_muteButton);
         commandsLayout->addWidget(m_volumeSlider);
-        commandsLayout->addWidget(m_openButton);
+        commandsLayout->setSpacing(0);
 
         QHBoxLayout* videoDuration = new QHBoxLayout();
+        videoDuration->setSpacing(0);
         videoDuration->setMargin(0);
         videoDuration->addWidget(m_Slider);
-        videoDuration->addWidget(m_durationInfo);
+        videoDuration->addWidget(m_openButton);
+
 
 
         QVBoxLayout* layout = new QVBoxLayout(this);
+        layout->setSpacing(0);
         layout->addWidget(m_menuBar);
         layout->addWidget(m_graphicsView);
         layout->addLayout(videoDuration);
@@ -112,7 +125,6 @@ videoplayer::videoplayer(QWidget *parent)
         m_rightClickMenu->setHidden(true);
 
         m_mediaPlayer->setVideoOutput(m_videoItem);
-
         connect(m_mediaPlayer,&QMediaPlayer::stateChanged,this,&videoplayer::mediaStateChanged);
     }
 
@@ -233,6 +245,7 @@ void videoplayer::playClicked(){
             m_mediaPlayer->pause();
             break;
         }
+
 }
 
 bool videoplayer::isMuted() const
@@ -244,10 +257,6 @@ void videoplayer::setMuted(bool muted)
 {
     if (muted != m_playerMuted) {
         m_playerMuted = muted;
-
-        m_muteButton->setIcon(style()->standardIcon(muted
-                ? QStyle::SP_MediaVolumeMuted
-                : QStyle::SP_MediaVolume));
     }
 }
 
@@ -269,13 +278,17 @@ void videoplayer::muteClicked()
 {
     if(m_mediaPlayer->isMuted()==false){
         m_mediaPlayer->setMuted(true);
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
+
     }
     else{
         m_mediaPlayer->setMuted(false);
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
     }
 }
 void videoplayer::createMenuBar(){
     m_menuBar = new QMenuBar();
+    m_menuBar->setStyleSheet("color:white");
     QMenu *file = new QMenu("File");
     QMenu *edit = new QMenu("Edit");
     QMenu *audio = new QMenu("Audio");
@@ -391,6 +404,12 @@ void videoplayer::setVolume(qint64 volume)
 
 void videoplayer::onVolumeSliderChanged()
 {
+    if(m_mediaPlayer->volume() == 0){
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
+    }
+    else{
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+    }
     m_mediaPlayer->setVolume(volume());
 }
 

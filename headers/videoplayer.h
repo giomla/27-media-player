@@ -3,7 +3,7 @@
 
 //maximum speed of playback rate, and default step of forward and backward rate play buttons
 #define MAX_PLAYBACK_RATE 4.00
-#define PLAYBACK_STEP 0.25
+#define PLAYBACK_STEP 0.2
 
 #include <QMainWindow>
 #include <QWidget>
