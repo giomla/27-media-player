@@ -112,12 +112,7 @@ videoplayer::videoplayer(QWidget *parent)
 
         QHBoxLayout* commandsLayout = new QHBoxLayout();
         commandsLayout->setMargin(0);
-<<<<<<< HEAD
         commandsLayout->addWidget(m_durationInfo);
-=======
-
-
->>>>>>> 0bcf8d109a435806007026b0e0e3d9720d1b1001
         commandsLayout->addWidget(m_backwardButton);
         commandsLayout->addWidget(m_seekBackwardButton);
         commandsLayout->addWidget(m_playButton);
