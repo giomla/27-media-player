@@ -7,10 +7,7 @@
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
-
-        this->setStyleSheet("background-color:#222222");
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
-
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
        // screenGeometry koji moze da nam vrati duzinu sirinu ekrana kao i broj ekrana.
         m_playlist = new QMediaPlaylist();
@@ -22,7 +19,7 @@ videoplayer::videoplayer(QWidget *parent)
 
         m_scene = new QGraphicsScene(this); //Pravljenje scene
         m_graphicsView = new QGraphicsView(m_scene); //Postavljanje pogleda na scenu
-        m_graphicsView->setContentsMargins(0,0,0,0);
+        m_graphicsView->setContentsMargins(-1,-1,-1,-1);
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         m_scene->setBackgroundBrush(Qt::black);
 
@@ -489,10 +486,8 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             m_openButton->hide();
             m_volumeSlider->hide();
             m_durationInfo->hide();
-            this->layout()->setContentsMargins(0,0,0,0);
             showFullScreen();
         }else{
-            this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             m_playButton->show();
             m_muteButton->show();
@@ -536,12 +531,9 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
             m_openButton->hide();
             m_volumeSlider->hide();
             m_durationInfo->hide();
-
-            this->layout()->setContentsMargins(0,0,0,0);
             showFullScreen();
             m_playButton->click();
         }else if(isFullScreen()){
-            this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             m_playButton->show();
             m_muteButton->show();
