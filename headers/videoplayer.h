@@ -15,6 +15,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QLabel>
+
 class QAbstractButton;
 class QSlider;
 class QGraphicsVideoItem;
@@ -34,6 +35,9 @@ public:
     void updateDurationInfo(qint64 currInfo);
     void fitView();
 
+    void  loadPlaylist(QList<QUrl> urls);
+
+
 public slots:
     void openFile();
     void durationChanged(qint64 duration);
@@ -43,6 +47,8 @@ public slots:
     void stopClicked();
     void forwardClicked();
     void backwardClicked();
+    void seekForwardClicked();
+    void seekBackwardClicked();
     void muteClicked();
     void volumeIncrease();
     void volumeDecrease();
@@ -78,17 +84,21 @@ private:
     QAbstractButton* m_backwardButton = nullptr;
     QAbstractButton* m_muteButton = nullptr;
     QAbstractButton* m_openButton = nullptr;
+    QAbstractButton* m_seekForwardButton = nullptr;
+    QAbstractButton* m_seekBackwardButton = nullptr;
+
     QSlider* m_Slider = nullptr;
     QSlider* m_volumeSlider = nullptr;
     QLabel* m_durationInfo=nullptr;
     QMenuBar *m_menuBar = nullptr;
     QMenu *m_rightClickMenu = nullptr;
     qint64 m_duration;
+
 protected:
     void resizeEvent(QResizeEvent *) override;
+    void showEvent(QShowEvent *) override;
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
-    void showEvent(QShowEvent *) override;
 };
 #endif // VIDEOPLAYER_H

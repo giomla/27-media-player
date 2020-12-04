@@ -7,8 +7,10 @@
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
+
         this->setStyleSheet("background-color:#222222");
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
+
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
        // screenGeometry koji moze da nam vrati duzinu sirinu ekrana kao i broj ekrana.
         m_playlist = new QMediaPlaylist();
@@ -17,10 +19,13 @@ videoplayer::videoplayer(QWidget *parent)
         m_videoItem = new QGraphicsVideoItem;
         m_videoItem->setSize(QSizeF(screenGeometry.width()/3, screenGeometry.height()));
         m_videoItem->setAspectRatioMode(Qt::AspectRatioMode::KeepAspectRatio);
+
         m_scene = new QGraphicsScene(this); //Pravljenje scene
         m_graphicsView = new QGraphicsView(m_scene); //Postavljanje pogleda na scenu
-        m_graphicsView->setContentsMargins(-1,-1,-1,-1);
+        m_graphicsView->setContentsMargins(0,0,0,0);
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
+        m_scene->setBackgroundBrush(Qt::black);
+
         //menu bar creation
         this->createMenuBar();
         m_graphicsView->setStyleSheet("background-color:#444444");
@@ -45,6 +50,19 @@ videoplayer::videoplayer(QWidget *parent)
         m_backwardButton->setEnabled(false);
         m_backwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
         m_backwardButton->setFixedSize(screenGeometry.width()/12,screenGeometry.height()/20);
+
+        m_seekForwardButton= new QPushButton;
+        m_seekForwardButton->setEnabled(false);
+        m_seekForwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
+        m_seekForwardButton->setFixedSize(30,30);
+
+        m_seekBackwardButton= new QPushButton;
+        m_seekBackwardButton->setEnabled(false);
+        m_seekBackwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
+        m_seekBackwardButton->setFixedSize(30,30);
+
+
+
 
         m_muteButton = new QPushButton(this);
         m_muteButton->setEnabled(false);
@@ -84,6 +102,9 @@ videoplayer::videoplayer(QWidget *parent)
         connect(m_muteButton, &QAbstractButton::clicked, this, &videoplayer::muteClicked);
         connect(m_forwardButton,&QAbstractButton::clicked, this, &videoplayer::forwardClicked);
         connect(m_backwardButton,&QAbstractButton::clicked, this, &videoplayer::backwardClicked);
+        connect(m_seekForwardButton,&QAbstractButton::clicked, this, &videoplayer::seekForwardClicked);
+        connect(m_seekBackwardButton,&QAbstractButton::clicked, this, &videoplayer::seekBackwardClicked);
+
         connect(m_stopButton,&QAbstractButton::clicked, this, &videoplayer::stopClicked);
         //when another video is loaded up, the native resolution of the video changes
         //so we monitor for that, so we can adjust the resolution accordingly
@@ -91,10 +112,17 @@ videoplayer::videoplayer(QWidget *parent)
 
         QHBoxLayout* commandsLayout = new QHBoxLayout();
         commandsLayout->setMargin(0);
+<<<<<<< HEAD
         commandsLayout->addWidget(m_durationInfo);
+=======
+
+
+>>>>>>> 0bcf8d109a435806007026b0e0e3d9720d1b1001
         commandsLayout->addWidget(m_backwardButton);
+        commandsLayout->addWidget(m_seekBackwardButton);
         commandsLayout->addWidget(m_playButton);
         commandsLayout->addWidget(m_stopButton);
+        commandsLayout->addWidget(m_seekForwardButton);
         commandsLayout->addWidget(m_forwardButton);
         commandsLayout->addWidget(m_muteButton);
         commandsLayout->addWidget(m_volumeSlider);
@@ -175,8 +203,10 @@ void videoplayer::mediaStateChanged(QMediaPlayer::State state){
             case QMediaPlayer::PlayingState:
                 m_playButton->setEnabled(true);
                 m_muteButton->setEnabled(true);
-                m_forwardButton->setEnabled(true);
+                m_forwardButton->setEnabled(true); 
                 m_backwardButton->setEnabled(true);
+                m_seekForwardButton->setEnabled(true);
+                m_seekBackwardButton->setEnabled(true);
                 m_stopButton->setEnabled(true);
                 m_Slider->setEnabled(true);
                 m_muteButton->setEnabled(true);
@@ -222,16 +252,29 @@ void videoplayer::fitView(){
 
 //TODO implementation of a true playlist with lists of urls and loading it up in the playlist
 void videoplayer::openFile(){
-    QString filename = QFileDialog::getOpenFileName(this, "Open File",
-                                                          QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).value(0, QDir::homePath()),
-                                                          "Video File(*.mkv *.mp4 *.avi)");
 
-    m_playlist->addMedia(QMediaContent(QUrl::fromLocalFile(filename)));
+    QFileDialog fileDialog;
+    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+    fileDialog.setWindowTitle(tr("Open Files"));
+    fileDialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).value(0, QDir::homePath()));
+    fileDialog.setNameFilter(tr("Video File(*.mkv *.mp4 *.avi)"));
+    fileDialog.setFileMode(QFileDialog::ExistingFiles);
+    fileDialog.show();
 
+    if(fileDialog.exec())
+        loadPlaylist(fileDialog.selectedUrls());
+}
+
+void videoplayer::loadPlaylist(QList<QUrl> urls){
+    for (auto url : urls){
+        m_playlist->addMedia(url);
+    }
     m_playlist->setCurrentIndex(1);
+    m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
     m_graphicsView->setFocus();
     m_mediaPlayer->play();
 }
+
 void videoplayer::playClicked(){
     switch (m_playerState) {
         case QMediaPlayer::StoppedState:
@@ -353,25 +396,20 @@ void videoplayer::stopClicked()
     m_mediaPlayer->stop();
     //emit stop();
 }
-//Not all playback services support change of the playback rate.
-//It is framework defined as to the status and quality of audio and video
-//while fast forwarding or rewinding.
+
 void videoplayer::forwardClicked()
 {
-    qreal value;
-    if (m_mediaPlayer->playbackRate()==0.01)
-        value = 0.0 + PLAYBACK_STEP;
-    else
-        value = m_mediaPlayer->playbackRate()+PLAYBACK_STEP;
-
-    if (value==0)
-        m_mediaPlayer->setPlaybackRate(0.01);
-    else if (value <= (MAX_PLAYBACK_RATE))
-        m_mediaPlayer->setPlaybackRate(value);
+    m_playlist->next();
 }
 
 void videoplayer::backwardClicked()
 {
+    m_playlist->previous();
+}
+//Not all playback services support change of the playback rate.
+//It is framework defined as to the status and quality of audio and video
+//while fast forwarding or rewinding.
+void videoplayer::seekBackwardClicked(){
     qreal value;
     if (m_mediaPlayer->playbackRate()==0.01)
         value = 0.0 + PLAYBACK_STEP;
@@ -382,6 +420,18 @@ void videoplayer::backwardClicked()
     if (value==0)
         m_mediaPlayer->setPlaybackRate(0.01);
     else if (value >= (-MAX_PLAYBACK_RATE))
+        m_mediaPlayer->setPlaybackRate(value);
+}
+void videoplayer::seekForwardClicked(){
+    qreal value;
+    if (m_mediaPlayer->playbackRate()==0.01)
+        value = 0.0 + PLAYBACK_STEP;
+    else
+        value = m_mediaPlayer->playbackRate()+PLAYBACK_STEP;
+
+    if (value==0)
+        m_mediaPlayer->setPlaybackRate(0.01);
+    else if (value <= (MAX_PLAYBACK_RATE))
         m_mediaPlayer->setPlaybackRate(value);
 }
 
@@ -433,7 +483,9 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             m_playButton->hide();
             m_muteButton->hide();
             m_forwardButton->hide();
+            m_seekForwardButton->hide();
             m_backwardButton->hide();
+            m_seekBackwardButton->hide();
             m_stopButton->hide();
             m_Slider->hide();
             m_muteButton->hide();
@@ -442,13 +494,17 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             m_openButton->hide();
             m_volumeSlider->hide();
             m_durationInfo->hide();
+            this->layout()->setContentsMargins(0,0,0,0);
             showFullScreen();
         }else{
+            this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             m_playButton->show();
             m_muteButton->show();
             m_forwardButton->show();
+            m_seekForwardButton->show();
             m_backwardButton->show();
+            m_seekBackwardButton->show();
             m_stopButton->show();
             m_Slider->show();
             m_muteButton->show();
@@ -475,6 +531,8 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
             m_muteButton->hide();
             m_forwardButton->hide();
             m_backwardButton->hide();
+            m_seekForwardButton->hide();
+            m_seekBackwardButton->hide();
             m_stopButton->hide();
             m_Slider->hide();
             m_muteButton->hide();
@@ -483,14 +541,19 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
             m_openButton->hide();
             m_volumeSlider->hide();
             m_durationInfo->hide();
+
+            this->layout()->setContentsMargins(0,0,0,0);
             showFullScreen();
             m_playButton->click();
         }else if(isFullScreen()){
+            this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             m_playButton->show();
             m_muteButton->show();
             m_forwardButton->show();
             m_backwardButton->show();
+            m_seekForwardButton->show();
+            m_seekBackwardButton->show();
             m_stopButton->show();
             m_Slider->show();
             m_muteButton->show();
