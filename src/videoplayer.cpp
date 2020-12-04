@@ -6,6 +6,7 @@
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
+        this->setStyleSheet("background-color:#222222");
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
 
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
@@ -14,14 +15,15 @@ videoplayer::videoplayer(QWidget *parent)
         m_mediaPlayer->setPlaylist(m_playlist);
 
         m_videoItem = new QGraphicsVideoItem;
-        m_videoItem->setSize(QSizeF(screenGeometry.width()/3, screenGeometry.height()/2));
+        m_videoItem->setSize(QSizeF(screenGeometry.width()/2, screenGeometry.height()));
         m_videoItem->setAspectRatioMode(Qt::AspectRatioMode::KeepAspectRatio);
 
         m_scene = new QGraphicsScene(this); //Pravljenje scene
         m_graphicsView = new QGraphicsView(m_scene); //Postavljanje pogleda na scenu
         m_graphicsView->setContentsMargins(0,0,0,0);
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
-        m_scene->setBackgroundBrush(Qt::black);
+        const QBrush *darkGrayColor = new QBrush(QColor(50,50,50));
+        m_scene->setBackgroundBrush(*darkGrayColor);
 
         //menu bar creation
         this->createMenuBar();
@@ -29,35 +31,32 @@ videoplayer::videoplayer(QWidget *parent)
         m_playButton = new QPushButton;
         m_playButton->setEnabled(false);
         m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        m_playButton->setFixedSize(30,30);
+        m_playButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_stopButton= new QPushButton;
         m_stopButton->setEnabled(false);
         m_stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-        m_stopButton->setFixedSize(30,30);
+        m_stopButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_forwardButton= new QPushButton;
         m_forwardButton->setEnabled(false);
         m_forwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
-        m_forwardButton->setFixedSize(30,30);
+        m_forwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_backwardButton= new QPushButton;
         m_backwardButton->setEnabled(false);
         m_backwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
-        m_backwardButton->setFixedSize(30,30);
+        m_backwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_seekForwardButton= new QPushButton;
         m_seekForwardButton->setEnabled(false);
         m_seekForwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
-        m_seekForwardButton->setFixedSize(30,30);
+        m_seekForwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_seekBackwardButton= new QPushButton;
         m_seekBackwardButton->setEnabled(false);
         m_seekBackwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
-        m_seekBackwardButton->setFixedSize(30,30);
-
-
-
+        m_seekBackwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_muteButton = new QPushButton(this);
         m_muteButton->setEnabled(false);
@@ -69,17 +68,20 @@ videoplayer::videoplayer(QWidget *parent)
         m_Slider->setRange(0, m_mediaPlayer->duration()/1000);
         m_Slider->setEnabled(false);
 
-        m_volumeSlider = new QSlider(Qt::Vertical);
+        m_volumeSlider = new QSlider(Qt::Horizontal);
         m_volumeSlider->setRange(0,100);
-        m_volumeSlider->setFixedSize(10,50);
-        m_volumeSlider->setValue(50);
+        m_volumeSlider->setFixedSize(screenGeometry.width()/18,50);
+        m_volumeSlider->setValue(100);
         m_volumeSlider->setEnabled(false);
 
-        m_durationInfo = new QLabel(this);
+        m_durationInfo = new QLabel("00:00:00/00:00:00",this);
         m_durationInfo->setEnabled(false);
-
+        m_durationInfo->setStyleSheet("color:rgb(255,255,255)");
+        m_durationInfo->setAlignment(Qt::AlignCenter);
+        m_durationInfo->setFixedSize(2*screenGeometry.width()/18,screenGeometry.height()/50);
 
         m_openButton = new QPushButton(tr("Open"));
+        m_openButton->setStyleSheet("color:white");
 
         //Connection for different controls
 
@@ -101,8 +103,7 @@ videoplayer::videoplayer(QWidget *parent)
         connect(m_videoItem, &QGraphicsVideoItem::nativeSizeChanged, this, &videoplayer::calcVideoFactor);
         QHBoxLayout* commandsLayout = new QHBoxLayout();
         commandsLayout->setMargin(0);
-
-
+        commandsLayout->addWidget(m_durationInfo);
         commandsLayout->addWidget(m_backwardButton);
         commandsLayout->addWidget(m_seekBackwardButton);
         commandsLayout->addWidget(m_playButton);
@@ -111,21 +112,25 @@ videoplayer::videoplayer(QWidget *parent)
         commandsLayout->addWidget(m_forwardButton);
         commandsLayout->addWidget(m_muteButton);
         commandsLayout->addWidget(m_volumeSlider);
-        commandsLayout->addWidget(m_Slider);
-        commandsLayout->addWidget(m_durationInfo);
-        commandsLayout->addWidget(m_openButton);
+        commandsLayout->setSpacing(0);
 
+        QHBoxLayout* sliderLayout = new QHBoxLayout();
+        sliderLayout->setMargin(0);
+        sliderLayout->addWidget(m_Slider);
+        sliderLayout->addWidget(m_openButton);
+        sliderLayout->setSpacing(0);
 
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->addWidget(m_menuBar);
         layout->addWidget(m_graphicsView);
+        layout->addLayout(sliderLayout);
         layout->addLayout(commandsLayout);
+        layout->setSpacing(0);
 
         m_rightClickMenu = new QMenu(this);
         m_rightClickMenu->addAction("Play/Pause",this, SLOT(playClicked()));
         m_rightClickMenu->addSeparator();
         m_rightClickMenu->addAction("Leave",this,SLOT(exit()));
-
 
         m_rightClickMenu->setHidden(true);
 
@@ -162,13 +167,11 @@ void videoplayer::updateDurationInfo(qint64 currInfo){
 }
 
 
-QMediaPlayer::State videoplayer::state() const
-{
+QMediaPlayer::State videoplayer::state() const{
     return m_playerState;
 }
 
-void videoplayer::durationChanged(qint64 duration)
-{
+void videoplayer::durationChanged(qint64 duration){
     m_duration = duration / 1000;
     m_Slider->setMaximum(m_duration);
 }
@@ -268,19 +271,13 @@ void videoplayer::playClicked(){
         }
 }
 
-bool videoplayer::isMuted() const
-{
+bool videoplayer::isMuted() const{
     return m_playerMuted;
 }
 
-void videoplayer::setMuted(bool muted)
-{
+void videoplayer::setMuted(bool muted){
     if (muted != m_playerMuted) {
         m_playerMuted = muted;
-
-        m_muteButton->setIcon(style()->standardIcon(muted
-                ? QStyle::SP_MediaVolumeMuted
-                : QStyle::SP_MediaVolume));
     }
 }
 
@@ -292,23 +289,27 @@ void videoplayer::volumeDecrease(){
     m_mediaPlayer->setVolume(m_mediaPlayer->volume() - 5);
 }
 
-void videoplayer::seek(int seconds)
-{
+void videoplayer::seek(int seconds){
     m_mediaPlayer->setPosition(seconds * 1000);
 }
 //for some reason, nothing with emit works on Ubuntu,
 //hence the commented out lines of code, might work just fine on other platforms
-void videoplayer::muteClicked()
-{
+void videoplayer::muteClicked(){
+    int prevVolume = volume();
     if(m_mediaPlayer->isMuted()==false){
         m_mediaPlayer->setMuted(true);
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
+        m_mediaPlayer->setVolume(0);
     }
     else{
         m_mediaPlayer->setMuted(false);
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+        m_mediaPlayer->setVolume(prevVolume);
     }
 }
 void videoplayer::createMenuBar(){
     m_menuBar = new QMenuBar();
+    m_menuBar->setStyleSheet("color:white");
     QMenu *file = new QMenu("File");
     QMenu *edit = new QMenu("Edit");
     QMenu *audio = new QMenu("Audio");
@@ -318,23 +319,44 @@ void videoplayer::createMenuBar(){
     QAction* openFile = file->addAction("Open file");
     QAction* openFolder = file->addAction("Open folder");
     QAction* exit = file->addAction("Abort"); // iz nekog razloga ne izbacuje EXIT akciju
+    file->setStyleSheet(" QMenu {\
+                        Background-color: #222222;\
+                        color:white; \
+                        }");
+
     //edit padajuci meni
     QAction* copy = edit->addAction("Copy");
     QAction* cut = edit->addAction("Cut");
     QAction* paste = edit->addAction("Paste");
     QAction* del = edit->addAction("Delete");
     QAction* selectAll = edit->addAction("Select all");
+    edit->setStyleSheet(" QMenu {\
+                        Background-color: #222222;\
+                        color:white; \
+                        }");
     //audio padajuci meni
     QAction* incVol = audio->addAction("Increase volume");
     QAction* decVol = audio->addAction("Decrease volume");
     QAction* mute = audio->addAction("Mute");
+    audio->setStyleSheet(" QMenu {\
+                        Background-color: #222222;\
+                        color:white; \
+                        }");
     //video padajuci meni
     QAction* incBrightness = video->addAction("Brightness increase");
     QAction* decBrightness = video->addAction("Brightness decrease");
     QAction* incContrast = video->addAction("Contrast increase");
     QAction* decContrast = video->addAction("Contrast decrease");
+    video->setStyleSheet(" QMenu {\
+                        Background-color: #222222;\
+                        color:white; \
+                        }");
     //help padajuci meni
     help->addAction("Licence");
+    help->setStyleSheet(" QMenu {\
+                        Background-color: #222222;\
+                        color:white; \
+                        }");
     //povezivanje akcija sa funkcijama pri kliku
     connect(openFile, &QAction::triggered, this, &videoplayer::openFile);
     connect(exit, &QAction::triggered, this, &videoplayer::exit);
@@ -368,19 +390,16 @@ void videoplayer::createMenuBar(){
 }
 //Ostale funckije potrebne pri konekciji
 
-void videoplayer::stopClicked()
-{
+void videoplayer::stopClicked(){
     m_mediaPlayer->stop();
     //emit stop();
 }
 
-void videoplayer::forwardClicked()
-{
+void videoplayer::forwardClicked(){
     m_playlist->next();
 }
 
-void videoplayer::backwardClicked()
-{
+void videoplayer::backwardClicked(){
     m_playlist->previous();
 }
 //Not all playback services support change of the playback rate.
@@ -420,8 +439,7 @@ int videoplayer::volume() const{
     return qRound(linearVolume * 100);
 }
 
-void videoplayer::setVolume(qint64 volume)
-{
+void videoplayer::setVolume(qint64 volume){
     qreal logarithmicVolume = QAudio::convertVolume(volume / qreal(100),
                                                     QAudio::LinearVolumeScale,
                                                     QAudio::LogarithmicVolumeScale);
@@ -429,8 +447,14 @@ void videoplayer::setVolume(qint64 volume)
     m_volumeSlider->setValue(qRound(logarithmicVolume * 100));
 }
 
-void videoplayer::onVolumeSliderChanged()
-{
+void videoplayer::onVolumeSliderChanged(){
+    if(m_mediaPlayer->volume() == 0){
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
+    }
+    else{
+        m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+
+    }
     m_mediaPlayer->setVolume(volume());
 }
 
@@ -466,8 +490,10 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             m_volumeSlider->hide();
             m_durationInfo->hide();
             this->layout()->setContentsMargins(0,0,0,0);
+            this->layout()->setMargin(0);
             showFullScreen();
-        }else{
+        }
+        else{
             this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             m_playButton->show();
@@ -494,9 +520,9 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
         m_backwardButton->click();
 }
 
-void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    if(event->buttons()==Qt::MouseEventCreatedDoubleClick && m_graphicsView->underMouse()){
+void videoplayer::mouseDoubleClickEvent(QMouseEvent *event){
+    if(event->buttons()==Qt::MouseEventCreatedDoubleClick &&\
+            m_graphicsView->underMouse()){
         if(!isFullScreen()){
             m_playButton->hide();
             m_muteButton->hide();
@@ -516,7 +542,8 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
             this->layout()->setContentsMargins(0,0,0,0);
             showFullScreen();
             m_playButton->click();
-        }else if(isFullScreen()){
+        }
+        else if(isFullScreen()){
             this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             m_playButton->show();
@@ -535,7 +562,6 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
             m_durationInfo->show();
             m_playButton->click();
           }
-
     }
 }
 
