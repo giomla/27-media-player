@@ -93,6 +93,7 @@ private:
     QMenuBar *m_menuBar = nullptr;
     QMenu *m_rightClickMenu = nullptr;
     qint64 m_duration;
+    QLabel *m_text = nullptr;
 
 protected:
     void resizeEvent(QResizeEvent *) override;
