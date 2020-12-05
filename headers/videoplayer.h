@@ -3,7 +3,8 @@
 
 //maximum speed of playback rate, and default step of forward and backward rate play buttons
 #define MAX_PLAYBACK_RATE 4.00
-#define PLAYBACK_STEP 0.2
+#define PLAYBACK_STEP 0.25
+#define VOLUME_STEP 5
 
 #include <QMainWindow>
 #include <QWidget>
@@ -14,7 +15,14 @@
 #include <QGraphicsVideoItem>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QGraphicsSceneDragDropEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QLabel>
+#include <QListWidget>
+#include <QGraphicsItem>
+#include <QWheelEvent>
+
 class QAbstractButton;
 class QSlider;
 class QGraphicsVideoItem;
@@ -33,9 +41,9 @@ public:
     int volume() const;
     void updateDurationInfo(qint64 currInfo);
     void fitView();
-
-    void  loadPlaylist(QList<QUrl> urls);
-
+    void updateVolumeSlider();
+    void loadPlaylist(QList<QUrl> urls);
+    void addToPlaylist(QList<QUrl> urls);
 
 public slots:
     void openFile();
@@ -55,6 +63,7 @@ public slots:
     void seek(int seconds);
     void exit();
     void setVolume(qint64 vol);
+
 
 
 signals:
@@ -88,15 +97,26 @@ private:
 
     QSlider* m_Slider = nullptr;
     QSlider* m_volumeSlider = nullptr;
-    QLabel* m_durationInfo=nullptr;
+    QLabel* m_durationInfo = nullptr;
     QMenuBar *m_menuBar = nullptr;
     QMenu *m_rightClickMenu = nullptr;
+    QListWidget *m_playlist_entries = nullptr;
+
     qint64 m_duration;
+    int volumeBeforeMute = -1;
+    QLabel *m_text = nullptr;
+
+
 protected:
     void resizeEvent(QResizeEvent *) override;
     void showEvent(QShowEvent *) override;
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+    void wheelEvent(QWheelEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+
 };
 #endif // VIDEOPLAYER_H
