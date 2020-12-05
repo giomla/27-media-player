@@ -15,6 +15,9 @@
 #include <QGraphicsVideoItem>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QGraphicsSceneDragDropEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QLabel>
 #include <QListWidget>
 #include <QGraphicsItem>
@@ -41,7 +44,6 @@ public:
     void fitView();
     void updateVolumeSlider();
     void loadPlaylist(QList<QUrl> urls);
-
 
 public slots:
     void openFile();
@@ -102,6 +104,7 @@ private:
 
     qint64 m_duration;
     int volumeBeforeMute = -1;
+    QLabel *m_text = nullptr;
 
 protected:
     void resizeEvent(QResizeEvent *) override;
@@ -109,6 +112,10 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+
     void wheelEvent(QWheelEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+
 };
 #endif // VIDEOPLAYER_H
