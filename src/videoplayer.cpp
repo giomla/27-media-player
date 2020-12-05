@@ -7,6 +7,7 @@ videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
         this->setStyleSheet("background-color:#222222");
+        this->setAcceptDrops(true);
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
 
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
@@ -21,6 +22,7 @@ videoplayer::videoplayer(QWidget *parent)
         m_scene = new QGraphicsScene(this); //Pravljenje scene
         m_graphicsView = new QGraphicsView(m_scene); //Postavljanje pogleda na scenu
         m_graphicsView->setContentsMargins(0,0,0,0);
+        m_graphicsView->setAcceptDrops(false);
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         const QBrush *darkGrayColor = new QBrush(QColor(50,50,50));
         m_scene->setBackgroundBrush(*darkGrayColor);
@@ -246,6 +248,14 @@ void videoplayer::openFile(){
     if(fileDialog.exec())
         loadPlaylist(fileDialog.selectedUrls());
 }
+void videoplayer::dragEnterEvent(QDragEnterEvent *event){
+    if(event->mimeData()->hasUrls()){
+                event->acceptProposedAction();
+    }
+}
+void videoplayer::dropEvent(QDropEvent *event) {
+    loadPlaylist(event->mimeData()->urls());
+}
 
 void videoplayer::loadPlaylist(QList<QUrl> urls){
     for (auto url : urls){
@@ -257,6 +267,15 @@ void videoplayer::loadPlaylist(QList<QUrl> urls){
     m_mediaPlayer->play();
 }
 
+void videoplayer::addToPlaylist(QList<QUrl> urls){
+    for (auto url : urls){
+        m_playlist->addMedia(url);
+    }
+    m_playlist->setCurrentIndex(m_playlist->nextIndex());
+    m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
+    m_graphicsView->setFocus();
+    m_mediaPlayer->play();
+}
 void videoplayer::playClicked(){
     switch (m_playerState) {
         case QMediaPlayer::StoppedState:
