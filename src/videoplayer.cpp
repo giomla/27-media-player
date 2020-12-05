@@ -25,7 +25,7 @@ videoplayer::videoplayer(QWidget *parent)
 
         //menu bar creation
         this->createMenuBar();
-        //playlist dock
+        //playlist
         m_playlist_entries = new QListWidget;
 
 
@@ -290,11 +290,11 @@ void videoplayer::setMuted(bool muted)
 }
 
 void videoplayer::volumeIncrease(){
-    m_mediaPlayer->setVolume(m_mediaPlayer->volume() + 5);
+    m_mediaPlayer->setVolume(m_mediaPlayer->volume() + VOLUME_STEP);
 }
 
 void videoplayer::volumeDecrease(){
-    m_mediaPlayer->setVolume(m_mediaPlayer->volume() - 5);
+    m_mediaPlayer->setVolume(m_mediaPlayer->volume() - VOLUME_STEP);
 }
 
 void videoplayer::seek(int seconds)
@@ -305,19 +305,23 @@ void videoplayer::seek(int seconds)
 //hence the commented out lines of code, might work just fine on other platforms
 void videoplayer::muteClicked()
 {
-    if(m_mediaPlayer->isMuted()==false){
+    if(!m_mediaPlayer->isMuted()){
         m_mediaPlayer->setMuted(true);
+        volumeBeforeMute = m_mediaPlayer->volume();
+        m_volumeSlider->setValue(0);
+        return;
     }
-    else{
-        m_mediaPlayer->setMuted(false);
-    }
+
+    m_mediaPlayer->setMuted(false);
+    m_mediaPlayer->setVolume(volumeBeforeMute);
+    m_volumeSlider->setValue(volumeBeforeMute);
+
 }
 void videoplayer::createMenuBar(){
     m_menuBar = new QMenuBar();
     QMenu *file = new QMenu("File");
     QMenu *edit = new QMenu("Edit");
-    QMenu *audio = new QMenu("Audio");
-    QMenu *video = new QMenu("Video");
+    QMenu *playback = new QMenu("Playback");
     QMenu *help = new QMenu("Help");
     //file padajuci meni
     QAction* openFile = file->addAction("Open file");
@@ -330,14 +334,11 @@ void videoplayer::createMenuBar(){
     QAction* del = edit->addAction("Delete");
     QAction* selectAll = edit->addAction("Select all");
     //audio padajuci meni
-    QAction* incVol = audio->addAction("Increase volume");
-    QAction* decVol = audio->addAction("Decrease volume");
-    QAction* mute = audio->addAction("Mute");
-    //video padajuci meni
-    QAction* incBrightness = video->addAction("Brightness increase");
-    QAction* decBrightness = video->addAction("Brightness decrease");
-    QAction* incContrast = video->addAction("Contrast increase");
-    QAction* decContrast = video->addAction("Contrast decrease");
+    QAction* incVol = playback->addAction("Increase volume");
+    QAction* decVol = playback->addAction("Decrease volume");
+    QAction* mute = playback->addAction("Mute");
+    QAction* seekBack = playback->addAction("Seek backward");
+    QAction* seekFwd = playback->addAction("Seek forward");
     //help padajuci meni
     help->addAction("Licence");
     //povezivanje akcija sa funkcijama pri kliku
@@ -346,6 +347,8 @@ void videoplayer::createMenuBar(){
     connect(incVol, &QAction::triggered, this, &videoplayer::volumeIncrease);
     connect(decVol, &QAction::triggered, this, &videoplayer::volumeDecrease);
     connect(mute, &QAction::triggered, this, &videoplayer::muteClicked);
+    connect(seekBack, &QAction::triggered, this, &videoplayer::seekBackwardClicked);
+    connect(seekFwd, &QAction::triggered, this, &videoplayer::seekForwardClicked);
     //TODO: ostale funkcije za rad
     //precice na tastaturi
     openFile->setShortcut(QKeySequence::Open); // CTRL + O
@@ -356,19 +359,16 @@ void videoplayer::createMenuBar(){
     del->setShortcut(QKeySequence::Delete);
     cut->setShortcut(QKeySequence::Cut);
     selectAll->setShortcut(Qt::CTRL + Qt::Key_A);
+    seekBack->setShortcut(Qt::Key_Left);
+    seekFwd->setShortcut(Qt::Key_Right);
     //incVol->setShortcut(Qt::Key_Plus);
     //decVol->setShortcut(Qt::Key_Minus);
     mute->setShortcut(Qt::Key_M);
-    incBrightness->setShortcut(Qt::SHIFT + Qt::Key_B);
-    decBrightness->setShortcut(Qt::Key_B);
-    incContrast->setShortcut(Qt::SHIFT + Qt::Key_C);
-    decContrast->setShortcut(Qt::Key_C);
 
     //povezivanje menija u jedan meni bar
     m_menuBar->addMenu(file);
     m_menuBar->addMenu(edit);
-    m_menuBar->addMenu(audio);
-    m_menuBar->addMenu(video);
+    m_menuBar->addMenu(playback);
     m_menuBar->addMenu(help);
 }
 //Ostale funckije potrebne pri konekciji
@@ -394,7 +394,7 @@ void videoplayer::backwardClicked()
 void videoplayer::seekBackwardClicked(){
     qreal value;
     if (m_mediaPlayer->playbackRate()==0.01)
-        value = 0.0 + PLAYBACK_STEP;
+        value = 0.0 - PLAYBACK_STEP;
     else
         value = m_mediaPlayer->playbackRate()-PLAYBACK_STEP;
     //because we cant divide by zero the value of zero is not zero, so it can playback in reverse :D
@@ -549,4 +549,14 @@ void videoplayer::mousePressEvent(QMouseEvent *event){
         m_playButton->click();
     else if(event->button()==Qt::RightButton && m_graphicsView->underMouse())
         m_rightClickMenu->popup(QCursor::pos());
+}
+
+void videoplayer::wheelEvent(QWheelEvent *event){
+    if(event->delta() < 0){
+        m_mediaPlayer->setVolume(m_mediaPlayer->volume() - VOLUME_STEP);
+    }
+    if(event->delta() >= 0){
+        m_mediaPlayer->setVolume(m_mediaPlayer->volume() + VOLUME_STEP);
+    }
+    event->accept();
 }

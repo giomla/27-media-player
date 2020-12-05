@@ -4,6 +4,7 @@
 //maximum speed of playback rate, and default step of forward and backward rate play buttons
 #define MAX_PLAYBACK_RATE 4.00
 #define PLAYBACK_STEP 0.25
+#define VOLUME_STEP 5
 
 #include <QMainWindow>
 #include <QWidget>
@@ -17,6 +18,8 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QGraphicsItem>
+#include <QWheelEvent>
+
 
 class QAbstractButton;
 class QSlider;
@@ -36,7 +39,7 @@ public:
     int volume() const;
     void updateDurationInfo(qint64 currInfo);
     void fitView();
-
+    void updateVolumeSlider();
     void loadPlaylist(QList<QUrl> urls);
 
 
@@ -58,6 +61,7 @@ public slots:
     void seek(int seconds);
     void exit();
     void setVolume(qint64 vol);
+
 
 
 signals:
@@ -97,6 +101,7 @@ private:
     QListWidget *m_playlist_entries = nullptr;
 
     qint64 m_duration;
+    int volumeBeforeMute = -1;
 
 protected:
     void resizeEvent(QResizeEvent *) override;
@@ -104,5 +109,6 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 };
 #endif // VIDEOPLAYER_H
