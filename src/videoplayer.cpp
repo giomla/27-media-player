@@ -132,11 +132,8 @@ videoplayer::videoplayer(QWidget *parent)
         layout->addWidget(m_graphicsView);
         layout->addLayout(sliderLayout);
         layout->addLayout(commandsLayout);
-<<<<<<< HEAD
         layout->addWidget(m_playlist_entries);
-=======
         layout->setSpacing(0);
->>>>>>> develop
 
         m_rightClickMenu = new QMenu(this);
         m_rightClickMenu->addAction("Play/Pause",this, SLOT(playClicked()));
@@ -330,21 +327,7 @@ void videoplayer::seek(int seconds){
 }
 //for some reason, nothing with emit works on Ubuntu,
 //hence the commented out lines of code, might work just fine on other platforms
-<<<<<<< HEAD
-void videoplayer::muteClicked()
-{
-    if(!m_mediaPlayer->isMuted()){
-        m_mediaPlayer->setMuted(true);
-        volumeBeforeMute = m_mediaPlayer->volume();
-        m_volumeSlider->setValue(0);
-        return;
-    }
 
-    m_mediaPlayer->setMuted(false);
-    m_mediaPlayer->setVolume(volumeBeforeMute);
-    m_volumeSlider->setValue(volumeBeforeMute);
-
-=======
 void videoplayer::muteClicked(){
     if(m_mediaPlayer->isMuted()==false){
         m_mediaPlayer->setMuted(true);
@@ -360,7 +343,6 @@ void videoplayer::muteClicked(){
         m_text->show();
         m_text->setText("Unmuted");
     }
->>>>>>> develop
 }
 void videoplayer::createMenuBar(){
     m_menuBar = new QMenuBar();
@@ -388,24 +370,14 @@ void videoplayer::createMenuBar(){
     QAction* selectAll = edit->addAction("Select all");
     edit->setStyleSheet(" QMenu {Background-color: #222222;color:white; }");
     //audio padajuci meni
-<<<<<<< HEAD
+
     QAction* incVol = playback->addAction("Increase volume");
     QAction* decVol = playback->addAction("Decrease volume");
     QAction* mute = playback->addAction("Mute");
     QAction* seekBack = playback->addAction("Seek backward");
     QAction* seekFwd = playback->addAction("Seek forward");
-=======
-    QAction* incVol = audio->addAction("Increase volume");
-    QAction* decVol = audio->addAction("Decrease volume");
-    QAction* mute = audio->addAction("Mute");
-    audio->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
-    //video padajuci meni
-    QAction* incBrightness = video->addAction("Brightness increase");
-    QAction* decBrightness = video->addAction("Brightness decrease");
-    QAction* incContrast = video->addAction("Contrast increase");
-    QAction* decContrast = video->addAction("Contrast decrease");
-    video->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
->>>>>>> develop
+    playback->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
+
     //help padajuci meni
     help->addAction("Licence");
     help->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");

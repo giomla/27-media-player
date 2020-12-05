@@ -44,6 +44,7 @@ public:
     void fitView();
     void updateVolumeSlider();
     void loadPlaylist(QList<QUrl> urls);
+    void addToPlaylist(QList<QUrl> urls);
 
 public slots:
     void openFile();
