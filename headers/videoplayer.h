@@ -15,6 +15,8 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QLabel>
+#include <QListWidget>
+#include <QGraphicsItem>
 
 class QAbstractButton;
 class QSlider;
@@ -35,7 +37,7 @@ public:
     void updateDurationInfo(qint64 currInfo);
     void fitView();
 
-    void  loadPlaylist(QList<QUrl> urls);
+    void loadPlaylist(QList<QUrl> urls);
 
 
 public slots:
@@ -89,9 +91,11 @@ private:
 
     QSlider* m_Slider = nullptr;
     QSlider* m_volumeSlider = nullptr;
-    QLabel* m_durationInfo=nullptr;
+    QLabel* m_durationInfo = nullptr;
     QMenuBar *m_menuBar = nullptr;
     QMenu *m_rightClickMenu = nullptr;
+    QListWidget *m_playlist_entries = nullptr;
+
     qint64 m_duration;
 
 protected:

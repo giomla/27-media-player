@@ -25,6 +25,9 @@ videoplayer::videoplayer(QWidget *parent)
 
         //menu bar creation
         this->createMenuBar();
+        //playlist dock
+        m_playlist_entries = new QListWidget;
+
 
         m_playButton = new QPushButton;
         m_playButton->setEnabled(false);
@@ -120,6 +123,7 @@ videoplayer::videoplayer(QWidget *parent)
         layout->addWidget(m_menuBar);
         layout->addWidget(m_graphicsView);
         layout->addLayout(commandsLayout);
+        layout->addWidget(m_playlist_entries);
 
         m_rightClickMenu = new QMenu(this);
         m_rightClickMenu->addAction("Play/Pause",this, SLOT(playClicked()));
@@ -246,6 +250,7 @@ void videoplayer::openFile(){
 void videoplayer::loadPlaylist(QList<QUrl> urls){
     for (auto url : urls){
         m_playlist->addMedia(url);
+        m_playlist_entries->addItem(url.fileName().split('.')[0]);
     }
     m_playlist->setCurrentIndex(1);
     m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
