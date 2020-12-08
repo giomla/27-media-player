@@ -2,18 +2,27 @@
 #include "ui_videoplayer.h"
 #include <QtWidgets>
 #include <cstdlib>
-
+#include <iostream>
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
+
         this->setStyleSheet("background-color:#222222");
         this->setAcceptDrops(true);
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
 
+
+
+
+        m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
        // screenGeometry koji moze da nam vrati duzinu sirinu ekrana kao i broj ekrana.
         m_playlist = new QMediaPlaylist();
         m_mediaPlayer->setPlaylist(m_playlist);
+
 
         m_videoItem = new QGraphicsVideoItem;
         m_videoItem->setSize(QSizeF(screenGeometry.width()/2, screenGeometry.height()));
@@ -23,12 +32,21 @@ videoplayer::videoplayer(QWidget *parent)
         m_graphicsView = new QGraphicsView(m_scene); //Postavljanje pogleda na scenu
         m_graphicsView->setContentsMargins(0,0,0,0);
         m_graphicsView->setAcceptDrops(false);
+
+        subtitleText = new QGraphicsTextItem(m_videoItem);
+        subtitleText->setDefaultTextColor(QColor("red"));
+        subtitleText->setFont(QFont("times",24));
+        subtitleText->setTextWidth(m_videoItem->boundingRect().width());
+
+
+
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         const QBrush *darkGrayColor = new QBrush(QColor(50,50,50));
         m_scene->setBackgroundBrush(*darkGrayColor);
 
         //menu bar creation
         this->createMenuBar();
+
         //playlist
         m_playlist_entries = new QListWidget;
 
@@ -37,6 +55,7 @@ videoplayer::videoplayer(QWidget *parent)
         m_playButton->setEnabled(false);
         m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
         m_playButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
+
 
         m_stopButton= new QPushButton;
         m_stopButton->setEnabled(false);
@@ -47,6 +66,7 @@ videoplayer::videoplayer(QWidget *parent)
         m_forwardButton->setEnabled(false);
         m_forwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
         m_forwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
+
 
         m_backwardButton= new QPushButton;
         m_backwardButton->setEnabled(false);
@@ -128,21 +148,27 @@ videoplayer::videoplayer(QWidget *parent)
 
         //vertical box with all elements
         QVBoxLayout* layout = new QVBoxLayout(this);
+        layout->setSpacing(0);
         layout->addWidget(m_menuBar);
         layout->addWidget(m_graphicsView);
         layout->addLayout(sliderLayout);
+
         layout->addLayout(commandsLayout);
         layout->addWidget(m_playlist_entries);
         layout->setSpacing(0);
+
 
         m_rightClickMenu = new QMenu(this);
         m_rightClickMenu->addAction("Play/Pause",this, SLOT(playClicked()));
         m_rightClickMenu->addSeparator();
         m_rightClickMenu->addAction("Leave",this,SLOT(exit()));
+        QAction* addSubtitles = m_rightClickMenu->addAction("Add Subtitle");
+        connect(addSubtitles,&QAction::triggered,this,&videoplayer::addSubtitle);
+        m_rightClickMenu->setStyleSheet("color: white");
+
         m_rightClickMenu->setHidden(true);
 
         m_mediaPlayer->setVideoOutput(m_videoItem);
-
         connect(m_mediaPlayer,&QMediaPlayer::stateChanged,this,&videoplayer::mediaStateChanged);
     }
 
@@ -156,6 +182,7 @@ void videoplayer::positionChanged(qint64 progress){
     if (!m_Slider->isSliderDown())
         m_Slider->setValue(progress/1000);
     updateDurationInfo(progress/1000);
+
 }
 
 void videoplayer::updateDurationInfo(qint64 currInfo){
@@ -168,11 +195,40 @@ void videoplayer::updateDurationInfo(qint64 currInfo){
         QString format = "mm:ss";
         if (m_duration > 3600)
             format = "hh:mm:ss";
-        tStr = currentTime.toString(format) + " / " + totalTime.toString(format);
-    }
-    m_durationInfo->setText(tStr);
-}
 
+        if(AddedSubtitle){
+
+
+            subtitleText->setPos(m_videoItem->boundingRect().width()/3,m_videoItem->boundingRect().height()-100);
+
+            for(auto &tup : subs){
+                if(currentTime.toString("hh:mm:ss") == tup.getBeginTime()){
+                    subtitleText->setHtml(tup.getLine());
+                    subtitleText->show();
+
+                }
+                if(currentTime.toString("hh:mm:ss") == tup.getEndTime()){
+                    subtitleText->hide();
+                }
+
+            }
+            if(currentTime.toString("hh:mm:ss") == totalTime.toString("hh:mm:ss")){
+                subs.clear();
+                AddedSubtitle=false;
+            }
+
+
+
+
+        }
+
+        tStr = currentTime.toString(format) + " / " + totalTime.toString(format);
+
+
+
+    m_durationInfo->setText(tStr);
+    }
+}
 
 QMediaPlayer::State videoplayer::state() const{
     return m_playerState;
@@ -191,7 +247,7 @@ void videoplayer::mediaStateChanged(QMediaPlayer::State state){
             case QMediaPlayer::PlayingState:
                 m_playButton->setEnabled(true);
                 m_muteButton->setEnabled(true);
-                m_forwardButton->setEnabled(true); 
+                m_forwardButton->setEnabled(true);
                 m_backwardButton->setEnabled(true);
                 m_seekForwardButton->setEnabled(true);
                 m_seekBackwardButton->setEnabled(true);
@@ -201,6 +257,7 @@ void videoplayer::mediaStateChanged(QMediaPlayer::State state){
                 m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
                 m_volumeSlider->setEnabled(true);
                 m_durationInfo->setEnabled(true);
+
                 break;
             case QMediaPlayer::StoppedState:
                 m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
@@ -302,6 +359,7 @@ void videoplayer::playClicked(){
 
             break;
         }
+
 }
 
 bool videoplayer::isMuted() const{
@@ -418,6 +476,7 @@ void videoplayer::stopClicked(){
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Stopped");
+
     //emit stop();
 }
 
@@ -485,13 +544,14 @@ void videoplayer::setVolume(qint64 volume){
     m_volumeSlider->setValue(qRound(logarithmicVolume * 100));
 }
 
+
 void videoplayer::onVolumeSliderChanged(){
+
     if(m_mediaPlayer->volume() == 0){
         m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
     }
     else{
         m_muteButton->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
-
     }
     m_mediaPlayer->setVolume(volume());
     QTimer::singleShot(2000, m_text, &QLabel::hide);
@@ -530,9 +590,11 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             m_openButton->hide();
             m_volumeSlider->hide();
             m_durationInfo->hide();
+            m_playlist_entries->hide();
             this->layout()->setContentsMargins(0,0,0,0);
             this->layout()->setMargin(0);
             showFullScreen();
+
         }
         else{
             this->layout()->setContentsMargins(-1,-1,-1,-1);
@@ -551,6 +613,8 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             m_openButton->show();
             m_volumeSlider->show();
             m_durationInfo->show();
+            m_playlist_entries->show();
+
         }
     }
 
@@ -579,9 +643,9 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event){
             m_openButton->hide();
             m_volumeSlider->hide();
             m_durationInfo->hide();
-
-            this->layout()->setContentsMargins(0,0,0,0);
+            m_playlist_entries->hide();
             showFullScreen();
+
             m_playButton->click();
         }
         else if(isFullScreen()){
@@ -601,6 +665,7 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event){
             m_openButton->show();
             m_volumeSlider->show();
             m_durationInfo->show();
+            m_playlist_entries->show();
             m_playButton->click();
           }
     }
@@ -622,3 +687,77 @@ void videoplayer::wheelEvent(QWheelEvent *event){
     }
     event->accept();
 }
+
+void videoplayer::addSubtitle(){
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Select a Subtitle"),"",tr("*.srt"));
+    if(fileName.isEmpty()){
+        return;
+
+    }else{
+        QFile file(fileName);
+
+               if (!file.open(QIODevice::ReadOnly)) {
+                   QMessageBox::information(this, tr("Unable to open file"),
+                       file.errorString());
+
+                   return;
+               }
+
+       AddedSubtitle=true;
+       subs.clear();
+
+       QTextStream in(&file);
+       QString num = in.readLine();
+       QString tmp = in.readLine();
+       QStringList times = tmp.split(" --> ");
+       QString beginT = times.at(0);
+       QString endT = times.at(1);
+       QTime pocetnoVremeTmp;
+       QString pocetnoVreme;
+       QString zavrsnoVreme;
+       QTime zavrsnoVremeTmp;
+
+       pocetnoVremeTmp = QTime::fromString(beginT,"hh:mm:ss,zzz");
+       pocetnoVreme = pocetnoVremeTmp.toString("hh:mm:ss");
+
+       zavrsnoVremeTmp = QTime::fromString(endT,"hh:mm:ss,zzz");
+       zavrsnoVreme = zavrsnoVremeTmp.toString("hh:mm:ss");
+
+       QString fullSentence;
+       QString line;
+       times.clear();
+       while(!in.atEnd()){
+
+           line = in.readLine();
+           if(!line.isEmpty()){
+               fullSentence.append(line).append("\n");
+
+           }else{
+
+               subs.append(tupple(fullSentence, pocetnoVreme, zavrsnoVreme));
+               fullSentence.clear();
+               times.clear();
+               QString num = in.readLine();
+
+               if(num.isEmpty()){
+                   break;
+               }
+
+               QString tmp = in.readLine();
+               QStringList times = tmp.split(" --> ");
+               beginT = times.at(0);
+               endT = times.at(1);
+
+               pocetnoVremeTmp = QTime::fromString(beginT,"hh:mm:ss,zzz");
+               pocetnoVreme = pocetnoVremeTmp.toString("hh:mm:ss");
+
+               zavrsnoVremeTmp = QTime::fromString(endT,"hh:mm:ss,zzz");
+               zavrsnoVreme = zavrsnoVremeTmp.toString("hh:mm:ss");
+
+               times.clear();
+           }
+       }
+    }
+}
+
+

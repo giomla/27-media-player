@@ -22,8 +22,10 @@
 #include <QListWidget>
 #include <QGraphicsItem>
 #include <QWheelEvent>
-
-
+#include <QMap>
+#include <QPair>
+#include <QGraphicsTextItem>
+#include <QTime>
 class QAbstractButton;
 class QSlider;
 class QGraphicsVideoItem;
@@ -46,6 +48,8 @@ public:
     void loadPlaylist(QList<QUrl> urls);
     void addToPlaylist(QList<QUrl> urls);
 
+
+
 public slots:
     void openFile();
     void durationChanged(qint64 duration);
@@ -64,7 +68,7 @@ public slots:
     void seek(int seconds);
     void exit();
     void setVolume(qint64 vol);
-
+    void addSubtitle();
 
 
 signals:
@@ -95,17 +99,44 @@ private:
     QAbstractButton* m_openButton = nullptr;
     QAbstractButton* m_seekForwardButton = nullptr;
     QAbstractButton* m_seekBackwardButton = nullptr;
-
+    QGraphicsTextItem* subtitleText = nullptr;
     QSlider* m_Slider = nullptr;
     QSlider* m_volumeSlider = nullptr;
     QLabel* m_durationInfo = nullptr;
     QMenuBar *m_menuBar = nullptr;
     QMenu *m_rightClickMenu = nullptr;
     QListWidget *m_playlist_entries = nullptr;
+    bool AddedSubtitle=false;
 
     qint64 m_duration;
     int volumeBeforeMute = -1;
     QLabel *m_text = nullptr;
+
+    struct tupple{
+        QString m_line;
+        QString m_beginTime;
+        QString m_endTime;
+
+        tupple(QString line, QString beginTime, QString endTime) :
+            m_line(line), m_beginTime(beginTime), m_endTime(endTime){
+
+        }
+
+        QString getLine() const{
+            return m_line;
+        }
+
+        QString getBeginTime() const{
+            return m_beginTime;
+        }
+
+        QString getEndTime() const{
+            return m_endTime;
+        }
+    };
+
+
+    QList<tupple> subs;
 
 protected:
     void resizeEvent(QResizeEvent *) override;
