@@ -212,14 +212,6 @@ void videoplayer::updateDurationInfo(qint64 currInfo){
                 }
 
             }
-            if(currentTime.toString("hh:mm:ss") == totalTime.toString("hh:mm:ss")){
-                subs.clear();
-                AddedSubtitle=false;
-            }
-
-
-
-
         }
 
         tStr = currentTime.toString(format) + " / " + totalTime.toString(format);
@@ -306,8 +298,12 @@ void videoplayer::openFile(){
     fileDialog.setFileMode(QFileDialog::ExistingFiles);
     fileDialog.show();
 
-    if(fileDialog.exec())
+    if(fileDialog.exec()){
+        subs.clear();
+        AddedSubtitle=false;
+        subtitleText->hide();
         loadPlaylist(fileDialog.selectedUrls());
+    }
 }
 void videoplayer::dragEnterEvent(QDragEnterEvent *event){
     if(event->mimeData()->hasUrls()){
