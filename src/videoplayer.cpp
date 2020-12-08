@@ -14,15 +14,11 @@ videoplayer::videoplayer(QWidget *parent)
         this->setAcceptDrops(true);
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
 
-
-
-
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
        // screenGeometry koji moze da nam vrati duzinu sirinu ekrana kao i broj ekrana.
         m_playlist = new QMediaPlaylist();
         m_mediaPlayer->setPlaylist(m_playlist);
-
 
         m_videoItem = new QGraphicsVideoItem;
         m_videoItem->setSize(QSizeF(screenGeometry.width()/2, screenGeometry.height()));
@@ -38,8 +34,6 @@ videoplayer::videoplayer(QWidget *parent)
         subtitleText->setFont(QFont("times",24));
         subtitleText->setTextWidth(m_videoItem->boundingRect().width());
 
-
-
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         const QBrush *darkGrayColor = new QBrush(QColor(50,50,50));
         m_scene->setBackgroundBrush(*darkGrayColor);
@@ -50,38 +44,37 @@ videoplayer::videoplayer(QWidget *parent)
         //playlist
         m_playlist_entries = new QListWidget;
 
-
         m_playButton = new QPushButton;
         m_playButton->setEnabled(false);
         m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        m_playButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
+        m_playButton->setMinimumSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
 
         m_stopButton= new QPushButton;
         m_stopButton->setEnabled(false);
         m_stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-        m_stopButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
+        m_stopButton->setMinimumSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_forwardButton= new QPushButton;
         m_forwardButton->setEnabled(false);
         m_forwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
-        m_forwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
+        m_forwardButton->setMinimumSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
 
         m_backwardButton= new QPushButton;
         m_backwardButton->setEnabled(false);
         m_backwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
-        m_backwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
+        m_backwardButton->setMinimumSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_seekForwardButton= new QPushButton;
         m_seekForwardButton->setEnabled(false);
         m_seekForwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
-        m_seekForwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
+        m_seekForwardButton->setMinimumSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_seekBackwardButton= new QPushButton;
         m_seekBackwardButton->setEnabled(false);
         m_seekBackwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
-        m_seekBackwardButton->setFixedSize(screenGeometry.width()/18,screenGeometry.height()/20);
+        m_seekBackwardButton->setMinimumSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
         m_muteButton = new QPushButton(this);
         m_muteButton->setEnabled(false);
@@ -94,7 +87,8 @@ videoplayer::videoplayer(QWidget *parent)
 
         m_volumeSlider = new QSlider(Qt::Horizontal);
         m_volumeSlider->setRange(0,100);
-        m_volumeSlider->setFixedSize(screenGeometry.width()/18,50);
+        m_volumeSlider->setMinimumSize(screenGeometry.width()/18,50);
+        m_volumeSlider->setMaximumSize(screenGeometry.width()/13,50);
         m_volumeSlider->setValue(100);
         m_volumeSlider->setEnabled(false);
 
@@ -102,7 +96,7 @@ videoplayer::videoplayer(QWidget *parent)
         m_durationInfo->setEnabled(false);
         m_durationInfo->setStyleSheet("color:rgb(255,255,255)");
         m_durationInfo->setAlignment(Qt::AlignCenter);
-        m_durationInfo->setFixedSize(2*screenGeometry.width()/18,screenGeometry.height()/50);
+        m_durationInfo->setMinimumSize(2*screenGeometry.width()/18,100);
 
         m_openButton = new QPushButton(tr("Open"));
         m_openButton->setStyleSheet("color:white");
@@ -315,9 +309,11 @@ void videoplayer::dropEvent(QDropEvent *event) {
 }
 
 void videoplayer::loadPlaylist(QList<QUrl> urls){
+
+    m_playlist_entries->setStyleSheet("color:white");
     for (auto url : urls){
         m_playlist->addMedia(url);
-        m_playlist_entries->addItem(url.fileName().split('.')[0]);
+        m_playlist_entries->addItem(url.fileName().split('.')[0]);      
     }
     m_playlist->setCurrentIndex(1);
     m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
@@ -485,6 +481,7 @@ void videoplayer::forwardClicked(){
 
 void videoplayer::backwardClicked(){
     m_playlist->previous();
+    m_mediaPlayer->play();
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Backward");
