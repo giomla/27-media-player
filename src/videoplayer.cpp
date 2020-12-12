@@ -48,7 +48,7 @@ videoplayer::videoplayer(QWidget *parent)
         //adding buttons and sliders
         this->addButtons(screenGeometry);
 
-        //connecting buttons and sliders
+        //connections for various actions - buttons, playlist clickability, etc.
         this->connections();
 
         //horizontal box with buttons
@@ -156,7 +156,7 @@ void videoplayer::addButtons(QRect screenGeometry){
     m_durationInfo->setEnabled(false);
     m_durationInfo->setStyleSheet("color:rgb(255,255,255)");
     m_durationInfo->setAlignment(Qt::AlignCenter);
-    m_durationInfo->setMinimumSize(2*screenGeometry.width()/18,100);
+    m_durationInfo->setMinimumSize(2*screenGeometry.width()/50,100);
 
     m_openButton = new QPushButton(tr("Open"));
     m_openButton->setStyleSheet("color:white");
@@ -176,10 +176,11 @@ void videoplayer::connections(){
     connect(m_seekForwardButton,&QAbstractButton::clicked, this, &videoplayer::seekForwardClicked);
     connect(m_seekBackwardButton,&QAbstractButton::clicked, this, &videoplayer::seekBackwardClicked);
     connect(m_stopButton,&QAbstractButton::clicked, this, &videoplayer::stopClicked);
-
+    connect(m_videoItem, &QGraphicsVideoItem::nativeSizeChanged, this, &videoplayer::calcVideoFactor);
+    connect(m_playlist_entries, &QListWidget::doubleClicked, this, &videoplayer::playlistDoubleClickPlay);
     //when another video is loaded up, the native resolution of the video changes
     //so we monitor for that, so we can adjust the resolution accordingly
-    connect(m_videoItem, &QGraphicsVideoItem::nativeSizeChanged, this, &videoplayer::calcVideoFactor);
+
 }
 
 void videoplayer::positionChanged(qint64 progress){
@@ -339,6 +340,8 @@ void videoplayer::loadPlaylist(QList<QUrl> urls){
 void videoplayer::addToPlaylist(QList<QUrl> urls){
     for (auto url : urls){
         m_playlist->addMedia(url);
+        m_playlist_entries->addItem(url.fileName().split('.')[0]);
+
     }
     m_playlist->setCurrentIndex(m_playlist->nextIndex());
     m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
@@ -513,34 +516,25 @@ void videoplayer::backwardClicked(){
 //It is framework defined as to the status and quality of audio and video
 //while fast forwarding or rewinding.
 void videoplayer::seekBackwardClicked(){
-    qreal value;
-    if (m_mediaPlayer->playbackRate()==0.01)
-        value = 0.0 - PLAYBACK_STEP;
-    else
-        value = m_mediaPlayer->playbackRate()-PLAYBACK_STEP;
-    //because we cant divide by zero the value of zero is not zero, so it can playback in reverse :D
-    //otherwise Gstreamer throws an exception
-    if (value==0)
-        m_mediaPlayer->setPlaybackRate(0.01);
-    else if (value >= (-MAX_PLAYBACK_RATE))
-        m_mediaPlayer->setPlaybackRate(value);
+    qint64 value = 0.0;
+    if (m_mediaPlayer->position() > SEEK_STEP)
+        value = m_mediaPlayer->position()-SEEK_STEP;
+
+    m_mediaPlayer->setPosition(value);
+
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Seek backward");
 }
 
 void videoplayer::seekForwardClicked(){
-    qreal value;
+    qint64 value = m_mediaPlayer->duration();
 
-    if (m_mediaPlayer->playbackRate()==0.01)
-        value = 0.0 + PLAYBACK_STEP;
-    else
-        value = m_mediaPlayer->playbackRate()+PLAYBACK_STEP;
+    if(m_mediaPlayer->position() < value)
+        value = m_mediaPlayer->position() + SEEK_STEP;
 
-    if (value==0)
-        m_mediaPlayer->setPlaybackRate(0.01);
-    else if (value <= (MAX_PLAYBACK_RATE))
-        m_mediaPlayer->setPlaybackRate(value);
+    m_mediaPlayer->setPosition(value);
+
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Seek forward");
@@ -700,6 +694,7 @@ void videoplayer::wheelEvent(QWheelEvent *event){
     if(event->delta() >= 0){
         m_mediaPlayer->setVolume(m_mediaPlayer->volume() + VOLUME_STEP);
     }
+    setVolume(m_mediaPlayer->volume());
     event->accept();
 }
 
@@ -775,6 +770,9 @@ void videoplayer::addSubtitle(){
 
 
     }
+}
+void videoplayer::playlistDoubleClickPlay(){
+    m_playlist->setCurrentIndex(m_playlist_entries->row(m_playlist_entries->currentItem()));
 }
 
 

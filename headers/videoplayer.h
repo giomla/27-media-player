@@ -3,7 +3,7 @@
 
 //maximum speed of playback rate, and default step of forward and backward rate play buttons
 #define MAX_PLAYBACK_RATE 4.00
-#define PLAYBACK_STEP 0.25
+#define SEEK_STEP 5000
 #define VOLUME_STEP 5
 
 #include <QMainWindow>
@@ -50,6 +50,7 @@ public:
     void connections();
     void setTitle(QList<QUrl> urls);
     void addButtons(QRect screenGeometry);
+    void playlistDoubleClickPlay();
 
 public slots:
     void openFile();
