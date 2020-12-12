@@ -748,11 +748,9 @@ void videoplayer::addSubtitle(){
             times.clear();
             QString num = in.readLine();
 
-
            if(!num.contains(QRegExp("^[0-9]+$"))){
                break;
            }
-
             QString tmp = in.readLine();
             QStringList times = tmp.split(" --> ");
             beginT = times.at(0);
@@ -767,12 +765,13 @@ void videoplayer::addSubtitle(){
             times.clear();
            }
        }
-
-
     }
 }
 void videoplayer::playlistDoubleClickPlay(){
     m_playlist->setCurrentIndex(m_playlist_entries->row(m_playlist_entries->currentItem()));
+    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
+    QString filename = fileInfo.fileName();
+    this->setWindowTitle(filename.split('.')[0]);
 }
 
 
