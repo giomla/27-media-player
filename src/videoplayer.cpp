@@ -156,7 +156,7 @@ void videoplayer::addButtons(QRect screenGeometry){
     m_durationInfo->setEnabled(false);
     m_durationInfo->setStyleSheet("color:rgb(255,255,255)");
     m_durationInfo->setAlignment(Qt::AlignCenter);
-    m_durationInfo->setMinimumSize(2*screenGeometry.width()/50,100);
+    m_durationInfo->setMinimumSize(2*screenGeometry.width()/15,screenGeometry.height()/20);
 
     m_openButton = new QPushButton(tr("Open"));
     m_openButton->setStyleSheet("color:white");
