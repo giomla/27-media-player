@@ -47,8 +47,9 @@ public:
     void updateVolumeSlider();
     void loadPlaylist(QList<QUrl> urls);
     void addToPlaylist(QList<QUrl> urls);
-
-
+    void connections();
+    void setTitle(QList<QUrl> urls);
+    void addButtons(QRect screenGeometry);
 
 public slots:
     void openFile();
@@ -70,7 +71,6 @@ public slots:
     void setVolume(qint64 vol);
     void addSubtitle();
 
-
 signals:
     void play();
     void stop();
@@ -80,7 +80,6 @@ signals:
 private slots:
     void mediaStateChanged(QMediaPlayer::State state);
     void onVolumeSliderChanged();
-
     //TODO
 
 private:
