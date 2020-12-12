@@ -31,8 +31,9 @@ videoplayer::videoplayer(QWidget *parent)
 
         subtitleText = new QGraphicsTextItem(m_videoItem);
         subtitleText->setDefaultTextColor(QColor("red"));
-        subtitleText->setFont(QFont("times",24));
-        subtitleText->setTextWidth(m_videoItem->boundingRect().width());
+
+        subtitleText->setTextWidth(m_videoItem->boundingRect().width()-75);
+        subtitleText->setFont(QFont("times",20));
 
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         const QBrush *darkGrayColor = new QBrush(QColor(50,50,50));
@@ -205,6 +206,7 @@ void videoplayer::updateDurationInfo(qint64 currInfo){
 
         if(AddedSubtitle){
             subtitleText->setPos(m_videoItem->boundingRect().width()/3,m_videoItem->boundingRect().height()-100);
+
 
             for(auto &tup : subs){
                 if(currentTime.toString("hh:mm:ss") == tup.getBeginTime()){
@@ -751,9 +753,10 @@ void videoplayer::addSubtitle(){
             times.clear();
             QString num = in.readLine();
 
-            if(num.isEmpty()){
-                break;
-            }
+
+           if(!num.contains(QRegExp("^[0-9]+$"))){
+               break;
+           }
 
             QString tmp = in.readLine();
             QStringList times = tmp.split(" --> ");
@@ -769,6 +772,8 @@ void videoplayer::addSubtitle(){
             times.clear();
            }
        }
+
+
     }
 }
 
