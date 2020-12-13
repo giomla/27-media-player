@@ -32,10 +32,13 @@ videoplayer::videoplayer(QWidget *parent)
         m_graphicsView->setAcceptDrops(false);
 
         subtitleText = new QGraphicsTextItem(m_videoItem);
-        subtitleText->setDefaultTextColor(QColor("red"));
+        subtitleText->setDefaultTextColor(QColor("white"));
 
-        subtitleText->setTextWidth(m_videoItem->boundingRect().width()-75);
-        subtitleText->setFont(QFont("times",20));
+
+
+
+
+
 
         m_scene->addItem(m_videoItem);// Dodavanje itema na scenu
         const QBrush *darkGrayColor = new QBrush(QColor(50,50,50));
@@ -209,12 +212,12 @@ void videoplayer::updateDurationInfo(qint64 currInfo){
             format = "hh:mm:ss";
 
         if(AddedSubtitle){
-            subtitleText->setPos(m_videoItem->boundingRect().width()/3,m_videoItem->boundingRect().height()-100);
+
 
 
             for(auto &tup : subs){
                 if(currentTime.toString("hh:mm:ss") == tup.getBeginTime()){
-                    subtitleText->setHtml(tup.getLine());
+                    subtitleText->setHtml("<p align='center'>" + tup.getLine());
                     subtitleText->show();
                 }
                 if(currentTime.toString("hh:mm:ss") == tup.getEndTime()){
@@ -282,12 +285,20 @@ void videoplayer::calcVideoFactor(QSizeF size){
      m_videoItem->setSize(QSizeF(size.width(),size.height()));
      m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
      m_graphicsView->setSceneRect(0,0,size.width(),size.height());
+     fitView();
+
+
 }
-void videoplayer::showEvent(QShowEvent *){    
+void videoplayer::showEvent(QShowEvent *){
     fitView();
 }
 void videoplayer::resizeEvent(QResizeEvent *){
+
     fitView();
+
+
+
+
 }
 void videoplayer::fitView(){
 
@@ -296,6 +307,21 @@ void videoplayer::fitView(){
     m_videoItem->setSize(QSizeF(rect.width(),rect.height()));
     m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
     m_graphicsView->setSceneRect(rect);
+    if(isMaximized()){
+        subtitleText->setFont(QFont("Times",25));
+        subtitleText->setTextWidth(rect.width()/2);
+        subtitleText->setPos(rect.width()/4,rect.height()-110);
+    }else if(isFullScreen()){
+        subtitleText->setPos(rect.width()/4,rect.height()-150);
+        subtitleText->setFont(QFont("Times",35));
+        subtitleText->setTextWidth(rect.width()/2);
+    }else{
+        subtitleText->setPos(rect.width()/4,rect.height()-70);
+        subtitleText->setFont(QFont("Times",20));
+        subtitleText->setTextWidth(rect.width()/2);
+    }
+
+
 }
 
 //TODO implementation of a true playlist with lists of urls and loading it up in the playlist
@@ -609,8 +635,7 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             this->layout()->setContentsMargins(0,0,0,0);
             this->layout()->setMargin(0);
             showFullScreen();
-        }
-        else{
+        } else{
             this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             m_playButton->show();
@@ -628,6 +653,8 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             m_volumeSlider->show();
             m_durationInfo->show();
             m_playlist_entries->show();
+
+
         }
     }
     else if(event->key()==Qt::Key_Period)
@@ -659,8 +686,7 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event){
             m_playlist_entries->hide();
             showFullScreen();
             m_playButton->click();
-        }
-        else if(isFullScreen()){
+        }else if(isFullScreen()){
             this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             m_playButton->show();
@@ -771,6 +797,8 @@ void videoplayer::addSubtitle(){
            }
        }
     }
+
+
 }
 void videoplayer::playlistDoubleClickPlay(){
     m_playlist->setCurrentIndex(m_playlist_entries->row(m_playlist_entries->currentItem()));
