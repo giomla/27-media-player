@@ -7,9 +7,11 @@
 #include <QTextStream>
 #include <QDebug>
 #include <iostream>
+
 videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
     {
+
         this->setStyleSheet("background-color:#222222");
         this->setAcceptDrops(true);
         m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
@@ -82,6 +84,7 @@ videoplayer::videoplayer(QWidget *parent)
         layout->addLayout(commandsLayout);
         layout->addWidget(m_playlist_entries);
         layout->setSpacing(0);
+
 
         m_rightClickMenu = new QMenu(this);
         m_rightClickMenu->addAction("Play/Pause",this, SLOT(playClicked()));
@@ -368,6 +371,7 @@ void videoplayer::playClicked(){
             QTimer::singleShot(2000, m_text, &QLabel::hide);
             break;
         }
+
 }
 
 bool videoplayer::isMuted() const{
@@ -554,6 +558,7 @@ void videoplayer::setVolume(qint64 volume){
                                                     QAudio::LogarithmicVolumeScale);
     m_volumeSlider->setValue(qRound(logarithmicVolume * 100));
 }
+
 
 void videoplayer::onVolumeSliderChanged(){
 

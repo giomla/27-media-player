@@ -26,6 +26,7 @@
 #include <QPair>
 #include <QGraphicsTextItem>
 #include <QTime>
+
 class QAbstractButton;
 class QSlider;
 class QGraphicsVideoItem;
