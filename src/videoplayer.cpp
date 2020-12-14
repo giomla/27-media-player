@@ -279,22 +279,23 @@ void videoplayer::mediaStateChanged(QMediaPlayer::State state){
 //https://bugreports.qt.io/browse/QTBUG-28850
 
 void videoplayer::calcVideoFactor(QSizeF size){
+     if(!isMinimized()){
+        QRectF rect = QRectF(0,0,size.width(),size.height());
 
-     QRectF rect = QRectF(0,0,size.width(),size.height());
-
-     m_videoItem->setSize(QSizeF(size.width(),size.height()));
-     m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
-     m_graphicsView->setSceneRect(0,0,size.width(),size.height());
-     fitView();
-
+        m_videoItem->setSize(QSizeF(size.width(),size.height()));
+        m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
+        m_graphicsView->setSceneRect(0,0,size.width(),size.height());
+        fitView();
+    }
 
 }
 void videoplayer::showEvent(QShowEvent *){
-    fitView();
+    if(!isMinimized())
+        fitView();
 }
 void videoplayer::resizeEvent(QResizeEvent *){
-
-    fitView();
+    if(!isMinimized())
+        fitView();
 
 
 
@@ -357,8 +358,9 @@ void videoplayer::loadPlaylist(QList<QUrl> urls){
     m_playlist_entries->setStyleSheet("color:white");
     for (auto url : urls){
         m_playlist->addMedia(url);
-        m_playlist_entries->addItem(url.fileName().split('.')[0]);
-        this->setWindowTitle(url.fileName().split('.')[0]);
+        m_playlist_entries->addItem(url.fileName().left(url.fileName().lastIndexOf('.')));
+        this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
+
     }
     m_playlist->setCurrentIndex(m_playlist->currentIndex()+1);
     m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
