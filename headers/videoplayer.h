@@ -19,16 +19,17 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QLabel>
-#include <QListWidget>
 #include <QGraphicsItem>
 #include <QWheelEvent>
 #include <QMap>
 #include <QPair>
 #include <QGraphicsTextItem>
 #include <QTime>
+#include "../headers/subtitles.h"
+#include "../headers/commands.h"
 
-class QAbstractButton;
-class QSlider;
+
+
 class QGraphicsVideoItem;
 
 class videoplayer : public QWidget
@@ -52,6 +53,7 @@ public:
     void setTitle(QList<QUrl> urls);
     void addButtons(QRect screenGeometry);
     void playlistDoubleClickPlay();
+
 
 public slots:
     void openFile();
@@ -92,52 +94,17 @@ private:
     QGraphicsVideoItem* m_videoItem = nullptr;
     QGraphicsScene* m_scene = nullptr; //Pravljenje scene
     QGraphicsView* m_graphicsView = nullptr;
-    QAbstractButton* m_playButton = nullptr;
-    QAbstractButton* m_stopButton = nullptr;
-    QAbstractButton* m_forwardButton = nullptr;
-    QAbstractButton* m_backwardButton = nullptr;
-    QAbstractButton* m_muteButton = nullptr;
-    QAbstractButton* m_openButton = nullptr;
-    QAbstractButton* m_seekForwardButton = nullptr;
-    QAbstractButton* m_seekBackwardButton = nullptr;
     QGraphicsTextItem* subtitleText = nullptr;
-    QSlider* m_Slider = nullptr;
-    QSlider* m_volumeSlider = nullptr;
-    QLabel* m_durationInfo = nullptr;
     QMenuBar *m_menuBar = nullptr;
     QMenu *m_rightClickMenu = nullptr;
-    QListWidget *m_playlist_entries = nullptr;
-    bool AddedSubtitle=false;
-
-    qint64 m_duration;
+    subtitles* subtitle;
+    commands* cmnds;
+    qint64 m_duration = 0;
     int volumeBeforeMute = -1;
     QLabel *m_text = nullptr;
+    const QBrush *darkGrayColor = nullptr;
+    QAction* addSubtitles = nullptr;
 
-    struct tupple{
-        QString m_line;
-        QString m_beginTime;
-        QString m_endTime;
-
-        tupple(QString line, QString beginTime, QString endTime) :
-            m_line(line), m_beginTime(beginTime), m_endTime(endTime){
-
-        }
-
-        QString getLine() const{
-            return m_line;
-        }
-
-        QString getBeginTime() const{
-            return m_beginTime;
-        }
-
-        QString getEndTime() const{
-            return m_endTime;
-        }
-    };
-
-
-    QList<tupple> subs;
 
 protected:
     void resizeEvent(QResizeEvent *) override;

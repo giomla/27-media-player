@@ -19,10 +19,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     ../src/main.cpp \
-    ../src/videoplayer.cpp
+    ../src/videoplayer.cpp \
+    ../src/subtitles.cpp \
+    ../src/commands.cpp \
 
 HEADERS += \
-    ../headers/videoplayer.h
+    ../headers/commands.h \
+    ../headers/subtitles.h \
+    ../headers/videoplayer.h \
+
+
 
 FORMS += \
     ../res/videoplayer.ui
@@ -34,3 +40,6 @@ TRANSLATIONS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    VideoPlayer.supp
