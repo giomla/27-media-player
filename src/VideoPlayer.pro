@@ -22,12 +22,13 @@ SOURCES += \
     ../src/videoplayer.cpp \
     ../src/subtitles.cpp \
     ../src/commands.cpp \
+    ../src/annotation.cpp\
 
 HEADERS += \
     ../headers/commands.h \
     ../headers/subtitles.h \
     ../headers/videoplayer.h \
-
+	../headers/annotation.h \
 
 
 FORMS += \

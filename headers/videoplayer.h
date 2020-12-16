@@ -27,10 +27,11 @@
 #include <QTime>
 #include "../headers/subtitles.h"
 #include "../headers/commands.h"
-
+#include "../headers/annotation.h"
 
 
 class QGraphicsVideoItem;
+class Annotation;
 
 class videoplayer : public QWidget
 {
@@ -74,7 +75,7 @@ public slots:
     void exit();
     void setVolume(qint64 vol);
     void addSubtitle();
-
+    void addAnnotation();
 signals:
     void play();
     void stop();
@@ -105,6 +106,7 @@ private:
     const QBrush *darkGrayColor = nullptr;
     QAction* addSubtitles = nullptr;
 
+    Annotation *m_annotation = nullptr;
 
 protected:
     void resizeEvent(QResizeEvent *) override;

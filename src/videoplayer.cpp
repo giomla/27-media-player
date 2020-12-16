@@ -69,6 +69,10 @@ videoplayer::videoplayer(QWidget *parent)
 
     addSubtitles = m_rightClickMenu->addAction("Add Subtitle");
 
+    //adding annotations
+    QAction* addAnnotations = m_rightClickMenu->addAction("Add Annotation");
+    connect (addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
+
     this->connections();
 }
 
@@ -583,6 +587,91 @@ void videoplayer::addSubtitle(){
         subtitle->setAddedSubtitle(true);
     }
 }
+
+
+void videoplayer::addAnnotation()
+{
+
+    QDialog popupAnnotationMenu = QDialog();
+
+
+    popupAnnotationMenu.setParent(this);
+    popupAnnotationMenu.setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
+    popupAnnotationMenu.activateWindow();
+
+    QFormLayout *formLayout = new QFormLayout();
+
+    //dodati provere vrednosti u formu
+
+    QLineEdit *nameLineEdit = new QLineEdit();
+    QLineEdit *beginLineEdit = new QLineEdit();
+    QLineEdit *durationLineEdit = new QLineEdit();
+    QLineEdit *textLineEdit = new QLineEdit();
+    QLineEdit *heightLineEdit = new QLineEdit();
+    QLineEdit *widthLineEdit = new QLineEdit();
+
+    QDialogButtonBox formButtonBox = new QDialogButtonBox();
+
+    formButtonBox.addButton(tr("Accept"),QDialogButtonBox::AcceptRole);
+    formButtonBox.addButton(tr("Cancel"),QDialogButtonBox::RejectRole);
+
+
+
+    formLayout->setSpacing(10);
+    formLayout->setMargin(10);
+
+    formLayout->addRow(tr("Name:"), nameLineEdit);
+    formLayout->addRow(tr("Begin annotation at(hh:mm:ss):"), beginLineEdit);
+    formLayout->addRow(tr("Duration of annotation(mm:ss):"), durationLineEdit);
+    formLayout->addRow(tr("Heigth:"),heightLineEdit);
+    formLayout->addRow(tr("Width:"),widthLineEdit);
+    formLayout->addRow(tr("Text Content: "), textLineEdit);
+
+    formLayout->setContentsMargins(10,10,10,10);
+
+
+    connect(&formButtonBox, SIGNAL(accepted()),
+            &popupAnnotationMenu, SLOT(accept()));
+    connect(&formButtonBox, SIGNAL(rejected()),
+            &popupAnnotationMenu, SLOT(reject()));
+
+
+    popupAnnotationMenu.setLayout(formLayout);
+    formLayout->addWidget(&formButtonBox);
+    popupAnnotationMenu.showNormal();
+    popupAnnotationMenu.setFocus();
+    //provera vrednosti treba i za opseg vremena, anotacija moze da traje najduze od vremena kreiranja do zavrsetka videa
+
+
+    if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
+        //ovde ide inicijalizacija sa unesenim poljima
+
+        QString name = nameLineEdit->text();
+        qint64 width = widthLineEdit->text().toInt();
+        qint64 height = heightLineEdit->text().toInt();
+        QString content = textLineEdit->text();
+        QString beginAt = beginLineEdit->text();
+        QString annDuration = durationLineEdit->text();
+        QStringList times = beginAt.split(tr(":"));
+        QStringList durations = annDuration.split(tr(":"));
+        qint64 beginAnnotation = times[0].toInt()*1000*60*60 + times[1].toInt()*1000*60 + times[2].toInt()*1000;
+        qint64 durationTime = durations[0].toInt()*1000*60 +durations[1].toInt()*1000;
+        //treba povezati promenu vremena u videu sa slotom koji ce ponovo obojiti video
+        //tj nece ako je vreme u videu van validnog opsega
+
+        m_annotation  = new Annotation(m_videoItem, width, height, content, beginAnnotation, durationTime);
+
+        //m_annotation->hide();
+//        if(m_mediaPlayer->position()>=m_annotation->appearance_time()
+//                && m_mediaPlayer->position() < (m_annotation->appearance_time()+m_annotation->duration()))
+
+
+//            m_annotation->hide();
+        }
+
+
+}
+
 
 void videoplayer::playlistDoubleClickPlay(){
     m_playlist->setCurrentIndex(cmnds->m_playlist_entries->row(cmnds->m_playlist_entries->currentItem()));
