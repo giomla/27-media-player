@@ -81,7 +81,9 @@ videoplayer::~videoplayer(){
    delete darkGrayColor;
    delete m_playlist;
    delete m_mediaPlayer;
-
+   for(auto it: m_videoAnnotations){
+       delete it;
+   }
 }
 
 bool videoplayer::isAvaliable() const{
@@ -116,7 +118,13 @@ void videoplayer::positionChanged(qint64 progress){
 
     if (!cmnds->m_Slider->isSliderDown())
         cmnds->m_Slider->setValue(progress/1000);
-
+    //update annotations for video, go through the vector and update for each accordingly
+    if(!m_videoAnnotations.empty()){
+        for(auto it : m_videoAnnotations){
+            it->setCurrTimeOfVideo(progress);
+            it->update();
+        }
+    }
     updateDurationInfo(progress/1000);
 }
 
@@ -656,20 +664,11 @@ void videoplayer::addAnnotation()
         QStringList durations = annDuration.split(tr(":"));
         qint64 beginAnnotation = times[0].toInt()*1000*60*60 + times[1].toInt()*1000*60 + times[2].toInt()*1000;
         qint64 durationTime = durations[0].toInt()*1000*60 +durations[1].toInt()*1000;
-        //treba povezati promenu vremena u videu sa slotom koji ce ponovo obojiti video
-        //tj nece ako je vreme u videu van validnog opsega
 
-        m_annotation  = new Annotation(m_videoItem, width, height, content, beginAnnotation, durationTime);
+        //TODO brisanje svih unosa u vektoru
+        m_videoAnnotations.append(new Annotation(m_videoItem, width, height, content, beginAnnotation, durationTime));
 
-        //m_annotation->hide();
-//        if(m_mediaPlayer->position()>=m_annotation->appearance_time()
-//                && m_mediaPlayer->position() < (m_annotation->appearance_time()+m_annotation->duration()))
-
-
-//            m_annotation->hide();
-        }
-
-
+    }
 }
 
 

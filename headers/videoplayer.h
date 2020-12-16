@@ -28,7 +28,7 @@
 #include "../headers/subtitles.h"
 #include "../headers/commands.h"
 #include "../headers/annotation.h"
-
+#include <QVector>
 
 class QGraphicsVideoItem;
 class Annotation;
@@ -106,7 +106,7 @@ private:
     const QBrush *darkGrayColor = nullptr;
     QAction* addSubtitles = nullptr;
 
-    Annotation *m_annotation = nullptr;
+    QVector <Annotation*> m_videoAnnotations;
 
 protected:
     void resizeEvent(QResizeEvent *) override;

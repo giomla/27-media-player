@@ -35,8 +35,17 @@ public:
     qint64 duration() const;
     void setDuration(const qint64 &duration);
 
+    qint64 getCurrTimeOfVideo() const;
+    void setCurrTimeOfVideo(const qint64 &value);
+
+    bool getCurrActive() const;
+    void setCurrActive(bool value);
+
+    bool getAlreadyModifying() const;
+    void setAlreadyModifying(bool value);
+
 public slots:
-        void modified();
+    void modified();
 protected:
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0) override;
     QRectF boundingRect() const override;
@@ -51,6 +60,9 @@ private:
     QPlainTextEdit *editor = nullptr;
 
     QDialog *modifyDialog = nullptr;
+    qint64 currTimeOfVideo = 0;
+    bool currActive = true;
+    bool alreadyModifying = false;
 };
 
 #endif // ANNOTATION_H
