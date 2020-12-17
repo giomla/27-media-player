@@ -4,7 +4,7 @@
 #include <QString>
 #include <QPushButton>
 #include <QLayout>
-
+#include <QKeyEvent>
 Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QString content, qint64 beginAt, qint64 duration)
 {
     this->setParentItem(parent);
@@ -25,7 +25,6 @@ Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QStri
 }
 
 Annotation::~Annotation(){
-    //TODO brisanje
 }
 
 void Annotation::modifyText()
@@ -37,8 +36,8 @@ void Annotation::modifyText()
 
     QHBoxLayout *hlayout = new QHBoxLayout;
     QPushButton *saveButton = new QPushButton("Save changes");
-
-
+    QPushButton *cancelButton = new QPushButton("Cancel changes");
+    cancelButton->setShortcut(QKeySequence::Cancel);
 
     editor = new QPlainTextEdit(this->text_content());
 
@@ -48,13 +47,12 @@ void Annotation::modifyText()
 
     hlayout->addWidget(editor);
     hlayout->addWidget(saveButton);
-
+    hlayout->addWidget(cancelButton);
     modifyDialog->setLayout(hlayout);
 
     modifyDialog->show();
     QObject::connect(saveButton, &QPushButton::clicked , this, &Annotation::modified);
-
-
+    QObject::connect(cancelButton, &QPushButton::clicked , this, &Annotation::canceled);
 }
 
 void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -73,7 +71,7 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
             this->setFlag(QGraphicsItem::ItemIsFocusable, true);
             this->setFlag(QGraphicsItem::ItemIsSelectable, true);
             this->setAcceptHoverEvents(true);
-
+            this->setActive(true);
 
             painter->setRenderHint(QPainter::Antialiasing);
             painter->fillRect(*m_rect, QBrush(Qt::blue));
@@ -96,6 +94,7 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
                 this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
                 this->setFlag(QGraphicsItem::ItemIsFocusable, false);
                 this->setFlag(QGraphicsItem::ItemIsSelectable, false);
+                this->setActive(false);
             } else {
                 this->setCurrActive(false);
             }
@@ -115,21 +114,31 @@ void Annotation::mousePressEvent(QGraphicsSceneMouseEvent *event)
         if(!this->getAlreadyModifying() && this->getCurrActive()){
             this->setAlreadyModifying(true);
             modifyText();
+        } else {
+            event->ignore();
         }
+    } else if(event->button()==Qt::LeftButton){
+        // we propagate the event to parent item as the annotation is not currently active
+        if(!this->getCurrActive())
+            event->ignore();
     }
 }
 
 
-//geteri i seteri za polja
-
 void Annotation::modified()
 {
-
     this->setText_content(editor->toPlainText());
     update();
     delete modifyDialog;
     this->setAlreadyModifying(false);
 }
+void Annotation::canceled()
+{
+    delete modifyDialog;
+    this->setAlreadyModifying(false);
+}
+
+//geters and seters
 
 bool Annotation::getAlreadyModifying() const
 {

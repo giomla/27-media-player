@@ -46,6 +46,7 @@ public:
 
 public slots:
     void modified();
+    void canceled();
 protected:
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0) override;
     QRectF boundingRect() const override;
