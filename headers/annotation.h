@@ -59,6 +59,7 @@ private:
     QString m_text_content = "";
     qint64 m_width,m_height;
     QPlainTextEdit *editor = nullptr;
+    QScrollBar *m_scroll = nullptr;
 
     QDialog *modifyDialog = nullptr;
     qint64 currTimeOfVideo = 0;
