@@ -4,10 +4,12 @@
 #include <QObject>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
 #include <QMouseEvent>
 #include <QPlainTextEdit>
+#include <QMatrix>
 #include "../headers/videoplayer.h"
 
 class Annotation : public QGraphicsItem, public QObject
@@ -17,9 +19,9 @@ public:
     ~Annotation();
     bool resize_on = false;
     void modifyText();
+    void resizeOccured();
     qint64 width() const;
     void setWidth(const qint64 &width);
-
     qint64 height() const;
     void setHeight(const qint64 &height);
 
@@ -51,6 +53,7 @@ protected:
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0) override;
     QRectF boundingRect() const override;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
 private:
     QRectF *m_rect = nullptr;
     QString *m_name = nullptr;
@@ -58,9 +61,8 @@ private:
     qint64 m_duration;
     QString m_text_content = "";
     qint64 m_width,m_height;
-    QPlainTextEdit *editor = nullptr;
-    QScrollBar *m_scroll = nullptr;
 
+    QPlainTextEdit *editor = nullptr;
     QDialog *modifyDialog = nullptr;
     qint64 currTimeOfVideo = 0;
     bool currActive = true;
