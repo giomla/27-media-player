@@ -441,7 +441,7 @@ void videoplayer::forwardClicked(){
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Forward");
-    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
@@ -452,7 +452,7 @@ void videoplayer::backwardClicked(){
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Backward");
-    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
@@ -679,7 +679,7 @@ void videoplayer::addAnnotation()
 
 void videoplayer::playlistDoubleClickPlay(){
     m_playlist->setCurrentIndex(cmnds->m_playlist_entries->row(cmnds->m_playlist_entries->currentItem()));
-    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
