@@ -5,6 +5,8 @@
 #include <QPushButton>
 #include <QLayout>
 #include <QKeyEvent>
+#include <QMatrix>
+
 Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QString content, qint64 beginAt, qint64 duration)
 {
     this->setParentItem(parent);
@@ -19,8 +21,7 @@ Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QStri
     this->setWidth(width);
     this->setDuration(duration);
     this->setAppearance_time(beginAt);
-    m_rect=new QRectF(100,100,width,height);
-
+    m_rect=new QRectF(0,0,width,height);
     //TODO provere granica da ne nestanu van scene anotacije
 }
 
@@ -55,6 +56,22 @@ void Annotation::modifyText()
     QObject::connect(cancelButton, &QPushButton::clicked , this, &Annotation::canceled);
 }
 
+void Annotation::resizeOccured()
+{
+    if (x() < 0){
+        setPos(0, y());
+    }else if (x() + boundingRect().right() > scene()->views().at(0)->viewport()->width()){
+        setPos(scene()->views().at(0)->viewport()->width() - boundingRect().width(), y());
+    }
+
+    if (y() < 0){
+        setPos(x(), 0);
+    }
+    else if ( y()+ boundingRect().bottom() > scene()->views().at(0)->viewport()->height()){
+        setPos(x(),scene()->views().at(0)->viewport()->height() - boundingRect().height());
+    }
+}
+
 void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED( option )
@@ -64,28 +81,31 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
                 && this->getCurrTimeOfVideo() < (this->appearance_time()+this->duration())){
 
             //moze i provera da li si aktivan, da ne bi bezveze ovo radio, al je nesto bagovalo
-
-            this->setCurrActive(true);
-            this->setFlag(QGraphicsItem::ItemIsMovable, true);
-            this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
-            this->setFlag(QGraphicsItem::ItemIsFocusable, true);
-            this->setFlag(QGraphicsItem::ItemIsSelectable, true);
+            if(!this->getCurrActive()){
+                this->setCurrActive(true);
+                this->setFlag(QGraphicsItem::ItemIsMovable, true);
+                this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+                this->setFlag(QGraphicsItem::ItemIsFocusable, true);
+                this->setFlag(QGraphicsItem::ItemIsSelectable, true);
+            }
             this->setAcceptHoverEvents(true);
             this->setActive(true);
+
+            resizeOccured();
 
             painter->setRenderHint(QPainter::Antialiasing);
             painter->fillRect(*m_rect, QBrush(Qt::blue));
             QRectF boundingRect;
-            QRectF rect = QRectF(100,100,width(),height());
+            //QRectF rect = QRectF(0,0,width(),height());
             QPen pen;
             pen.setColor(Qt::black);
-            painter->drawRect(rect);
+            painter->drawRect(*m_rect);
             QFont font = painter->font();
             font.setPixelSize(24);
             font.setWordSpacing(3);
             painter->setFont(font);
 
-            painter->drawText(rect,Qt::AlignJustify | Qt::TextWordWrap ,this->text_content(),&boundingRect);
+            painter->drawText(*m_rect,Qt::TextWordWrap ,this->text_content(),&boundingRect);
 
         } else {
             if(this->getCurrActive()){
@@ -94,6 +114,7 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
                 this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
                 this->setFlag(QGraphicsItem::ItemIsFocusable, false);
                 this->setFlag(QGraphicsItem::ItemIsSelectable, false);
+
                 this->setActive(false);
             } else {
                 this->setCurrActive(false);
@@ -103,7 +124,7 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 QRectF Annotation::boundingRect() const
 {
-    QRectF rect = QRectF(100,100,width(),height());
+    QRectF rect = QRectF(0,0,width(),height());
     return rect;
 }
 
@@ -124,6 +145,13 @@ void Annotation::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+void Annotation::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsItem::mouseMoveEvent(event);
+    //we check if the annotation is outside the current viewport of the scene and we move it
+    //so its still inside of it
+    resizeOccured();
+}
 
 void Annotation::modified()
 {
@@ -229,4 +257,3 @@ void Annotation::setWidth(const qint64 &width)
 {
     m_width = width;
 }
-

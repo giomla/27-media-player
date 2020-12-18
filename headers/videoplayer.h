@@ -33,6 +33,7 @@
 class QGraphicsVideoItem;
 class Annotation;
 
+
 class videoplayer : public QWidget
 {
     Q_OBJECT //Macro koji mora da se nalazi u klasi ukoliko ona deklarise signale ili slotove.
@@ -106,7 +107,7 @@ private:
     const QBrush *darkGrayColor = nullptr;
     QAction* addSubtitles = nullptr;
 
-    QVector <Annotation*> m_videoAnnotations;
+    QVector<Annotation*> m_videoAnnotations;
 
 protected:
     void resizeEvent(QResizeEvent *) override;

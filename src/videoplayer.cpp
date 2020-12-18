@@ -33,7 +33,7 @@ videoplayer::videoplayer(QWidget *parent)
     m_graphicsView = new QGraphicsView(m_scene);
     m_graphicsView->setContentsMargins(0,0,0,0);
     m_graphicsView->setAcceptDrops(false);
-
+    m_graphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate	);
     subtitle = new subtitles();
     cmnds = new commands(this);
 
@@ -222,19 +222,24 @@ void videoplayer::fitView(){
     m_videoItem->setSize(QSizeF(rect.width(),rect.height()));
     m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
     m_graphicsView->setSceneRect(rect);
+    for(auto it : m_videoAnnotations)
+        it->resizeOccured();
 
     if(isMaximized()){
         subtitleText->setFont(QFont("Times",25));
         subtitleText->setTextWidth(rect.width()/2);
         subtitleText->setPos(rect.width()/4,rect.height()-110);
+
     }else if(isFullScreen()){
         subtitleText->setPos(rect.width()/4,rect.height()-150);
         subtitleText->setFont(QFont("Times",35));
         subtitleText->setTextWidth(rect.width()/2);
+
     }else{
         subtitleText->setPos(rect.width()/4,rect.height()-70);
         subtitleText->setFont(QFont("Times",20));
         subtitleText->setTextWidth(rect.width()/2);
+
     }
 }
 
@@ -436,7 +441,7 @@ void videoplayer::forwardClicked(){
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Forward");
-    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
@@ -447,7 +452,7 @@ void videoplayer::backwardClicked(){
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Backward");
-    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
@@ -674,7 +679,7 @@ void videoplayer::addAnnotation()
 
 void videoplayer::playlistDoubleClickPlay(){
     m_playlist->setCurrentIndex(cmnds->m_playlist_entries->row(cmnds->m_playlist_entries->currentItem()));
-    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
