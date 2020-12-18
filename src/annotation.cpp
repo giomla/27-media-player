@@ -94,7 +94,7 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
             resizeOccured();
 
             painter->setRenderHint(QPainter::Antialiasing);
-            painter->fillRect(*m_rect, QBrush(Qt::blue));
+            painter->fillRect(*m_rect, QBrush(Qt::white));
             QRectF boundingRect;
             //QRectF rect = QRectF(0,0,width(),height());
             QPen pen;

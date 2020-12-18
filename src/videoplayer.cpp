@@ -606,13 +606,15 @@ void videoplayer::addAnnotation()
 {
 
     QDialog popupAnnotationMenu = QDialog();
-
+    popupAnnotationMenu.setMinimumSize(200,200);
+    popupAnnotationMenu.setGeometry(100,100,500,270);
 
     popupAnnotationMenu.setParent(this);
     popupAnnotationMenu.setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
     popupAnnotationMenu.activateWindow();
 
     QFormLayout *formLayout = new QFormLayout();
+    formLayout->setFormAlignment(Qt::AlignTop);
 
     //dodati provere vrednosti u formu
 
@@ -622,13 +624,16 @@ void videoplayer::addAnnotation()
     QLineEdit *textLineEdit = new QLineEdit();
     QLineEdit *heightLineEdit = new QLineEdit();
     QLineEdit *widthLineEdit = new QLineEdit();
+    nameLineEdit->setStyleSheet("background-color:#303030");
+    beginLineEdit->setStyleSheet("background-color:#303030");
+    durationLineEdit->setStyleSheet("background-color:#303030");
+    textLineEdit->setStyleSheet("background-color:#303030");
+    heightLineEdit->setStyleSheet("background-color:#303030");
+    widthLineEdit->setStyleSheet("background-color:#303030");
 
     QDialogButtonBox formButtonBox = new QDialogButtonBox();
-
     formButtonBox.addButton(tr("Accept"),QDialogButtonBox::AcceptRole);
     formButtonBox.addButton(tr("Cancel"),QDialogButtonBox::RejectRole);
-
-
 
     formLayout->setSpacing(10);
     formLayout->setMargin(10);
@@ -658,6 +663,16 @@ void videoplayer::addAnnotation()
 
     if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
         //ovde ide inicijalizacija sa unesenim poljima
+        QString beginString = beginLineEdit->text();
+        QTime beginTime = QTime::fromString(beginString);
+
+        QString durString = durationLineEdit->text();
+        QTime durTime = QTime::fromString(durString);
+
+        if(beginTime.addSecs(durTime.second()).operator >(QTime::fromString(cmnds->m_durationInfo->text()))){
+            std::cerr<<"Invalid duration of annotation"<<std::endl;
+            std::exit(EXIT_FAILURE);
+        }
 
         QString name = nameLineEdit->text();
         qint64 width = widthLineEdit->text().toInt();
@@ -675,7 +690,6 @@ void videoplayer::addAnnotation()
 
     }
 }
-
 
 void videoplayer::playlistDoubleClickPlay(){
     m_playlist->setCurrentIndex(cmnds->m_playlist_entries->row(cmnds->m_playlist_entries->currentItem()));

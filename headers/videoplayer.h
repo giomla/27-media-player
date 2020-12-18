@@ -55,6 +55,7 @@ public:
     void setTitle(QList<QUrl> urls);
     void addButtons(QRect screenGeometry);
     void playlistDoubleClickPlay();
+    bool loadFile(const QString &fileName);
 
 
 public slots:
