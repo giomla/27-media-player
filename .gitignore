@@ -1,3 +1,4 @@
 build-*
 .idea/*
-src/VideoPlayer.pro.*
+src/*.user
+src/*.autosave
