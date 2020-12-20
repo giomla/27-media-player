@@ -71,7 +71,10 @@ videoplayer::videoplayer(QWidget *parent)
 
     //adding annotations
     QAction* addAnnotations = m_rightClickMenu->addAction("Add Annotation");
-    connect (addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
+    QAction* saveAnnotations = m_rightClickMenu->addAction("Save Annotations");
+    connect(addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
+    connect(saveAnnotations,&QAction::triggered, this, &videoplayer::saveAnnotationsToJsonFile);
+
 
     this->connections();
 }
@@ -282,6 +285,7 @@ void videoplayer::loadPlaylist(QList<QUrl> urls){
         m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
         m_graphicsView->setFocus();
         m_mediaPlayer->play();
+        setAnnotationsFromJson();
 }
 
 void videoplayer::addToPlaylist(QList<QUrl> urls){
@@ -669,10 +673,10 @@ void videoplayer::addAnnotation()
         QString durString = durationLineEdit->text();
         QTime durTime = QTime::fromString(durString);
 
-        if(beginTime.addSecs(durTime.second()).operator >(QTime::fromString(cmnds->m_durationInfo->text()))){
-            std::cerr<<"Invalid duration of annotation"<<std::endl;
-            std::exit(EXIT_FAILURE);
-        }
+//        if(beginTime.addSecs(durTime.second()).operator >(QTime::fromString(cmnds->m_durationInfo->text()))){
+//            std::cerr<<"Invalid duration of annotation"<<std::endl;
+//            std::exit(EXIT_FAILURE);
+//        }
 
         QString name = nameLineEdit->text();
         qint64 width = widthLineEdit->text().toInt();
@@ -715,18 +719,28 @@ Also saving by the name of the file that shouldnt be hard. Name of the mediaCUrr
 
 
 */
+
+//TODO
+//This Should go via file descriptor or via FILE object
 void videoplayer::setAnnotationsFromJson(){
-    QFile* file = new QFile(QString("annotations") + "/" + m_mediaPlayer->currentMedia().canonicalUrl().path().split('/').last() + ".json");
-    file->open(QIODevice::ReadWrite);
+    QString filePath = m_mediaPlayer->currentMedia().canonicalUrl().path().split('/').last() + ".json";
+    FILE* f = fopen(filePath.toStdString().c_str(), "r");
+    if(f == nullptr)
+        return;
+
+    QFile file = QFile();
+
+    file.open(f, QIODevice::ReadWrite | QIODevice::Text);
 
     QJsonParseError jsonParseError;
-    QJsonDocument annotationDocument = QJsonDocument::fromJson(file->readAll(), &jsonParseError);
-    file->close();
-    delete file;
+    QJsonDocument annotationDocument = QJsonDocument::fromJson(file.readAll(), &jsonParseError);
+    file.close();
+
     QJsonArray annotationJsonArray = annotationDocument.array();
     m_videoAnnotations.reserve(annotationJsonArray.size());
-    auto jsonBegin = annotationJsonArray.begin();
-    auto jsonEnd = annotationJsonArray.end();
+    QJsonArray::Iterator jsonBegin = annotationJsonArray.begin();
+    QJsonArray::Iterator jsonEnd = annotationJsonArray.end();
+    std::cerr << "pass" << std::endl;
     for(;jsonBegin < jsonEnd; ++jsonBegin){
         QJsonObject obj = jsonBegin->toObject();
         m_videoAnnotations.append(
@@ -744,9 +758,13 @@ void videoplayer::setAnnotationsFromJson(){
 }
 
 void videoplayer::saveAnnotationsToJsonFile(){
+    if(m_videoAnnotations.isEmpty())
+        return;
+
     QJsonArray jsonArr = QJsonArray();
     for(auto anno : m_videoAnnotations){
         QJsonObject obj = QJsonObject();
+
         obj.insert("width", anno->width());
         obj.insert("height", anno->height());
         obj.insert("content", anno->text_content());
@@ -756,18 +774,16 @@ void videoplayer::saveAnnotationsToJsonFile(){
     }
 
     QJsonDocument jsonDoc = QJsonDocument(jsonArr);
-    QDir annotationDir = QDir("annotations");
-    if(!annotationDir.exists())
-        annotationDir.mkdir("annotations");
-
     QFile out = QFile(
-                    annotationDir.currentPath() + "/" +
-                    m_mediaPlayer->currentMedia().canonicalUrl()->path().split('/').last() +
+                    m_mediaPlayer->currentMedia().canonicalUrl().path().split('/').last() +
                     ".json"
                 );
 
-    out.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    out.write(jsonDoc.toJson());
+    out.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+    QByteArray jsonFormated = jsonDoc.toJson();
+    int retVal = out.write(jsonFormated.toStdString().c_str(), jsonFormated.size());
+    if(retVal == -1)
+        std::exit(EXIT_FAILURE);
     out.close();
 }
 

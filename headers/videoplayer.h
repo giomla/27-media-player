@@ -32,6 +32,7 @@
 #include <QVector>
 #include <QFile>
 #include <QJsonDocument>
+#include <string>
 
 class QGraphicsVideoItem;
 class Annotation;
