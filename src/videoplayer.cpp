@@ -71,7 +71,10 @@ videoplayer::videoplayer(QWidget *parent)
 
     //adding annotations
     QAction* addAnnotations = m_rightClickMenu->addAction("Add Annotation");
-    connect (addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
+    QAction* saveAnnotations = m_rightClickMenu->addAction("Save Annotations");
+    connect(addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
+    connect(saveAnnotations,&QAction::triggered, this, &videoplayer::saveAnnotationsToJsonFile);
+
 
     this->connections();
 }
@@ -282,6 +285,7 @@ void videoplayer::loadPlaylist(QList<QUrl> urls){
         m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
         m_graphicsView->setFocus();
         m_mediaPlayer->play();
+        setAnnotationsFromJson();
 }
 
 void videoplayer::addToPlaylist(QList<QUrl> urls){
@@ -605,7 +609,7 @@ void videoplayer::addSubtitle(){
 void videoplayer::addAnnotation()
 {
     numOfAnnotations++;
-    if(numOfAnnotations>5){
+    if(numOfAnnotations>30){
         std::cerr<<"Can't have more than 30 annotations"<<std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -669,6 +673,7 @@ void videoplayer::addAnnotation()
     if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
         //ovde ide inicijalizacija sa unesenim poljima
 
+
         QString name = nameLineEdit->text();
         qint64 width = widthLineEdit->text().toInt(&okWidth,10);
         qint64 height = heightLineEdit->text().toInt(&okHeight,10);
@@ -720,5 +725,89 @@ void videoplayer::playlistDoubleClickPlay(){
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
+/*
+--------SET ANNOTATIONS-------
+We need to load the annotations if the file exists. Best case for getting a json file is by using the name of playing video, but...
+takeback is that if we have another file with the same name it will be read from other file. So better one is by using SHA-1 or MD5 but that
+wont be implemented. So the best way is to get the name of the media and then see if the json exists in the folder... that could be taken
+we need a folder for that thing TO BE IMPLEMENTED.
 
+Once we get the file we can parse it into QJsonObject and then access all properties in that Object. Still dont know how to access that
+Once its loaded QFile we can use QJsonDocument to parse it.
+QJsonDocument then can be modified and at program end it should be saved or at least at clip end.
+Here then comes:
+-------SAVE ANOTATIONS------
+Ok so we need to use the QJsonDocument and then persist it on the hard drive somewhere in the local folder
+BUT if that folder doesnt exist it should be created.
+Also saving by the name of the file that shouldnt be hard. Name of the mediaCUrrently playing
+
+
+*/
+
+//TODO
+//This Should go via file descriptor or via FILE object
+void videoplayer::setAnnotationsFromJson(){
+    QString filePath = m_mediaPlayer->currentMedia().canonicalUrl().path().split('/').last() + ".json";
+    FILE* f = fopen(filePath.toStdString().c_str(), "r");
+    if(f == nullptr)
+        return;
+
+    QFile file = QFile();
+
+    file.open(f, QIODevice::ReadWrite | QIODevice::Text);
+
+    QJsonParseError jsonParseError;
+    QJsonDocument annotationDocument = QJsonDocument::fromJson(file.readAll(), &jsonParseError);
+    file.close();
+
+    QJsonArray annotationJsonArray = annotationDocument.array();
+    m_videoAnnotations.reserve(annotationJsonArray.size());
+    QJsonArray::Iterator jsonBegin = annotationJsonArray.begin();
+    QJsonArray::Iterator jsonEnd = annotationJsonArray.end();
+    std::cerr << "pass" << std::endl;
+    for(;jsonBegin < jsonEnd; ++jsonBegin){
+        QJsonObject obj = jsonBegin->toObject();
+        m_videoAnnotations.append(
+                    new Annotation(
+                        m_videoItem,
+                        obj.value("width").toInt(),
+                        obj.value("height").toInt(),
+                        obj.value("content").toString(),
+                        obj.value("beginAt").toInt(),
+                        obj.value("duration").toInt()
+                    )
+                  );
+    }
+
+}
+
+void videoplayer::saveAnnotationsToJsonFile(){
+    if(m_videoAnnotations.isEmpty())
+        return;
+
+    QJsonArray jsonArr = QJsonArray();
+    for(auto anno : m_videoAnnotations){
+        QJsonObject obj = QJsonObject();
+
+        obj.insert("width", anno->width());
+        obj.insert("height", anno->height());
+        obj.insert("content", anno->text_content());
+        obj.insert("beginAt", anno->appearance_time());
+        obj.insert("duration", anno->duration());
+        jsonArr.append(obj);
+    }
+
+    QJsonDocument jsonDoc = QJsonDocument(jsonArr);
+    QFile out = QFile(
+                    m_mediaPlayer->currentMedia().canonicalUrl().path().split('/').last() +
+                    ".json"
+                );
+
+    out.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+    QByteArray jsonFormated = jsonDoc.toJson();
+    int retVal = out.write(jsonFormated.toStdString().c_str(), jsonFormated.size());
+    if(retVal == -1)
+        std::exit(EXIT_FAILURE);
+    out.close();
+}
 

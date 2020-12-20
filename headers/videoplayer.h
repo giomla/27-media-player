@@ -5,6 +5,7 @@
 #define MAX_PLAYBACK_RATE 4.00
 #define SEEK_STEP 5000
 #define VOLUME_STEP 5
+#define DEFAULT_ANNOTATIONS_FOLDER "annotations"
 
 #include <QMainWindow>
 #include <QWidget>
@@ -29,6 +30,9 @@
 #include "../headers/commands.h"
 #include "../headers/annotation.h"
 #include <QVector>
+#include <QFile>
+#include <QJsonDocument>
+#include <string>
 
 class QGraphicsVideoItem;
 class Annotation;
@@ -78,6 +82,8 @@ public slots:
     void setVolume(qint64 vol);
     void addSubtitle();
     void addAnnotation();
+    void setAnnotationsFromJson();
+    void saveAnnotationsToJsonFile();
 signals:
     void play();
     void stop();
@@ -108,9 +114,8 @@ private:
     const QBrush *darkGrayColor = nullptr;
     QAction* addSubtitles = nullptr;
     QVector<Annotation*> m_videoAnnotations;
+
     int numOfAnnotations = 0;
-
-
 protected:
     void resizeEvent(QResizeEvent *) override;
     void showEvent(QShowEvent *) override;
