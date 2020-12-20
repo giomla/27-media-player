@@ -665,6 +665,7 @@ void videoplayer::addAnnotation()
     //provera vrednosti treba i za opseg vremena, anotacija moze da traje najduze od vremena kreiranja do zavrsetka videa
     bool okWidth = true;
     bool okHeight = true;
+    qint64 defaultSize= 200;
     if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
         //ovde ide inicijalizacija sa unesenim poljima
 
@@ -680,22 +681,18 @@ void videoplayer::addAnnotation()
         qint64 durationTime = durations[0].toInt()*1000*60 +durations[1].toInt()*1000;
 
         if(!okWidth){
-            std::cerr<<"Enter a number for width!"<<std::endl;
-            std::exit(EXIT_FAILURE);
+            width = defaultSize;
         }
         if(!okHeight){
-            std::cerr<<"Enter a number for height!"<<std::endl;
-            std::exit(EXIT_FAILURE);
+            height = defaultSize;
         }
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
 
         if(height > screenGeometry.height()){
-            std::cerr<<"Height of annotation is too big."<<std::endl;
-            std::exit(EXIT_FAILURE);
+            height = defaultSize;
         }
         if(width > screenGeometry.width()){
-            std::cerr<<"Width of annotation is to big."<<std::endl;
-            std::exit(EXIT_FAILURE);
+            width = defaultSize;
         }
 
         QString durationLabel = cmnds->m_durationInfo->text();
@@ -709,8 +706,7 @@ void videoplayer::addAnnotation()
             dur = durVideoList[0].toInt()*1000*60*60+durVideoList[1].toInt()*1000*60+durVideoList[2].toInt()*1000;
         }
         if(beginAnnotation+durationTime > dur){
-            std::cerr<<"Invalid duration of annotation"<<std::endl;
-            std::exit(EXIT_FAILURE);
+            durationTime = dur - beginAnnotation;
         }
         //TODO brisanje svih unosa u vektoru
         m_videoAnnotations.append(new Annotation(m_videoItem, width, height, content, beginAnnotation, durationTime));
