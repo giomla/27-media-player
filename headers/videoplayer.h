@@ -107,8 +107,9 @@ private:
     QLabel *m_text = nullptr;
     const QBrush *darkGrayColor = nullptr;
     QAction* addSubtitles = nullptr;
-
     QVector<Annotation*> m_videoAnnotations;
+    int numOfAnnotations = 0;
+
 
 protected:
     void resizeEvent(QResizeEvent *) override;

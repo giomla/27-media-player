@@ -441,7 +441,7 @@ void videoplayer::forwardClicked(){
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Forward");
-    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
@@ -452,7 +452,7 @@ void videoplayer::backwardClicked(){
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Backward");
-    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
@@ -604,7 +604,11 @@ void videoplayer::addSubtitle(){
 
 void videoplayer::addAnnotation()
 {
-
+    numOfAnnotations++;
+    if(numOfAnnotations>5){
+        std::cerr<<"Can't have more than 30 annotations"<<std::endl;
+        std::exit(EXIT_FAILURE);
+    }
     QDialog popupAnnotationMenu = QDialog();
     popupAnnotationMenu.setMinimumSize(200,200);
     popupAnnotationMenu.setGeometry(100,100,500,270);
@@ -659,24 +663,14 @@ void videoplayer::addAnnotation()
     popupAnnotationMenu.showNormal();
     popupAnnotationMenu.setFocus();
     //provera vrednosti treba i za opseg vremena, anotacija moze da traje najduze od vremena kreiranja do zavrsetka videa
-
-
+    bool okWidth = true;
+    bool okHeight = true;
     if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
         //ovde ide inicijalizacija sa unesenim poljima
-        QString beginString = beginLineEdit->text();
-        QTime beginTime = QTime::fromString(beginString);
-
-        QString durString = durationLineEdit->text();
-        QTime durTime = QTime::fromString(durString);
-
-        if(beginTime.addSecs(durTime.second()).operator >(QTime::fromString(cmnds->m_durationInfo->text()))){
-            std::cerr<<"Invalid duration of annotation"<<std::endl;
-            std::exit(EXIT_FAILURE);
-        }
 
         QString name = nameLineEdit->text();
-        qint64 width = widthLineEdit->text().toInt();
-        qint64 height = heightLineEdit->text().toInt();
+        qint64 width = widthLineEdit->text().toInt(&okWidth,10);
+        qint64 height = heightLineEdit->text().toInt(&okHeight,10);
         QString content = textLineEdit->text();
         QString beginAt = beginLineEdit->text();
         QString annDuration = durationLineEdit->text();
@@ -685,6 +679,39 @@ void videoplayer::addAnnotation()
         qint64 beginAnnotation = times[0].toInt()*1000*60*60 + times[1].toInt()*1000*60 + times[2].toInt()*1000;
         qint64 durationTime = durations[0].toInt()*1000*60 +durations[1].toInt()*1000;
 
+        if(!okWidth){
+            std::cerr<<"Enter a number for width!"<<std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+        if(!okHeight){
+            std::cerr<<"Enter a number for height!"<<std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+        const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
+
+        if(height > screenGeometry.height()){
+            std::cerr<<"Height of annotation is too big."<<std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+        if(width > screenGeometry.width()){
+            std::cerr<<"Width of annotation is to big."<<std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+
+        QString durationLabel = cmnds->m_durationInfo->text();
+        QStringList durationList = durationLabel.split(" / ");
+        QStringList durVideoList = durationList[1].split(":");
+        qint64 dur=0;
+        if(durVideoList.length()==2){
+            dur = durVideoList[0].toInt()*1000*60+durVideoList[1].toInt()*1000;
+        }
+        else{
+            dur = durVideoList[0].toInt()*1000*60*60+durVideoList[1].toInt()*1000*60+durVideoList[2].toInt()*1000;
+        }
+        if(beginAnnotation+durationTime > dur){
+            std::cerr<<"Invalid duration of annotation"<<std::endl;
+            std::exit(EXIT_FAILURE);
+        }
         //TODO brisanje svih unosa u vektoru
         m_videoAnnotations.append(new Annotation(m_videoItem, width, height, content, beginAnnotation, durationTime));
 
@@ -693,7 +720,7 @@ void videoplayer::addAnnotation()
 
 void videoplayer::playlistDoubleClickPlay(){
     m_playlist->setCurrentIndex(cmnds->m_playlist_entries->row(cmnds->m_playlist_entries->currentItem()));
-    QFileInfo fileInfo(m_playlist->currentMedia().request().url().path());
+    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
