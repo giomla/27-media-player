@@ -30,6 +30,7 @@
 #include "../headers/subtitles.h"
 #include "../headers/commands.h"
 #include "../headers/annotation.h"
+#include "../headers/playlist.h"
 #include <QVector>
 #include <QFile>
 #include <QJsonDocument>
@@ -98,7 +99,7 @@ private slots:
 
 private:
     QMediaPlayer* m_mediaPlayer = nullptr;
-    QMediaPlaylist *m_playlist = nullptr;
+    //QMediaPlaylist *m_playlist = nullptr;
     bool m_playerMuted = false;
     QMediaPlayer::State m_playerState = QMediaPlayer::StoppedState;
     QGraphicsVideoItem* m_videoItem = nullptr;
@@ -115,6 +116,7 @@ private:
     QAction* addSubtitles = nullptr;
     QVector<Annotation*> m_videoAnnotations;
     rightClickMenu* m_rightClickMenu = nullptr;
+    playlist* Playlist = nullptr;
 
     int numOfAnnotations = 0;
 protected:

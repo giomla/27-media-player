@@ -12,16 +12,16 @@ videoplayer::videoplayer(QWidget *parent)
     : QWidget(parent)
 {
 
-    const QRect screenGeometry = QApplication::desktop()->screenGeometry(this); // Pristupamo QDesktopWidget klasi koja ima metod
+    const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
 
     m_videoItem = new QGraphicsVideoItem;
     m_videoItem->setSize(QSizeF(screenGeometry.width()/2, screenGeometry.height()));
     m_videoItem->setAspectRatioMode(Qt::AspectRatioMode::KeepAspectRatio);
 
-    m_playlist = new QMediaPlaylist();
 
     m_mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
-    m_mediaPlayer->setPlaylist(m_playlist);
+    Playlist = new playlist(this,m_mediaPlayer);
+    m_mediaPlayer->setPlaylist(Playlist->m_playlist);
     m_mediaPlayer->setVideoOutput(m_videoItem);
 
     darkGrayColor = new QBrush(QColor(50,50,50));
@@ -57,8 +57,9 @@ videoplayer::videoplayer(QWidget *parent)
     layout->addWidget(m_graphicsView);
     layout->addLayout(cmnds->sliderLayout);
     layout->addLayout(cmnds->commandsLayout);
-    layout->addWidget(cmnds->m_playlist_entries);
+    layout->addWidget(Playlist->m_playlist_entries);
     layout->setSpacing(0);
+
 
 
     //adding annotations
@@ -67,14 +68,13 @@ videoplayer::videoplayer(QWidget *parent)
 //    connect(addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
 //    connect(saveAnnotations,&QAction::triggered, this, &videoplayer::saveAnnotationsToJsonFile);
 
-
+    m_graphicsView->setFocus();
     this->connections();
 }
 
 videoplayer::~videoplayer(){
    delete subtitle;
    delete darkGrayColor;
-   delete m_playlist;
    delete m_mediaPlayer;
    for(auto it: m_videoAnnotations){
        delete it;
@@ -103,7 +103,10 @@ void videoplayer::connections(){
     connect(cmnds->m_seekBackwardButton,&QAbstractButton::clicked, this, &videoplayer::seekBackwardClicked);
     connect(cmnds->m_stopButton,&QAbstractButton::clicked, this, &videoplayer::stopClicked);
     connect(m_videoItem, &QGraphicsVideoItem::nativeSizeChanged, this, &videoplayer::calcVideoFactor);
-    connect(cmnds->m_playlist_entries, &QListWidget::doubleClicked, this, &videoplayer::playlistDoubleClickPlay);
+    connect(Playlist->m_playlist_entries, &QListWidget::doubleClicked, this, &videoplayer::playlistDoubleClickPlay);
+    connect(cmnds->m_showPlaylistButton,&QAbstractButton::clicked, Playlist, &playlist::showPlaylist);
+    connect(cmnds->m_showPlaylistButton,&QAbstractButton::clicked, this, &videoplayer::fitView);
+
     //when another video is loaded up, the native resolution of the video changes
     //so we monitor for that, so we can adjust the resolution accordingly
 
@@ -255,7 +258,9 @@ void videoplayer::openFile(){
         subtitle->subs.clear();
         subtitle->setAddedSubtitle(false);
         subtitleText->hide();
-        loadPlaylist(fileDialog.selectedUrls());
+        Playlist->loadPlaylist(fileDialog.selectedUrls());
+        m_graphicsView->setFocus();
+        setAnnotationsFromJson();
     }
 }
 void videoplayer::dragEnterEvent(QDragEnterEvent *event){
@@ -265,35 +270,35 @@ void videoplayer::dragEnterEvent(QDragEnterEvent *event){
 }
 
 void videoplayer::dropEvent(QDropEvent *event) {
-    loadPlaylist(event->mimeData()->urls());
+    Playlist->loadPlaylist(event->mimeData()->urls());
 }
 
-void videoplayer::loadPlaylist(QList<QUrl> urls){
+//void videoplayer::loadPlaylist(QList<QUrl> urls){
 
-    cmnds->m_playlist_entries->setStyleSheet("color:white");
-    for (auto url : urls){
-        m_playlist->addMedia(url);
-        cmnds->m_playlist_entries->addItem(url.fileName().left(url.fileName().lastIndexOf('.')));
-        this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
-    }
-        m_playlist->setCurrentIndex(m_playlist->currentIndex()+1);
-        m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
-        m_graphicsView->setFocus();
-        m_mediaPlayer->play();
-        setAnnotationsFromJson();
-}
+//    cmnds->m_playlist_entries->setStyleSheet("color:white");
+//    for (auto url : urls){
+//        m_playlist->addMedia(url);
+//        cmnds->m_playlist_entries->addItem(url.fileName().left(url.fileName().lastIndexOf('.')));
+//        this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
+//    }
+//        m_playlist->setCurrentIndex(m_playlist->currentIndex()+1);
+//        m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
+//        m_graphicsView->setFocus();
+//        m_mediaPlayer->play();
+//        setAnnotationsFromJson();
+//}
 
-void videoplayer::addToPlaylist(QList<QUrl> urls){
-    for (auto url : urls){
-        m_playlist->addMedia(url);
-        cmnds->m_playlist_entries->addItem(url.fileName().split('.')[0]);
-    }
-        m_playlist->setCurrentIndex(m_playlist->nextIndex());
-        m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
-        m_graphicsView->setFocus();
-        m_mediaPlayer->play();
+//void videoplayer::addToPlaylist(QList<QUrl> urls){
+//    for (auto url : urls){
+//        m_playlist->addMedia(url);
+//        cmnds->m_playlist_entries->addItem(url.fileName().split('.')[0]);
+//    }
+//        m_playlist->setCurrentIndex(m_playlist->nextIndex());
+//        m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
+//        m_graphicsView->setFocus();
+//        m_mediaPlayer->play();
 
-}
+//}
 
 void videoplayer::playClicked(){
     switch (m_playerState) {
@@ -437,22 +442,22 @@ void videoplayer::stopClicked(){
 }
 
 void videoplayer::forwardClicked(){
-    m_playlist->next();
+    Playlist->m_playlist->next();
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Forward");
-    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
+    QFileInfo fileInfo(Playlist->m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
 
 void videoplayer::backwardClicked(){
-    m_playlist->previous();
+    Playlist->m_playlist->previous();
     m_mediaPlayer->play();
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Backward");
-    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
+    QFileInfo fileInfo(Playlist->m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
@@ -528,6 +533,7 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
     else if(event->key()==Qt::Key_F){
         if(!isFullScreen()){
             cmnds->hideCommands();
+            Playlist->m_playlist_entries->hide();
             m_menuBar->hide();
             this->layout()->setContentsMargins(0,0,0,0);
             this->layout()->setMargin(0);
@@ -536,6 +542,7 @@ void videoplayer::keyPressEvent(QKeyEvent *event){
             this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             cmnds->showCommands();
+            Playlist->m_playlist_entries->show();
             m_menuBar->show();
         }
     }
@@ -551,6 +558,7 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event){
                         m_graphicsView->underMouse()){
         if(!isFullScreen()){
             cmnds->hideCommands();
+            Playlist->m_playlist_entries->hide();
             m_menuBar->hide();
             showFullScreen();
             cmnds->m_playButton->click();
@@ -558,6 +566,7 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event){
             this->layout()->setContentsMargins(-1,-1,-1,-1);
             showNormal();
             cmnds->showCommands();
+            Playlist->m_playlist_entries->show();
             m_menuBar->show();
             cmnds->m_playButton->click();
           }
@@ -716,8 +725,8 @@ void videoplayer::addAnnotation()
 }
 
 void videoplayer::playlistDoubleClickPlay(){
-    m_playlist->setCurrentIndex(cmnds->m_playlist_entries->row(cmnds->m_playlist_entries->currentItem()));
-    QFileInfo fileInfo(m_playlist->currentMedia().canonicalUrl().path());
+    Playlist->m_playlist->setCurrentIndex(Playlist->m_playlist_entries->row(Playlist->m_playlist_entries->currentItem()));
+    QFileInfo fileInfo(Playlist->m_playlist->currentMedia().canonicalUrl().path());
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }

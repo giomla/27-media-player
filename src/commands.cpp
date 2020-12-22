@@ -49,6 +49,9 @@ commands::commands(QWidget *parent) :
     m_openButton = new QPushButton(tr("Open"));
     m_openButton->setStyleSheet("color:white");
 
+    m_showPlaylistButton = new QPushButton;
+    m_showPlaylistButton->setIcon(style()->standardIcon(QStyle::SP_FileDialogDetailedView));
+    m_showPlaylistButton->setMinimumSize(screenGeometry.width()/18,screenGeometry.height()/20);
 
     m_volumeSlider = new QSlider(Qt::Horizontal);
     m_volumeSlider->setRange(0,100);
@@ -70,7 +73,7 @@ commands::commands(QWidget *parent) :
     commandsLayout = new QHBoxLayout;
     sliderLayout = new QHBoxLayout;
 
-    m_playlist_entries = new QListWidget;
+
 }
 
 void commands::hideCommands(){
@@ -85,7 +88,8 @@ void commands::hideCommands(){
     m_volumeSlider->hide();
     m_durationInfo->hide();
     m_Slider->hide();
-    m_playlist_entries->hide();
+    m_showPlaylistButton->hide();
+
 }
 
 void commands::showCommands(){
@@ -100,7 +104,8 @@ void commands::showCommands(){
     m_volumeSlider->show();
     m_durationInfo->show();
     m_Slider->show();
-    m_playlist_entries->show();
+    m_showPlaylistButton->show();
+
 }
 
 void commands::enableAllCommands(){
@@ -125,8 +130,10 @@ void commands::createCommandLayout(){
     commandsLayout->addWidget(m_stopButton);
     commandsLayout->addWidget(m_seekForwardButton);
     commandsLayout->addWidget(m_forwardButton);
+    commandsLayout->addWidget(m_showPlaylistButton);
     commandsLayout->addWidget(m_muteButton);
     commandsLayout->addWidget(m_volumeSlider);
+
     commandsLayout->setSpacing(0);
 }
 
