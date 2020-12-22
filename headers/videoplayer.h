@@ -26,9 +26,11 @@
 #include <QPair>
 #include <QGraphicsTextItem>
 #include <QTime>
+#include "../headers/rightClickMenu.h"
 #include "../headers/subtitles.h"
 #include "../headers/commands.h"
 #include "../headers/annotation.h"
+#include "../headers/playlist.h"
 #include <QVector>
 #include <QFile>
 #include <QJsonDocument>
@@ -93,11 +95,12 @@ signals:
 private slots:
     void mediaStateChanged(QMediaPlayer::State state);
     void onVolumeSliderChanged();
+
     //TODO
 
 private:
     QMediaPlayer* m_mediaPlayer = nullptr;
-    QMediaPlaylist *m_playlist = nullptr;
+    //QMediaPlaylist *m_playlist = nullptr;
     bool m_playerMuted = false;
     QMediaPlayer::State m_playerState = QMediaPlayer::StoppedState;
     QGraphicsVideoItem* m_videoItem = nullptr;
@@ -105,7 +108,6 @@ private:
     QGraphicsView* m_graphicsView = nullptr;
     QGraphicsTextItem* subtitleText = nullptr;
     QMenuBar *m_menuBar = nullptr;
-    QMenu *m_rightClickMenu = nullptr;
     subtitles* subtitle;
     commands* cmnds;
     qint64 m_duration = 0;
@@ -114,6 +116,8 @@ private:
     const QBrush *darkGrayColor = nullptr;
     QAction* addSubtitles = nullptr;
     QVector<Annotation*> m_videoAnnotations;
+    rightClickMenu* m_rightClickMenu = nullptr;
+    playlist* Playlist = nullptr;
 
     int numOfAnnotations = 0;
 protected:
@@ -122,6 +126,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     void wheelEvent(QWheelEvent *event) override;
     void dropEvent(QDropEvent *event) override;

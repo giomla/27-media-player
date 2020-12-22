@@ -20,13 +20,15 @@ public:
     QAbstractButton* m_openButton = nullptr;
     QAbstractButton* m_seekForwardButton = nullptr;
     QAbstractButton* m_seekBackwardButton = nullptr;
+    QAbstractButton* m_showPlaylistButton = nullptr;
     QRect screenGeometry;
     QSlider* m_Slider = nullptr;
     QSlider* m_volumeSlider = nullptr;
     QLabel* m_durationInfo = nullptr;
     QHBoxLayout* commandsLayout = nullptr;
     QHBoxLayout* sliderLayout = nullptr;
-    QListWidget* m_playlist_entries = nullptr;
+
+
 
     void hideCommands();
     void showCommands();
