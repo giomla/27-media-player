@@ -579,7 +579,7 @@ void videoplayer::contextMenuEvent(QContextMenuEvent *event)
     //from annotations works
 
     if(m_graphicsView->underMouse())
-         m_rightClickMenu->popup(QCursor::pos());
+         m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
 }
 
 void videoplayer::mousePressEvent(QMouseEvent *event){
