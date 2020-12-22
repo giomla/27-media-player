@@ -23,9 +23,11 @@ SOURCES += \
     ../src/subtitles.cpp \
     ../src/commands.cpp \
     ../src/annotation.cpp\
+    rightClickMenu.cpp
 
 HEADERS += \
     ../headers/commands.h \
+    ../headers/rightClickMenu.h \
     ../headers/subtitles.h \
     ../headers/videoplayer.h \
 	../headers/annotation.h \

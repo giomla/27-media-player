@@ -26,6 +26,7 @@
 #include <QPair>
 #include <QGraphicsTextItem>
 #include <QTime>
+#include "../headers/rightClickMenu.h"
 #include "../headers/subtitles.h"
 #include "../headers/commands.h"
 #include "../headers/annotation.h"
@@ -105,7 +106,6 @@ private:
     QGraphicsView* m_graphicsView = nullptr;
     QGraphicsTextItem* subtitleText = nullptr;
     QMenuBar *m_menuBar = nullptr;
-    QMenu *m_rightClickMenu = nullptr;
     subtitles* subtitle;
     commands* cmnds;
     qint64 m_duration = 0;
@@ -114,6 +114,7 @@ private:
     const QBrush *darkGrayColor = nullptr;
     QAction* addSubtitles = nullptr;
     QVector<Annotation*> m_videoAnnotations;
+    rightClickMenu* m_rightClickMenu = nullptr;
 
     int numOfAnnotations = 0;
 protected:

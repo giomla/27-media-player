@@ -36,6 +36,7 @@ videoplayer::videoplayer(QWidget *parent)
     m_graphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate	);
     subtitle = new subtitles();
     cmnds = new commands(this);
+    m_rightClickMenu = new rightClickMenu(this);
 
     subtitleText = new QGraphicsTextItem(m_videoItem);
     subtitleText->setDefaultTextColor(QColor("white"));
@@ -59,21 +60,12 @@ videoplayer::videoplayer(QWidget *parent)
     layout->addWidget(cmnds->m_playlist_entries);
     layout->setSpacing(0);
 
-   //TO DO MENU CLASS
-    m_rightClickMenu = new QMenu(this);
-    m_rightClickMenu->addAction("Play/Pause",this, SLOT(playClicked()));
-    m_rightClickMenu->addSeparator();
-    m_rightClickMenu->addAction("Leave",this,SLOT(exit()));
-    m_rightClickMenu->setStyleSheet("color: white");
-    m_rightClickMenu->setHidden(true);
-
-    addSubtitles = m_rightClickMenu->addAction("Add Subtitle");
 
     //adding annotations
-    QAction* addAnnotations = m_rightClickMenu->addAction("Add Annotation");
-    QAction* saveAnnotations = m_rightClickMenu->addAction("Save Annotations");
-    connect(addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
-    connect(saveAnnotations,&QAction::triggered, this, &videoplayer::saveAnnotationsToJsonFile);
+//    QAction* addAnnotations = m_rightClickMenu->addAction("Add Annotation");
+//    QAction* saveAnnotations = m_rightClickMenu->addAction("Save Annotations");
+//    connect(addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
+//    connect(saveAnnotations,&QAction::triggered, this, &videoplayer::saveAnnotationsToJsonFile);
 
 
     this->connections();
@@ -96,7 +88,7 @@ bool videoplayer::isAvaliable() const{
 
 void videoplayer::connections(){
 
-    connect(addSubtitles,&QAction::triggered,this,&videoplayer::addSubtitle);
+
     connect(m_mediaPlayer,&QMediaPlayer::stateChanged,this,&videoplayer::mediaStateChanged);
     connect(cmnds->m_volumeSlider,&QSlider::valueChanged,this,&videoplayer::onVolumeSliderChanged);
     connect(cmnds->m_Slider, &QSlider::sliderMoved, this, &videoplayer::seek);
@@ -184,12 +176,15 @@ void videoplayer::mediaStateChanged(QMediaPlayer::State state){
             case QMediaPlayer::PlayingState:
                 cmnds->enableAllCommands();
                 cmnds->m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+                m_rightClickMenu->playingState();
                 break;
             case QMediaPlayer::StoppedState:
                 cmnds->m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+                m_rightClickMenu->StoppedState();
                 break;
             case QMediaPlayer::PausedState:
                 cmnds->m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+                m_rightClickMenu->PausedState();
                 break;
             default:
                 cmnds->m_stopButton->setEnabled(false);
@@ -297,6 +292,7 @@ void videoplayer::addToPlaylist(QList<QUrl> urls){
         m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
         m_graphicsView->setFocus();
         m_mediaPlayer->play();
+
 }
 
 void videoplayer::playClicked(){
@@ -573,7 +569,7 @@ void videoplayer::mousePressEvent(QMouseEvent *event){
     if(event->button()==Qt::LeftButton && m_graphicsView->underMouse())
         cmnds->m_playButton->click();
     else if(event->button()==Qt::RightButton && m_graphicsView->underMouse())
-        m_rightClickMenu->popup(QCursor::pos());
+        m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
 }
 
 void videoplayer::wheelEvent(QWheelEvent *event){
