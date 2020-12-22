@@ -12,13 +12,15 @@
 #include <QMatrix>
 #include "../headers/videoplayer.h"
 
-class Annotation : public QGraphicsItem, public QObject
+class Annotation : public QObject, public QGraphicsItem
 {
+    Q_OBJECT
 public:
+
     Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QString content, qint64 beginAt, qint64 duration);
     ~Annotation();
     bool resize_on = false;
-    void modifyText();
+
     void resizeOccured();
     qint64 width() const;
     void setWidth(const qint64 &width);
@@ -49,11 +51,13 @@ public:
 public slots:
     void modified();
     void canceled();
+    void modifyText();
 protected:
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0) override;
     QRectF boundingRect() const override;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
+    void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
 private:
     QRectF *m_rect = nullptr;
     QString *m_name = nullptr;
@@ -61,6 +65,8 @@ private:
     qint64 m_duration;
     QString m_text_content = "";
     qint64 m_width,m_height;
+
+    QMenu *menu = nullptr;
 
     QPlainTextEdit *editor = nullptr;
     QDialog *modifyDialog = nullptr;
