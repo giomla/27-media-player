@@ -573,6 +573,15 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event){
     }
 }
 
+void videoplayer::contextMenuEvent(QContextMenuEvent *event)
+{
+    //need a implementation of context menu event so that the propagation of events
+    //from annotations works
+
+    if(m_graphicsView->underMouse())
+         m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
+}
+
 void videoplayer::mousePressEvent(QMouseEvent *event){
 
     if(event->button()==Qt::LeftButton && m_graphicsView->underMouse())

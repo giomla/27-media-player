@@ -30,7 +30,7 @@ Annotation::~Annotation(){
 
 void Annotation::modifyText()
 {
-
+    if(!this->getAlreadyModifying()){
     modifyDialog = new QDialog();
     modifyDialog->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
     modifyDialog->activateWindow();
@@ -50,10 +50,11 @@ void Annotation::modifyText()
     hlayout->addWidget(saveButton);
     hlayout->addWidget(cancelButton);
     modifyDialog->setLayout(hlayout);
-
+    this->setAlreadyModifying(true);
     modifyDialog->show();
     QObject::connect(saveButton, &QPushButton::clicked , this, &Annotation::modified);
     QObject::connect(cancelButton, &QPushButton::clicked , this, &Annotation::canceled);
+    }
 }
 
 void Annotation::resizeOccured()
@@ -80,7 +81,6 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         if(this->getCurrTimeOfVideo() >= this->appearance_time()
                 && this->getCurrTimeOfVideo() < (this->appearance_time()+this->duration())){
 
-            //moze i provera da li si aktivan, da ne bi bezveze ovo radio, al je nesto bagovalo
             if(!this->getCurrActive()){
                 this->setCurrActive(true);
                 this->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -104,8 +104,7 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
             font.setPixelSize(24);
             font.setWordSpacing(3);
             painter->setFont(font);
-
-            painter->drawText(*m_rect,Qt::TextWordWrap ,this->text_content(),&boundingRect);
+            painter->drawText(*m_rect,Qt::TextWrapAnywhere,this->text_content(),&boundingRect);
 
         } else {
             if(this->getCurrActive()){
@@ -130,15 +129,7 @@ QRectF Annotation::boundingRect() const
 
 void Annotation::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-
-    if(event->button()==Qt::RightButton){
-        if(!this->getAlreadyModifying() && this->getCurrActive()){
-            this->setAlreadyModifying(true);
-            modifyText();
-        } else {
-            event->ignore();
-        }
-    } else if(event->button()==Qt::LeftButton){
+  if(event->button()==Qt::LeftButton){
         // we propagate the event to parent item as the annotation is not currently active
         if(!this->getCurrActive())
             event->ignore();
@@ -147,10 +138,28 @@ void Annotation::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void Annotation::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    QGraphicsItem::mouseMoveEvent(event);
-    //we check if the annotation is outside the current viewport of the scene and we move it
-    //so its still inside of it
-    resizeOccured();
+    //we prevent default multiple selection of objects
+
+    if(this->isSelected()){
+        QGraphicsItem::mouseMoveEvent(event);
+        //we check if the annotation is outside the current viewport of the scene and we move it
+        //so its still inside of it
+        resizeOccured();
+    } else
+        event->ignore();
+}
+
+void Annotation::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    if(!this->getAlreadyModifying() && this->getCurrActive()){
+        menu = new QMenu;
+        //TODO ACTION FOR RESIZE
+        menu->addAction("Resize annotation");
+        menu->addAction("Edit text", this, SLOT(modifyText()));
+        menu->popup(event->screenPos());
+        event->setAccepted(true);
+    } else
+        event->ignore();
 }
 
 void Annotation::modified()

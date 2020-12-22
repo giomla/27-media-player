@@ -95,6 +95,7 @@ signals:
 private slots:
     void mediaStateChanged(QMediaPlayer::State state);
     void onVolumeSliderChanged();
+
     //TODO
 
 private:
@@ -125,6 +126,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     void wheelEvent(QWheelEvent *event) override;
     void dropEvent(QDropEvent *event) override;
