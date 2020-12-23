@@ -279,7 +279,6 @@ void videoplayer::dropEvent(QDropEvent *event) {
 //    for (auto url : urls){
 //        m_playlist->addMedia(url);
 //        cmnds->m_playlist_entries->addItem(url.fileName().left(url.fileName().lastIndexOf('.')));
-//        this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
 //    }
 //        m_playlist->setCurrentIndex(m_playlist->currentIndex()+1);
 //        m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
@@ -687,13 +686,20 @@ void videoplayer::addAnnotation()
     if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
         //ovde ide inicijalizacija sa unesenim poljima
 
-
         QString name = nameLineEdit->text();
         qint64 width = widthLineEdit->text().toInt(&okWidth,10);
         qint64 height = heightLineEdit->text().toInt(&okHeight,10);
         QString content = textLineEdit->text();
         QString beginAt = beginLineEdit->text();
+        if(beginLineEdit->text().isEmpty()){
+            beginAt = "00:00:00";
+        }
         QString annDuration = durationLineEdit->text();
+        if(durationLineEdit->text().isEmpty()){
+            QString durationLabel = cmnds->m_durationInfo->text();
+            QStringList durationList = durationLabel.split(" / ");
+            annDuration = durationList[1];
+        }
         QStringList times = beginAt.split(tr(":"));
         QStringList durations = annDuration.split(tr(":"));
         qint64 beginAnnotation = times[0].toInt()*1000*60*60 + times[1].toInt()*1000*60 + times[2].toInt()*1000;
@@ -702,9 +708,11 @@ void videoplayer::addAnnotation()
         if(!okWidth){
             width = defaultSize;
         }
+
         if(!okHeight){
             height = defaultSize;
         }
+
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
 
         if(height > screenGeometry.height()){
@@ -727,6 +735,7 @@ void videoplayer::addAnnotation()
         if(beginAnnotation+durationTime > dur){
             durationTime = dur - beginAnnotation;
         }
+
         //TODO brisanje svih unosa u vektoru
         m_videoAnnotations.append(new Annotation(m_videoItem, width, height, content, beginAnnotation, durationTime));
 
@@ -790,7 +799,7 @@ void videoplayer::setAnnotationsFromJson(){
                         obj.value("beginAt").toInt(),
                         obj.value("duration").toInt()
                     )
-                  );
+        );
     }
 
 }

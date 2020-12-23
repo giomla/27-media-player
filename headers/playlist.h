@@ -15,6 +15,7 @@ class playlist : public QWidget{
         QMediaPlayer* m_player;
         void loadPlaylist(QList<QUrl> urls);
         void showPlaylist();
+        QList<QUrl> listUrls;
 
 
 

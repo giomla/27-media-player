@@ -8,7 +8,6 @@ rightClickMenu::rightClickMenu(QWidget* parent) :
     QWidget(parent)
 {
 
-
     m_playOrPause = new QAction(parent);
     m_stop = new QAction(parent);
     m_previous = new QAction(parent);
@@ -55,7 +54,6 @@ rightClickMenu::rightClickMenu(QWidget* parent) :
     m_saveAnnotations->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
     m_saveAnnotations->setText("Save Annotation");
 
-
     m_RCMenu->addAction(m_playOrPause);
     m_RCMenu->addAction(m_stop);
     m_RCMenu->addAction(m_previous);
@@ -70,8 +68,6 @@ rightClickMenu::rightClickMenu(QWidget* parent) :
     m_RCMenu->addSeparator();
     m_RCMenu->addAction(m_exit);
 
-
-
     connect(m_open, SIGNAL(triggered()), parent, SLOT(openFile()));
     connect(m_playOrPause,SIGNAL(triggered()), parent, SLOT(playClicked()));
     connect(m_stop, SIGNAL(triggered()), parent, SLOT(stopClicked()));
@@ -81,15 +77,11 @@ rightClickMenu::rightClickMenu(QWidget* parent) :
     connect(m_addSubtitles, SIGNAL(triggered()), parent, SLOT(addSubtitle()));
     connect(m_addAnnotations, SIGNAL(triggered()), parent, SLOT(addAnnotation()));
     connect(m_saveAnnotations, SIGNAL(triggered()), parent, SLOT(saveAnnotationsToJsonFile()));
-
 }
-
 
 rightClickMenu::~rightClickMenu(){
     delete m_RCMenu;
 }
-
-
 
 void rightClickMenu::playingState(){
     m_playOrPause->setEnabled(true);
@@ -101,12 +93,7 @@ void rightClickMenu::playingState(){
     m_addAnnotations->setEnabled(true);
     m_saveAnnotations->setEnabled(true);
     m_addSubtitles->setEnabled(true);
-
-
 }
-
-
-
 
 void rightClickMenu::PausedState()
 {
@@ -119,8 +106,6 @@ void rightClickMenu::PausedState()
     m_addAnnotations->setEnabled(true);
     m_saveAnnotations->setEnabled(true);
     m_addSubtitles->setEnabled(true);
-
-
 }
 
 void rightClickMenu::StoppedState()
@@ -134,7 +119,5 @@ void rightClickMenu::StoppedState()
     m_previous->setEnabled(true);
     m_next->setEnabled(true);
     m_addSubtitles->setEnabled(true);
-
-
 }
 
