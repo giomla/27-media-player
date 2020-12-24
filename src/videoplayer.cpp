@@ -584,9 +584,11 @@ void videoplayer::contextMenuEvent(QContextMenuEvent *event)
 
 void videoplayer::mousePressEvent(QMouseEvent *event){
 
-    if(event->button()==Qt::LeftButton && m_graphicsView->underMouse())
-        cmnds->m_playButton->click();
-    else if(event->button()==Qt::RightButton && m_graphicsView->underMouse())
+    //if(event->button()==Qt::LeftButton && m_graphicsView->underMouse()){
+        //   cmnds->m_playButton->click();
+
+    //}else
+    if(event->button()==Qt::RightButton && m_graphicsView->underMouse())
         m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
 }
 

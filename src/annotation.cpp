@@ -7,6 +7,8 @@
 #include <QKeyEvent>
 #include <QMatrix>
 
+#include <QtDebug>
+
 Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QString content, qint64 beginAt, qint64 duration)
 {
     this->setParentItem(parent);
@@ -22,7 +24,6 @@ Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QStri
     this->setDuration(duration);
     this->setAppearance_time(beginAt);
     m_rect=new QRectF(0,0,width,height);
-    //TODO provere granica da ne nestanu van scene anotacije
 }
 
 Annotation::~Annotation(){
@@ -57,8 +58,26 @@ void Annotation::modifyText()
     }
 }
 
+void Annotation::resizing()
+{
+    resize_on = true;
+    this->setSelected(true);
+}
+
+void Annotation::stopResizing()
+{
+    resize_on = false;
+    this->setSelected(false);
+}
+
 void Annotation::resizeOccured()
 {
+    if(this->height() >= scene()->views().at(0)->viewport()->height()){
+        this->setHeight(scene()->views().at(0)->viewport()->height()/2);
+    }
+    else if(this->width() >= scene()->views().at(0)->viewport()->width()){
+        this->setWidth(scene()->views().at(0)->viewport()->width()/2);
+    }
     if (x() < 0){
         setPos(0, y());
     }else if (x() + boundingRect().right() > scene()->views().at(0)->viewport()->width()){
@@ -83,28 +102,29 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
             if(!this->getCurrActive()){
                 this->setCurrActive(true);
-                this->setFlag(QGraphicsItem::ItemIsMovable, true);
+                if(!resize_on)
+                    this->setFlag(QGraphicsItem::ItemIsMovable, true);
                 this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
                 this->setFlag(QGraphicsItem::ItemIsFocusable, true);
                 this->setFlag(QGraphicsItem::ItemIsSelectable, true);
             }
             this->setAcceptHoverEvents(true);
             this->setActive(true);
+            painter->setRenderHint(QPainter::Antialiasing);
 
             resizeOccured();
 
-            painter->setRenderHint(QPainter::Antialiasing);
-            painter->fillRect(*m_rect, QBrush(Qt::white));
+            painter->fillRect(this->boundingRect(), QBrush(Qt::white));
             QRectF boundingRect;
             //QRectF rect = QRectF(0,0,width(),height());
             QPen pen;
             pen.setColor(Qt::black);
-            painter->drawRect(*m_rect);
+            painter->drawRect(this->boundingRect());
             QFont font = painter->font();
             font.setPixelSize(24);
             font.setWordSpacing(3);
             painter->setFont(font);
-            painter->drawText(*m_rect,Qt::TextWrapAnywhere,this->text_content(),&boundingRect);
+            painter->drawText(this->boundingRect(),Qt::TextWrapAnywhere,this->text_content(),&boundingRect);
 
         } else {
             if(this->getCurrActive()){
@@ -133,19 +153,41 @@ void Annotation::mousePressEvent(QGraphicsSceneMouseEvent *event)
         // we propagate the event to parent item as the annotation is not currently active
         if(!this->getCurrActive())
             event->ignore();
+        else if(resize_on){
+            //TODO provera da li si van scene
+            if(scene()->views().at(0)->rect().contains(QCursor::pos())){
+                if(!(event->pos().x() < MIN_WIDTH))
+                    this->setWidth(event->pos().x());
+                if(!(event->pos().y() < MIN_HEIGHT))
+                    this->setHeight(event->pos().y());
+                this->prepareGeometryChange();
+                update();
+            }
+        }
     }
 }
 
 void Annotation::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     //we prevent default multiple selection of objects
-
-    if(this->isSelected()){
+    if(this->isSelected() && !resize_on){
+        this->setCursor(Qt::ClosedHandCursor);
         QGraphicsItem::mouseMoveEvent(event);
         //we check if the annotation is outside the current viewport of the scene and we move it
         //so its still inside of it
         resizeOccured();
-    } else
+    } else if(resize_on){
+        //if the cursor is inside the scene view rect
+        if(scene()->views().at(0)->rect().contains(event->pos().x(),event->pos().y())){
+            if(!(event->pos().x() < MIN_WIDTH))
+                this->setWidth(event->pos().x());
+            if(!(event->pos().y() < MIN_HEIGHT))
+                this->setHeight(event->pos().y());
+            this->prepareGeometryChange();
+            update();
+        }
+    }
+    else
         event->ignore();
 }
 
@@ -154,13 +196,44 @@ void Annotation::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     if(!this->getAlreadyModifying() && this->getCurrActive()){
         menu = new QMenu;
         //TODO ACTION FOR RESIZE
-        menu->addAction("Resize annotation");
+        if(!resize_on)
+            menu->addAction("Resize annotation", this, SLOT(resizing()));
+        else
+            menu->addAction("End resizing", this, SLOT(stopResizing()));
         menu->addAction("Edit text", this, SLOT(modifyText()));
         menu->popup(event->screenPos());
         event->setAccepted(true);
     } else
         event->ignore();
 }
+
+void Annotation::hoverEnterEvent(QGraphicsSceneHoverEvent  *event)
+{
+
+        if(this->getCurrActive()){
+            this->setCursor(Qt::OpenHandCursor);
+        }else
+            event->ignore();
+}
+
+void Annotation::hoverLeaveEvent(QGraphicsSceneHoverEvent  *event)
+{
+    if(this->getCurrActive()){
+        this->setCursor(Qt::ArrowCursor);
+    } else
+        event->ignore();
+}
+
+void Annotation::hoverMoveEvent(QGraphicsSceneHoverEvent  *event)
+{
+    if(this->getCurrActive()){
+        if(!(this->cursor().shape()==Qt::OpenHandCursor))
+            this->setCursor(Qt::OpenHandCursor);
+    }
+    else
+        event->ignore();
+}
+
 
 void Annotation::modified()
 {

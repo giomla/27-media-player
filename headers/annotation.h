@@ -1,6 +1,10 @@
 #ifndef ANNOTATION_H
 #define ANNOTATION_H
 
+#define MIN_HEIGHT 50
+#define MIN_WIDTH 100
+
+
 #include <QObject>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
@@ -10,6 +14,7 @@
 #include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QMatrix>
+#include <QSizeGrip>
 #include "../headers/videoplayer.h"
 
 class Annotation : public QObject, public QGraphicsItem
@@ -22,6 +27,7 @@ public:
     bool resize_on = false;
 
     void resizeOccured();
+    void setRect(QRectF rect);
     qint64 width() const;
     void setWidth(const qint64 &width);
     qint64 height() const;
@@ -52,12 +58,17 @@ public slots:
     void modified();
     void canceled();
     void modifyText();
+    void resizing();
+    void stopResizing();
 protected:
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0) override;
     QRectF boundingRect() const override;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent  *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent  *event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent  *event) override;
 private:
     QRectF *m_rect = nullptr;
     QString *m_name = nullptr;
@@ -65,7 +76,6 @@ private:
     qint64 m_duration;
     QString m_text_content = "";
     qint64 m_width,m_height;
-
     QMenu *menu = nullptr;
 
     QPlainTextEdit *editor = nullptr;
