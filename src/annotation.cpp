@@ -121,21 +121,22 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
             pen.setColor(Qt::black);
             painter->drawRect(this->boundingRect());
             QFont font = painter->font();
-            font.setPixelSize(24);
+            font.setPixelSize(18);
             font.setWordSpacing(3);
             painter->setFont(font);
             painter->drawText(this->boundingRect(),Qt::TextWrapAnywhere,this->text_content(),&boundingRect);
 
-        } else {
+        }
+        else {
             if(this->getCurrActive()){
                 this->setCurrActive(false);
                 this->setFlag(QGraphicsItem::ItemIsMovable, false);
                 this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
                 this->setFlag(QGraphicsItem::ItemIsFocusable, false);
                 this->setFlag(QGraphicsItem::ItemIsSelectable, false);
-
                 this->setActive(false);
-            } else {
+            }
+            else {
                 this->setCurrActive(false);
             }
         }
