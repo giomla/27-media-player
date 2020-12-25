@@ -6,6 +6,7 @@
 #include <QLayout>
 #include <QKeyEvent>
 #include <QMatrix>
+#include <QFormLayout>
 
 #include <QtDebug>
 
@@ -57,6 +58,40 @@ void Annotation::modifyText()
     QObject::connect(cancelButton, &QPushButton::clicked , this, &Annotation::canceled);
     }
 }
+
+void Annotation::modifyDur(){
+
+    if(!getAlreadyModifying()){
+        durDialog = new QDialog();
+        durDialog->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
+        durDialog->activateWindow();
+
+        QHBoxLayout *hlayout = new QHBoxLayout;
+        QPushButton *saveButton = new QPushButton("Save changes");
+        QPushButton *cancelButton = new QPushButton("Cancel changes");
+        cancelButton->setShortcut(QKeySequence::Cancel);
+
+        durEdit = new QPlainTextEdit(QString::number(this->duration()));
+        durEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        durEdit->setFocus();
+        durEdit->createStandardContextMenu();
+        durEdit->setFixedHeight(100);
+
+        hlayout->addWidget(saveButton);
+        hlayout->addWidget(cancelButton);
+
+        QVBoxLayout* vlayout = new QVBoxLayout;
+        vlayout->addWidget(durEdit);
+        vlayout->addLayout(hlayout);
+
+        durDialog->setLayout(vlayout);
+        durDialog->setGeometry(450,300,200,100);
+        this->setAlreadyModifying(true);
+        durDialog->show();
+        QObject::connect(saveButton, &QPushButton::clicked , this, &Annotation::modifiedDur);
+        QObject::connect(cancelButton, &QPushButton::clicked , this, &Annotation::canceledDur);
+    }
+ }
 
 void Annotation::resizing()
 {
@@ -202,6 +237,7 @@ void Annotation::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         else
             menu->addAction("End resizing", this, SLOT(stopResizing()));
         menu->addAction("Edit text", this, SLOT(modifyText()));
+        menu->addAction("Edit Duration",this,SLOT(modifyDur()));
         menu->popup(event->screenPos());
         event->setAccepted(true);
     } else
@@ -243,11 +279,29 @@ void Annotation::modified()
     delete modifyDialog;
     this->setAlreadyModifying(false);
 }
+
+void Annotation::modifiedDur()
+{
+    QStringList durlist = durEdit->toPlainText().split(":");
+    qint64 durationTime = durlist[0].toInt()*1000*60 +durlist[1].toInt()*1000;
+
+    this->setDuration(durationTime);
+    update();
+    delete durDialog;
+    this->setAlreadyModifying(false);
+}
 void Annotation::canceled()
 {
     delete modifyDialog;
     this->setAlreadyModifying(false);
 }
+
+void Annotation::canceledDur()
+{
+    delete durDialog;
+    this->setAlreadyModifying(false);
+}
+
 
 //geters and seters
 

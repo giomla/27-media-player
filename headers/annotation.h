@@ -56,10 +56,13 @@ public:
 
 public slots:
     void modified();
+    void modifiedDur();
     void canceled();
+    void canceledDur();
     void modifyText();
     void resizing();
     void stopResizing();
+    void modifyDur();
 protected:
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0) override;
     QRectF boundingRect() const override;
@@ -80,9 +83,11 @@ private:
 
     QPlainTextEdit *editor = nullptr;
     QDialog *modifyDialog = nullptr;
+    QDialog *durDialog = nullptr;
     qint64 currTimeOfVideo = 0;
     bool currActive = true;
     bool alreadyModifying = false;
+    QPlainTextEdit *durEdit = nullptr;
 };
 
 #endif // ANNOTATION_H

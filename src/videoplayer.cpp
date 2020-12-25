@@ -636,7 +636,7 @@ void videoplayer::addAnnotation()
     popupAnnotationMenu.setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
     popupAnnotationMenu.activateWindow();
 
-    QFormLayout *formLayout = new QFormLayout();
+    formLayout = new QFormLayout();
     formLayout->setFormAlignment(Qt::AlignTop);
 
     //dodati provere vrednosti u formu
@@ -743,6 +743,7 @@ void videoplayer::addAnnotation()
 
     }
 }
+
 
 void videoplayer::playlistDoubleClickPlay(){
     Playlist->m_playlist->setCurrentIndex(Playlist->m_playlist_entries->row(Playlist->m_playlist_entries->currentItem()));

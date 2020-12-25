@@ -35,6 +35,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <string>
+#include <QFormLayout>
 
 class QGraphicsVideoItem;
 class Annotation;
@@ -62,7 +63,6 @@ public:
     void addButtons(QRect screenGeometry);
     void playlistDoubleClickPlay();
     bool loadFile(const QString &fileName);
-
 
 public slots:
     void openFile();
@@ -118,6 +118,7 @@ private:
     QVector<Annotation*> m_videoAnnotations;
     rightClickMenu* m_rightClickMenu = nullptr;
     playlist* Playlist = nullptr;
+    QFormLayout* formLayout = nullptr;
 
     int numOfAnnotations = 0;
 protected:
