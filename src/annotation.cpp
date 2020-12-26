@@ -151,7 +151,6 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
             painter->fillRect(this->boundingRect(), QBrush(Qt::white));
             QRectF boundingRect;
-            //QRectF rect = QRectF(0,0,width(),height());
             QPen pen;
             pen.setColor(Qt::black);
             painter->drawRect(this->boundingRect());
@@ -159,7 +158,10 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
             font.setPixelSize(18);
             font.setWordSpacing(3);
             painter->setFont(font);
-            painter->drawText(this->boundingRect(),Qt::TextWrapAnywhere,this->text_content(),&boundingRect);
+            QString displayText = text_content();
+            QRectF boundary = this->boundingRect();
+            boundary.setRect(boundary.x()+5,boundary.y()+5,boundary.width()-10,boundary.height()-10);
+            painter->drawText(boundary,Qt::TextWrapAnywhere,displayText.mid(m_currDisplayPos),&boundingRect);
 
         }
         else {
@@ -266,6 +268,26 @@ void Annotation::hoverMoveEvent(QGraphicsSceneHoverEvent  *event)
     if(this->getCurrActive()){
         if(!(this->cursor().shape()==Qt::OpenHandCursor))
             this->setCursor(Qt::OpenHandCursor);
+    }
+    else
+        event->ignore();
+}
+
+void Annotation::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+    if(this->getCurrActive()){
+        if(event->delta()<0){
+            if(!(m_currDisplayPos>=text_content().length())){
+                m_currDisplayPos+=50;
+                update();
+            }
+        }
+        if(event->delta()>=0){
+            if(m_currDisplayPos>0){
+                m_currDisplayPos-=50;
+                update();
+            }
+        }
     }
     else
         event->ignore();
