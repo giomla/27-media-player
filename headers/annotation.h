@@ -14,10 +14,10 @@
 #include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QMatrix>
-#include <QSizeGrip>
+#include <QGraphicsObject>
 #include "../headers/videoplayer.h"
 
-class Annotation : public QObject, public QGraphicsItem
+class Annotation : public QGraphicsObject
 {
     Q_OBJECT
 public:
@@ -72,6 +72,7 @@ protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent  *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent  *event) override;
     void hoverMoveEvent(QGraphicsSceneHoverEvent  *event) override;
+    void wheelEvent(QGraphicsSceneWheelEvent *event) override;
 private:
     QRectF *m_rect = nullptr;
     QString *m_name = nullptr;
@@ -80,6 +81,8 @@ private:
     QString m_text_content = "";
     qint64 m_width,m_height;
     QMenu *menu = nullptr;
+
+    qint64 m_currDisplayPos=0;
 
     QPlainTextEdit *editor = nullptr;
     QDialog *modifyDialog = nullptr;
