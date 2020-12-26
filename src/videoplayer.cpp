@@ -684,8 +684,18 @@ void videoplayer::addAnnotation()
     //provera vrednosti treba i za opseg vremena, anotacija moze da traje najduze od vremena kreiranja do zavrsetka videa
     bool okWidth = true;
     bool okHeight = true;
+
     qint64 defaultSize= 200;
+
+    beginLineEdit->setText("00:00:00");
+    durationLineEdit->setText("00:05");
+    widthLineEdit->setText("200");
+    heightLineEdit->setText("200");
+
     if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
+        //regex provere
+        if(!annotationFieldRegexCheck(widthLineEdit, heightLineEdit, durationLineEdit, beginLineEdit, textLineEdit))
+            return;
         //ovde ide inicijalizacija sa unesenim poljima
 
         QString name = nameLineEdit->text();
@@ -751,27 +761,7 @@ void videoplayer::playlistDoubleClickPlay(){
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
-/*
---------SET ANNOTATIONS-------
-We need to load the annotations if the file exists. Best case for getting a json file is by using the name of playing video, but...
-takeback is that if we have another file with the same name it will be read from other file. So better one is by using SHA-1 or MD5 but that
-wont be implemented. So the best way is to get the name of the media and then see if the json exists in the folder... that could be taken
-we need a folder for that thing TO BE IMPLEMENTED.
 
-Once we get the file we can parse it into QJsonObject and then access all properties in that Object. Still dont know how to access that
-Once its loaded QFile we can use QJsonDocument to parse it.
-QJsonDocument then can be modified and at program end it should be saved or at least at clip end.
-Here then comes:
--------SAVE ANOTATIONS------
-Ok so we need to use the QJsonDocument and then persist it on the hard drive somewhere in the local folder
-BUT if that folder doesnt exist it should be created.
-Also saving by the name of the file that shouldnt be hard. Name of the mediaCUrrently playing
-
-
-*/
-
-//TODO
-//This Should go via file descriptor or via FILE object
 void videoplayer::setAnnotationsFromJson(){
     QString filePath = m_mediaPlayer->currentMedia().canonicalUrl().path().split('/').last() + ".json";
     FILE* f = fopen(filePath.toStdString().c_str(), "r");
@@ -790,7 +780,6 @@ void videoplayer::setAnnotationsFromJson(){
     m_videoAnnotations.reserve(annotationJsonArray.size());
     QJsonArray::Iterator jsonBegin = annotationJsonArray.begin();
     QJsonArray::Iterator jsonEnd = annotationJsonArray.end();
-    std::cerr << "pass" << std::endl;
     for(;jsonBegin < jsonEnd; ++jsonBegin){
         QJsonObject obj = jsonBegin->toObject();
         m_videoAnnotations.append(
@@ -837,3 +826,54 @@ void videoplayer::saveAnnotationsToJsonFile(){
     out.close();
 }
 
+bool videoplayer::annotationFieldRegexCheck(
+            QLineEdit* widthLineEdit,
+            QLineEdit* heightLineEdit,
+            QLineEdit* durationLineEdit,
+            QLineEdit* beginLineEdit,
+            QLineEdit* contentLineEdit
+        )
+{
+    //provera vreme pocetka anotacija
+    QRegularExpression* re = new QRegularExpression("[0-9]{2}:[0-9]{2}:[0-9]{2}");
+
+    if(!re->match(beginLineEdit->text()).hasMatch()){
+        std::cerr << "Invalid format for annotation start time"  << "\n";
+        beginLineEdit->setText("");
+        return false;
+    }
+
+
+    //provera duzine trajanja
+    re->setPattern("[0-9]{2}:[0-9][1-9]");
+
+    if(!re->match(durationLineEdit->text()).hasMatch()){
+        std::cerr << "Invalid format for annotation duration"  << "\n";
+        durationLineEdit->setText("");
+        return false;
+    }
+    //provera sirine i visine
+    re->setPattern("[12][0-9]{2}");
+
+    if(!re->match(widthLineEdit->text()).hasMatch()){
+        std::cerr << "Invalid format for text width" << "\n";
+        widthLineEdit->setText("");
+        return false;
+    }
+
+    if(!re->match(heightLineEdit->text()).hasMatch()){
+        std::cerr << "Invalid format for text height";
+        heightLineEdit->setText("");
+        return false;
+    }
+    //Tekst
+    re->setPattern("[a-zA-Z0-9]+");
+
+    if(!re->match(contentLineEdit->text()).hasMatch()){
+        std::cerr << "Annotation content can't be empty"  << "\n";
+        contentLineEdit->setText("");
+        return false;
+    }
+
+    return true;
+}
