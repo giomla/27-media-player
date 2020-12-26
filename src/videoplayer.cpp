@@ -688,7 +688,7 @@ void videoplayer::addAnnotation()
     qint64 defaultSize= 200;
 
     beginLineEdit->setText("00:00:00");
-    durationLineEdit->setText("00:05");
+    durationLineEdit->setText("00:10");
     widthLineEdit->setText("200");
     heightLineEdit->setText("200");
 
