@@ -63,7 +63,7 @@ public:
     void addButtons(QRect screenGeometry);
     void playlistDoubleClickPlay();
     bool loadFile(const QString &fileName);
-    bool videoplayer::annotationFieldRegexCheck(
+    bool annotationFieldRegexCheck(
                 QLineEdit* widthLineEdit,
                 QLineEdit* heightLineEdit,
                 QLineEdit* durationLineEdit,
