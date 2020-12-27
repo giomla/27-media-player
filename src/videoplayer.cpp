@@ -279,7 +279,6 @@ void videoplayer::dropEvent(QDropEvent *event) {
 //    for (auto url : urls){
 //        m_playlist->addMedia(url);
 //        cmnds->m_playlist_entries->addItem(url.fileName().left(url.fileName().lastIndexOf('.')));
-//        this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
 //    }
 //        m_playlist->setCurrentIndex(m_playlist->currentIndex()+1);
 //        m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
@@ -584,9 +583,11 @@ void videoplayer::contextMenuEvent(QContextMenuEvent *event)
 
 void videoplayer::mousePressEvent(QMouseEvent *event){
 
-    if(event->button()==Qt::LeftButton && m_graphicsView->underMouse())
-        cmnds->m_playButton->click();
-    else if(event->button()==Qt::RightButton && m_graphicsView->underMouse())
+    //if(event->button()==Qt::LeftButton && m_graphicsView->underMouse()){
+        //   cmnds->m_playButton->click();
+
+    //}else
+    if(event->button()==Qt::RightButton && m_graphicsView->underMouse())
         m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
 }
 
@@ -635,7 +636,7 @@ void videoplayer::addAnnotation()
     popupAnnotationMenu.setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
     popupAnnotationMenu.activateWindow();
 
-    QFormLayout *formLayout = new QFormLayout();
+    formLayout = new QFormLayout();
     formLayout->setFormAlignment(Qt::AlignTop);
 
     //dodati provere vrednosti u formu
@@ -683,17 +684,34 @@ void videoplayer::addAnnotation()
     //provera vrednosti treba i za opseg vremena, anotacija moze da traje najduze od vremena kreiranja do zavrsetka videa
     bool okWidth = true;
     bool okHeight = true;
-    qint64 defaultSize= 200;
-    if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
-        //ovde ide inicijalizacija sa unesenim poljima
 
+    qint64 defaultSize= 200;
+
+    beginLineEdit->setText("00:00:00");
+    durationLineEdit->setText("00:10");
+    widthLineEdit->setText("200");
+    heightLineEdit->setText("200");
+
+    if( popupAnnotationMenu.exec() && formButtonBox.AcceptRole==QDialogButtonBox::AcceptRole ){
+        //regex provere
+        if(!annotationFieldRegexCheck(widthLineEdit, heightLineEdit, durationLineEdit, beginLineEdit, textLineEdit))
+            return;
+        //ovde ide inicijalizacija sa unesenim poljima
 
         QString name = nameLineEdit->text();
         qint64 width = widthLineEdit->text().toInt(&okWidth,10);
         qint64 height = heightLineEdit->text().toInt(&okHeight,10);
         QString content = textLineEdit->text();
         QString beginAt = beginLineEdit->text();
+        if(beginLineEdit->text().isEmpty()){
+            beginAt = "00:00:00";
+        }
         QString annDuration = durationLineEdit->text();
+        if(durationLineEdit->text().isEmpty()){
+            QString durationLabel = cmnds->m_durationInfo->text();
+            QStringList durationList = durationLabel.split(" / ");
+            annDuration = durationList[1];
+        }
         QStringList times = beginAt.split(tr(":"));
         QStringList durations = annDuration.split(tr(":"));
         qint64 beginAnnotation = times[0].toInt()*1000*60*60 + times[1].toInt()*1000*60 + times[2].toInt()*1000;
@@ -702,9 +720,11 @@ void videoplayer::addAnnotation()
         if(!okWidth){
             width = defaultSize;
         }
+
         if(!okHeight){
             height = defaultSize;
         }
+
         const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
 
         if(height > screenGeometry.height()){
@@ -727,11 +747,13 @@ void videoplayer::addAnnotation()
         if(beginAnnotation+durationTime > dur){
             durationTime = dur - beginAnnotation;
         }
+
         //TODO brisanje svih unosa u vektoru
         m_videoAnnotations.append(new Annotation(m_videoItem, width, height, content, beginAnnotation, durationTime));
 
     }
 }
+
 
 void videoplayer::playlistDoubleClickPlay(){
     Playlist->m_playlist->setCurrentIndex(Playlist->m_playlist_entries->row(Playlist->m_playlist_entries->currentItem()));
@@ -739,27 +761,7 @@ void videoplayer::playlistDoubleClickPlay(){
     QString filename = fileInfo.fileName();
     this->setWindowTitle(filename.split('.')[0]);
 }
-/*
---------SET ANNOTATIONS-------
-We need to load the annotations if the file exists. Best case for getting a json file is by using the name of playing video, but...
-takeback is that if we have another file with the same name it will be read from other file. So better one is by using SHA-1 or MD5 but that
-wont be implemented. So the best way is to get the name of the media and then see if the json exists in the folder... that could be taken
-we need a folder for that thing TO BE IMPLEMENTED.
 
-Once we get the file we can parse it into QJsonObject and then access all properties in that Object. Still dont know how to access that
-Once its loaded QFile we can use QJsonDocument to parse it.
-QJsonDocument then can be modified and at program end it should be saved or at least at clip end.
-Here then comes:
--------SAVE ANOTATIONS------
-Ok so we need to use the QJsonDocument and then persist it on the hard drive somewhere in the local folder
-BUT if that folder doesnt exist it should be created.
-Also saving by the name of the file that shouldnt be hard. Name of the mediaCUrrently playing
-
-
-*/
-
-//TODO
-//This Should go via file descriptor or via FILE object
 void videoplayer::setAnnotationsFromJson(){
     QString filePath = m_mediaPlayer->currentMedia().canonicalUrl().path().split('/').last() + ".json";
     FILE* f = fopen(filePath.toStdString().c_str(), "r");
@@ -778,7 +780,6 @@ void videoplayer::setAnnotationsFromJson(){
     m_videoAnnotations.reserve(annotationJsonArray.size());
     QJsonArray::Iterator jsonBegin = annotationJsonArray.begin();
     QJsonArray::Iterator jsonEnd = annotationJsonArray.end();
-    std::cerr << "pass" << std::endl;
     for(;jsonBegin < jsonEnd; ++jsonBegin){
         QJsonObject obj = jsonBegin->toObject();
         m_videoAnnotations.append(
@@ -790,7 +791,7 @@ void videoplayer::setAnnotationsFromJson(){
                         obj.value("beginAt").toInt(),
                         obj.value("duration").toInt()
                     )
-                  );
+        );
     }
 
 }
@@ -825,3 +826,54 @@ void videoplayer::saveAnnotationsToJsonFile(){
     out.close();
 }
 
+bool videoplayer::annotationFieldRegexCheck(
+            QLineEdit* widthLineEdit,
+            QLineEdit* heightLineEdit,
+            QLineEdit* durationLineEdit,
+            QLineEdit* beginLineEdit,
+            QLineEdit* contentLineEdit
+        )
+{
+    //provera vreme pocetka anotacija
+    QRegularExpression* re = new QRegularExpression("[0-9]{2}:[0-9]{2}:[0-9]{2}");
+
+    if(!re->match(beginLineEdit->text()).hasMatch()){
+        std::cerr << "Invalid format for annotation start time"  << "\n";
+        beginLineEdit->setText("");
+        return false;
+    }
+
+
+    //provera duzine trajanja
+    re->setPattern("[0-9]{2}:[0-9]{2}");
+
+    if(!re->match(durationLineEdit->text()).hasMatch()){
+        std::cerr << "Invalid format for annotation duration"  << "\n";
+        durationLineEdit->setText("");
+        return false;
+    }
+    //provera sirine i visine
+    re->setPattern("[12]?[0-9]{2}");
+
+    if(!re->match(widthLineEdit->text()).hasMatch()){
+        std::cerr << "Invalid format for text width" << "\n";
+        widthLineEdit->setText("");
+        return false;
+    }
+
+    if(!re->match(heightLineEdit->text()).hasMatch()){
+        std::cerr << "Invalid format for text height";
+        heightLineEdit->setText("");
+        return false;
+    }
+    //Tekst
+    re->setPattern("[a-zA-Z0-9]+");
+
+    if(!re->match(contentLineEdit->text()).hasMatch()){
+        std::cerr << "Annotation content can't be empty"  << "\n";
+        contentLineEdit->setText("");
+        return false;
+    }
+
+    return true;
+}

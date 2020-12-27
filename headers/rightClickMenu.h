@@ -9,8 +9,6 @@
 
 class rightClickMenu : public QWidget{
 
-
-
 public:
     rightClickMenu(QWidget* parent = nullptr);
     ~rightClickMenu();
@@ -19,7 +17,6 @@ public:
     void playingState();
     void PausedState();
     void StoppedState();
-
 
 private:
     QAction* m_playOrPause = nullptr;

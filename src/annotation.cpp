@@ -6,6 +6,9 @@
 #include <QLayout>
 #include <QKeyEvent>
 #include <QMatrix>
+#include <QFormLayout>
+
+#include <QtDebug>
 
 Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QString content, qint64 beginAt, qint64 duration)
 {
@@ -22,7 +25,6 @@ Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QStri
     this->setDuration(duration);
     this->setAppearance_time(beginAt);
     m_rect=new QRectF(0,0,width,height);
-    //TODO provere granica da ne nestanu van scene anotacije
 }
 
 Annotation::~Annotation(){
@@ -57,8 +59,60 @@ void Annotation::modifyText()
     }
 }
 
+void Annotation::modifyDur(){
+
+    if(!getAlreadyModifying()){
+        durDialog = new QDialog();
+        durDialog->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
+        durDialog->activateWindow();
+
+        QHBoxLayout *hlayout = new QHBoxLayout;
+        QPushButton *saveButton = new QPushButton("Save changes");
+        QPushButton *cancelButton = new QPushButton("Cancel changes");
+        cancelButton->setShortcut(QKeySequence::Cancel);
+
+        durEdit = new QPlainTextEdit(QString::number(this->duration()));
+        durEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        durEdit->setFocus();
+        durEdit->createStandardContextMenu();
+        durEdit->setFixedHeight(100);
+
+        hlayout->addWidget(saveButton);
+        hlayout->addWidget(cancelButton);
+
+        QVBoxLayout* vlayout = new QVBoxLayout;
+        vlayout->addWidget(durEdit);
+        vlayout->addLayout(hlayout);
+
+        durDialog->setLayout(vlayout);
+        durDialog->setGeometry(450,300,200,100);
+        this->setAlreadyModifying(true);
+        durDialog->show();
+        QObject::connect(saveButton, &QPushButton::clicked , this, &Annotation::modifiedDur);
+        QObject::connect(cancelButton, &QPushButton::clicked , this, &Annotation::canceledDur);
+    }
+ }
+
+void Annotation::resizing()
+{
+    resize_on = true;
+    this->setSelected(true);
+}
+
+void Annotation::stopResizing()
+{
+    resize_on = false;
+    this->setSelected(false);
+}
+
 void Annotation::resizeOccured()
 {
+    if(this->height() >= scene()->views().at(0)->viewport()->height()){
+        this->setHeight(scene()->views().at(0)->viewport()->height()/2);
+    }
+    else if(this->width() >= scene()->views().at(0)->viewport()->width()){
+        this->setWidth(scene()->views().at(0)->viewport()->width()/2);
+    }
     if (x() < 0){
         setPos(0, y());
     }else if (x() + boundingRect().right() > scene()->views().at(0)->viewport()->width()){
@@ -83,39 +137,43 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
             if(!this->getCurrActive()){
                 this->setCurrActive(true);
-                this->setFlag(QGraphicsItem::ItemIsMovable, true);
+                if(!resize_on)
+                    this->setFlag(QGraphicsItem::ItemIsMovable, true);
                 this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
                 this->setFlag(QGraphicsItem::ItemIsFocusable, true);
                 this->setFlag(QGraphicsItem::ItemIsSelectable, true);
             }
             this->setAcceptHoverEvents(true);
             this->setActive(true);
+            painter->setRenderHint(QPainter::Antialiasing);
 
             resizeOccured();
 
-            painter->setRenderHint(QPainter::Antialiasing);
-            painter->fillRect(*m_rect, QBrush(Qt::white));
+            painter->fillRect(this->boundingRect(), QBrush(Qt::white));
             QRectF boundingRect;
-            //QRectF rect = QRectF(0,0,width(),height());
             QPen pen;
             pen.setColor(Qt::black);
-            painter->drawRect(*m_rect);
+            painter->drawRect(this->boundingRect());
             QFont font = painter->font();
-            font.setPixelSize(24);
+            font.setPixelSize(18);
             font.setWordSpacing(3);
             painter->setFont(font);
-            painter->drawText(*m_rect,Qt::TextWrapAnywhere,this->text_content(),&boundingRect);
+            QString displayText = text_content();
+            QRectF boundary = this->boundingRect();
+            boundary.setRect(boundary.x()+5,boundary.y()+5,boundary.width()-10,boundary.height()-10);
+            painter->drawText(boundary,Qt::TextWrapAnywhere,displayText.mid(m_currDisplayPos),&boundingRect);
 
-        } else {
+        }
+        else {
             if(this->getCurrActive()){
                 this->setCurrActive(false);
                 this->setFlag(QGraphicsItem::ItemIsMovable, false);
                 this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
                 this->setFlag(QGraphicsItem::ItemIsFocusable, false);
                 this->setFlag(QGraphicsItem::ItemIsSelectable, false);
-
                 this->setActive(false);
-            } else {
+            }
+            else {
                 this->setCurrActive(false);
             }
         }
@@ -133,19 +191,41 @@ void Annotation::mousePressEvent(QGraphicsSceneMouseEvent *event)
         // we propagate the event to parent item as the annotation is not currently active
         if(!this->getCurrActive())
             event->ignore();
+        else if(resize_on){
+            //TODO provera da li si van scene
+            if(scene()->views().at(0)->rect().contains(QCursor::pos())){
+                if(!(event->pos().x() < MIN_WIDTH))
+                    this->setWidth(event->pos().x());
+                if(!(event->pos().y() < MIN_HEIGHT))
+                    this->setHeight(event->pos().y());
+                this->prepareGeometryChange();
+                update();
+            }
+        }
     }
 }
 
 void Annotation::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     //we prevent default multiple selection of objects
-
-    if(this->isSelected()){
+    if(this->isSelected() && !resize_on){
+        this->setCursor(Qt::ClosedHandCursor);
         QGraphicsItem::mouseMoveEvent(event);
         //we check if the annotation is outside the current viewport of the scene and we move it
         //so its still inside of it
         resizeOccured();
-    } else
+    } else if(resize_on){
+        //if the cursor is inside the scene view rect
+        if(scene()->views().at(0)->rect().contains(event->pos().x(),event->pos().y())){
+            if(!(event->pos().x() < MIN_WIDTH))
+                this->setWidth(event->pos().x());
+            if(!(event->pos().y() < MIN_HEIGHT))
+                this->setHeight(event->pos().y());
+            this->prepareGeometryChange();
+            update();
+        }
+    }
+    else
         event->ignore();
 }
 
@@ -154,13 +234,65 @@ void Annotation::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     if(!this->getAlreadyModifying() && this->getCurrActive()){
         menu = new QMenu;
         //TODO ACTION FOR RESIZE
-        menu->addAction("Resize annotation");
+        if(!resize_on)
+            menu->addAction("Resize annotation", this, SLOT(resizing()));
+        else
+            menu->addAction("End resizing", this, SLOT(stopResizing()));
         menu->addAction("Edit text", this, SLOT(modifyText()));
+        menu->addAction("Edit Duration",this,SLOT(modifyDur()));
         menu->popup(event->screenPos());
         event->setAccepted(true);
     } else
         event->ignore();
 }
+
+void Annotation::hoverEnterEvent(QGraphicsSceneHoverEvent  *event)
+{
+
+        if(this->getCurrActive()){
+            this->setCursor(Qt::OpenHandCursor);
+        }else
+            event->ignore();
+}
+
+void Annotation::hoverLeaveEvent(QGraphicsSceneHoverEvent  *event)
+{
+    if(this->getCurrActive()){
+        this->setCursor(Qt::ArrowCursor);
+    } else
+        event->ignore();
+}
+
+void Annotation::hoverMoveEvent(QGraphicsSceneHoverEvent  *event)
+{
+    if(this->getCurrActive()){
+        if(!(this->cursor().shape()==Qt::OpenHandCursor))
+            this->setCursor(Qt::OpenHandCursor);
+    }
+    else
+        event->ignore();
+}
+
+void Annotation::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+    if(this->getCurrActive()){
+        if(event->delta()<0){
+            if(!(m_currDisplayPos>=text_content().length())){
+                m_currDisplayPos+=50;
+                update();
+            }
+        }
+        if(event->delta()>=0){
+            if(m_currDisplayPos>0){
+                m_currDisplayPos-=50;
+                update();
+            }
+        }
+    }
+    else
+        event->ignore();
+}
+
 
 void Annotation::modified()
 {
@@ -169,11 +301,29 @@ void Annotation::modified()
     delete modifyDialog;
     this->setAlreadyModifying(false);
 }
+
+void Annotation::modifiedDur()
+{
+    QStringList durlist = durEdit->toPlainText().split(":");
+    qint64 durationTime = durlist[0].toInt()*1000*60 +durlist[1].toInt()*1000;
+
+    this->setDuration(durationTime);
+    update();
+    delete durDialog;
+    this->setAlreadyModifying(false);
+}
 void Annotation::canceled()
 {
     delete modifyDialog;
     this->setAlreadyModifying(false);
 }
+
+void Annotation::canceledDur()
+{
+    delete durDialog;
+    this->setAlreadyModifying(false);
+}
+
 
 //geters and seters
 

@@ -1,5 +1,6 @@
 #include "../headers/playlist.h"
 #include <QItemSelectionModel>
+#include <qset.h>
 playlist::playlist(QWidget* parent, QMediaPlayer* player):
     QWidget(parent), m_player(player){
 
@@ -9,13 +10,20 @@ playlist::playlist(QWidget* parent, QMediaPlayer* player):
 
 };
 
-
 void playlist::loadPlaylist(QList<QUrl> urls){
        m_playlist_entries->setStyleSheet("color:white");
+       int i = 0;
+
        for (auto url : urls){
+           if(listUrls.contains(url)){
+               continue;
+           }
+           listUrls.append(url);
            m_playlist->addMedia(url);
            m_playlist_entries->addItem(url.fileName().left(url.fileName().lastIndexOf('.')));
-           this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
+           //this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
+           this->parentWidget()->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
+           i++;
        }
            m_playlist->setCurrentIndex(m_playlist->currentIndex()+1);
            m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
