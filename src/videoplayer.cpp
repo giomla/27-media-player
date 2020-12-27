@@ -845,7 +845,7 @@ bool videoplayer::annotationFieldRegexCheck(
 
 
     //provera duzine trajanja
-    re->setPattern("[0-9]{2}:[0-9][1-9]");
+    re->setPattern("[0-9]{2}:[0-9]{2}");
 
     if(!re->match(durationLineEdit->text()).hasMatch()){
         std::cerr << "Invalid format for annotation duration"  << "\n";
@@ -853,7 +853,7 @@ bool videoplayer::annotationFieldRegexCheck(
         return false;
     }
     //provera sirine i visine
-    re->setPattern("[12][0-9]{2}");
+    re->setPattern("[12]?[0-9]{2}");
 
     if(!re->match(widthLineEdit->text()).hasMatch()){
         std::cerr << "Invalid format for text width" << "\n";
