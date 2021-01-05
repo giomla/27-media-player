@@ -334,23 +334,13 @@ void videoplayer::createMenuBar(){
     m_text->hide();
     m_menuBar->setCornerWidget(m_text);
     QMenu *file = new QMenu("File");
-    QMenu *edit = new QMenu("Edit");
     QMenu *playback = new QMenu("Playback");
     QMenu *help = new QMenu("Help");
 
     //file padajuci meni
     QAction* openFile = file->addAction("Open file");
-    QAction* openFolder = file->addAction("Open folder");
     QAction* exit = file->addAction("Abort"); // iz nekog razloga ne izbacuje EXIT akciju
     file->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
-
-    //edit padajuci meni
-    QAction* copy = edit->addAction("Copy");
-    QAction* cut = edit->addAction("Cut");
-    QAction* paste = edit->addAction("Paste");
-    QAction* del = edit->addAction("Delete");
-    QAction* selectAll = edit->addAction("Select all");
-    edit->setStyleSheet(" QMenu {Background-color: #222222;color:white; }");
 
     //audio padajuci meni
     QAction* incVol = playback->addAction("Increase volume");
@@ -361,7 +351,7 @@ void videoplayer::createMenuBar(){
     playback->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
 
     //help padajuci meni
-    help->addAction("Licence");
+    QAction *about = help->addAction("About player");
     help->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
 
     //povezivanje akcija sa funkcijama pri kliku
@@ -372,15 +362,10 @@ void videoplayer::createMenuBar(){
     connect(mute, &QAction::triggered, this, &videoplayer::muteClicked);
     connect(seekBack, &QAction::triggered, this, &videoplayer::seekBackwardClicked);
     connect(seekFwd, &QAction::triggered, this, &videoplayer::seekForwardClicked);
+    connect(about, &QAction::triggered, this, &videoplayer::aboutPlayer);
     //precice na tastaturi
     openFile->setShortcut(QKeySequence::Open); // CTRL + O
-    openFolder->setShortcut(Qt::CTRL + Qt::Key_F);
     exit->setShortcut(Qt::CTRL + Qt::Key_Q);
-    copy->setShortcut(QKeySequence::Copy);
-    paste->setShortcut(QKeySequence::Paste);
-    del->setShortcut(QKeySequence::Delete);
-    cut->setShortcut(QKeySequence::Cut);
-    selectAll->setShortcut(Qt::CTRL + Qt::Key_A);
     seekBack->setShortcut(Qt::Key_Left);
     seekFwd->setShortcut(Qt::Key_Right);
     //incVol->setShortcut(Qt::Key_Plus);
@@ -389,7 +374,6 @@ void videoplayer::createMenuBar(){
 
     //povezivanje menija u jedan meni bar
     m_menuBar->addMenu(file);
-    m_menuBar->addMenu(edit);
     m_menuBar->addMenu(playback);
     m_menuBar->addMenu(help);
 }
@@ -832,4 +816,20 @@ bool videoplayer::annotationFieldRegexCheck(
     }
 
     return true;
+}
+
+void videoplayer::aboutPlayer()
+{
+    QMessageBox messBox;
+    messBox.setText("Dobro dosli u nas videoplayer!\nOvo su uputstva i precice koje mozete koristiti:\n \
+                    -Volume increase/decrease: +/-\n\
+                    -Mute: M\n\
+                    -Pause/Play: Space\n\
+                    -Seek Forward/Backward: Right/Left Arrow\n\
+                    -Open file: CTRL + O\n\
+                    -Moving through playlist: comma/dot\n\
+                    -Fullscreen: F\n\
+                    -Exit: CTRL + Q\n\
+                    ");
+    messBox.exec();
 }

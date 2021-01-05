@@ -93,6 +93,7 @@ public slots:
     void addAnnotation();
     void setAnnotationsFromJson();
     void saveAnnotationsToJsonFile();
+    void aboutPlayer();
 signals:
     void play();
     void stop();
