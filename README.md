@@ -8,6 +8,8 @@ Takodje ima mogucnost dodavanja i cuvanja anotacija  u vremenskim intervalima, t
 
 ## :hammer: Pokretanje
 Projekat je radjen u QT-u. Potrebno je ucitati .pro fajl koji se nalazi u src direktorijumu, nakon toga se projekat moze buildovati i pokrenuti sa CTRL + R.
+#### Minimum QT version:
+- 5.7
 
 ## :memo: Izvestaji                     
 [Link ka izvestajima](https://gitlab.com/matf-bg-ac-rs/course-rs/projects-2020-2021/27-media-player/-/wikis/Izvestaji)
