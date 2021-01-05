@@ -33,29 +33,30 @@ Annotation::~Annotation(){
 void Annotation::modifyText()
 {
     if(!this->getAlreadyModifying()){
-    modifyDialog = new QDialog();
-    modifyDialog->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
-    modifyDialog->activateWindow();
+        modifyDialog = new QDialog();
+        modifyDialog->setWindowFlags(Qt::WindowStaysOnTopHint);
+        modifyDialog->setMinimumSize(300,300);
+        modifyDialog->activateWindow();
 
-    QHBoxLayout *hlayout = new QHBoxLayout;
-    QPushButton *saveButton = new QPushButton("Save changes");
-    QPushButton *cancelButton = new QPushButton("Cancel changes");
-    cancelButton->setShortcut(QKeySequence::Cancel);
+        QVBoxLayout *hlayout = new QVBoxLayout;
+        QPushButton *saveButton = new QPushButton("Save changes");
+        QPushButton *cancelButton = new QPushButton("Cancel changes");
+        cancelButton->setShortcut(QKeySequence::Cancel);
 
-    editor = new QPlainTextEdit(this->text_content());
+        editor = new QPlainTextEdit(this->text_content());
 
-    editor->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-    editor->setFocus();
-    editor->createStandardContextMenu();
+        editor->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        editor->setFocus();
+        editor->createStandardContextMenu();
 
-    hlayout->addWidget(editor);
-    hlayout->addWidget(saveButton);
-    hlayout->addWidget(cancelButton);
-    modifyDialog->setLayout(hlayout);
-    this->setAlreadyModifying(true);
-    modifyDialog->show();
-    QObject::connect(saveButton, &QPushButton::clicked , this, &Annotation::modified);
-    QObject::connect(cancelButton, &QPushButton::clicked , this, &Annotation::canceled);
+        hlayout->addWidget(editor);
+        hlayout->addWidget(saveButton);
+        hlayout->addWidget(cancelButton);
+        modifyDialog->setLayout(hlayout);
+        this->setAlreadyModifying(true);
+        modifyDialog->show();
+        QObject::connect(saveButton, &QPushButton::clicked , this, &Annotation::modified);
+        QObject::connect(cancelButton, &QPushButton::clicked , this, &Annotation::canceled);
     }
 }
 

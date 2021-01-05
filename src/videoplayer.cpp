@@ -60,14 +60,6 @@ videoplayer::videoplayer(QWidget *parent)
     layout->addWidget(Playlist->m_playlist_entries);
     layout->setSpacing(0);
 
-
-
-    //adding annotations
-//    QAction* addAnnotations = m_rightClickMenu->addAction("Add Annotation");
-//    QAction* saveAnnotations = m_rightClickMenu->addAction("Save Annotations");
-//    connect(addAnnotations,&QAction::triggered, this, &videoplayer::addAnnotation);
-//    connect(saveAnnotations,&QAction::triggered, this, &videoplayer::saveAnnotationsToJsonFile);
-
     m_graphicsView->setFocus();
     this->connections();
 }
@@ -273,32 +265,6 @@ void videoplayer::dropEvent(QDropEvent *event) {
     Playlist->loadPlaylist(event->mimeData()->urls());
 }
 
-//void videoplayer::loadPlaylist(QList<QUrl> urls){
-
-//    cmnds->m_playlist_entries->setStyleSheet("color:white");
-//    for (auto url : urls){
-//        m_playlist->addMedia(url);
-//        cmnds->m_playlist_entries->addItem(url.fileName().left(url.fileName().lastIndexOf('.')));
-//    }
-//        m_playlist->setCurrentIndex(m_playlist->currentIndex()+1);
-//        m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
-//        m_graphicsView->setFocus();
-//        m_mediaPlayer->play();
-//        setAnnotationsFromJson();
-//}
-
-//void videoplayer::addToPlaylist(QList<QUrl> urls){
-//    for (auto url : urls){
-//        m_playlist->addMedia(url);
-//        cmnds->m_playlist_entries->addItem(url.fileName().split('.')[0]);
-//    }
-//        m_playlist->setCurrentIndex(m_playlist->nextIndex());
-//        m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
-//        m_graphicsView->setFocus();
-//        m_mediaPlayer->play();
-
-//}
-
 void videoplayer::playClicked(){
     switch (m_playerState) {
         case QMediaPlayer::StoppedState:
@@ -359,7 +325,6 @@ void videoplayer::muteClicked(){
     }
 }
 
-//TO DO MENU KLASA
 void videoplayer::createMenuBar(){
     m_menuBar = new QMenuBar();
     m_menuBar->setStyleSheet("color:white");
@@ -407,7 +372,6 @@ void videoplayer::createMenuBar(){
     connect(mute, &QAction::triggered, this, &videoplayer::muteClicked);
     connect(seekBack, &QAction::triggered, this, &videoplayer::seekBackwardClicked);
     connect(seekFwd, &QAction::triggered, this, &videoplayer::seekForwardClicked);
-    //TODO: ostale funkcije za rad
     //precice na tastaturi
     openFile->setShortcut(QKeySequence::Open); // CTRL + O
     openFolder->setShortcut(Qt::CTRL + Qt::Key_F);
@@ -436,8 +400,6 @@ void videoplayer::stopClicked(){
     QTimer::singleShot(2000, m_text, &QLabel::hide);
     m_text->show();
     m_text->setText("Stopped");
-
-    //emit stop();
 }
 
 void videoplayer::forwardClicked(){
@@ -583,10 +545,6 @@ void videoplayer::contextMenuEvent(QContextMenuEvent *event)
 
 void videoplayer::mousePressEvent(QMouseEvent *event){
 
-    //if(event->button()==Qt::LeftButton && m_graphicsView->underMouse()){
-        //   cmnds->m_playButton->click();
-
-    //}else
     if(event->button()==Qt::RightButton && m_graphicsView->underMouse())
         m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
 }
@@ -638,8 +596,6 @@ void videoplayer::addAnnotation()
 
     formLayout = new QFormLayout();
     formLayout->setFormAlignment(Qt::AlignTop);
-
-    //dodati provere vrednosti u formu
 
     QLineEdit *nameLineEdit = new QLineEdit();
     QLineEdit *beginLineEdit = new QLineEdit();
