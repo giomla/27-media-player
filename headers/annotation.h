@@ -16,6 +16,7 @@
 #include <QMatrix>
 #include <QGraphicsObject>
 #include "../headers/videoplayer.h"
+#include <QLineEdit>
 
 class Annotation : public QGraphicsObject
 {
@@ -84,13 +85,16 @@ private:
 
     qint64 m_currDisplayPos=0;
 
+
+    QLineEdit *beginEdit = nullptr;
+    QLineEdit *durationEdit = nullptr;
+
     QPlainTextEdit *editor = nullptr;
     QDialog *modifyDialog = nullptr;
     QDialog *durDialog = nullptr;
     qint64 currTimeOfVideo = 0;
     bool currActive = true;
     bool alreadyModifying = false;
-    QPlainTextEdit *durEdit = nullptr;
 };
 
 #endif // ANNOTATION_H

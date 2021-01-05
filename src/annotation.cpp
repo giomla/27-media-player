@@ -5,10 +5,7 @@
 #include <QPushButton>
 #include <QLayout>
 #include <QKeyEvent>
-#include <QMatrix>
-#include <QFormLayout>
-
-#include <QtDebug>
+#include <QLineEdit>
 
 Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height, QString content, qint64 beginAt, qint64 duration)
 {
@@ -67,26 +64,53 @@ void Annotation::modifyDur(){
         durDialog->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
         durDialog->activateWindow();
 
-        QHBoxLayout *hlayout = new QHBoxLayout;
+        qint64 durationMils = this->duration();
+        qint64 mins = (durationMils) /(60*1000);
+        qint64 secs = (durationMils -mins*(60*1000))/1000;
+
+        QString durationText = QString("%1:%2").arg(mins).arg(secs);
+
+        qint64 beginMils = this->appearance_time();
+        qint64 bhours = beginMils/(60*60*1000);
+        qint64 bmins = (beginMils - bhours*(60*60*1000))/(60*1000);
+        qint64 bsecs = (beginMils - bhours*(60*60*1000)-bmins*(60*1000))/1000;
+
+        QString beginText = QString("%1:%2:%3").arg(bhours).arg(bmins).arg(bsecs);
+
+
+
+
+        QVBoxLayout *vlayout = new QVBoxLayout;
         QPushButton *saveButton = new QPushButton("Save changes");
         QPushButton *cancelButton = new QPushButton("Cancel changes");
         cancelButton->setShortcut(QKeySequence::Cancel);
 
-        durEdit = new QPlainTextEdit(QString::number(this->duration()));
-        durEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-        durEdit->setFocus();
-        durEdit->createStandardContextMenu();
-        durEdit->setFixedHeight(100);
 
-        hlayout->addWidget(saveButton);
-        hlayout->addWidget(cancelButton);
+        beginEdit = new QLineEdit();
+        beginEdit->setText(beginText);
+        QLabel *beginLabel = new QLabel();
+        beginLabel->setText("Annotation beginning(hh:mm:ss): ");
 
-        QVBoxLayout* vlayout = new QVBoxLayout;
-        vlayout->addWidget(durEdit);
-        vlayout->addLayout(hlayout);
+        durationEdit = new QLineEdit();
+
+        QLabel *durationLabel = new QLabel();
+        durationEdit->setText(durationText);
+        durationLabel->setText("Annotation duration(mm:ss): ");
+
+        QHBoxLayout *hlayout1 = new QHBoxLayout();
+        hlayout1->addWidget(beginLabel);
+        hlayout1->addWidget(beginEdit);
+
+        QHBoxLayout *hlayout2 = new QHBoxLayout();
+        hlayout2->addWidget(durationLabel);
+        hlayout2->addWidget(durationEdit);
+
+        vlayout->addLayout(hlayout1);
+        vlayout->addLayout(hlayout2);
+        vlayout->addWidget(saveButton);
+        vlayout->addWidget(cancelButton);
 
         durDialog->setLayout(vlayout);
-        durDialog->setGeometry(450,300,200,100);
         this->setAlreadyModifying(true);
         durDialog->show();
         QObject::connect(saveButton, &QPushButton::clicked , this, &Annotation::modifiedDur);
@@ -174,9 +198,7 @@ void Annotation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
                 this->setFlag(QGraphicsItem::ItemIsSelectable, false);
                 this->setActive(false);
             }
-            else {
-                this->setCurrActive(false);
-            }
+
         }
 }
 
@@ -234,7 +256,6 @@ void Annotation::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
     if(!this->getAlreadyModifying() && this->getCurrActive()){
         menu = new QMenu;
-        //TODO ACTION FOR RESIZE
         if(!resize_on)
             menu->addAction("Resize annotation", this, SLOT(resizing()));
         else
@@ -305,9 +326,17 @@ void Annotation::modified()
 
 void Annotation::modifiedDur()
 {
-    QStringList durlist = durEdit->toPlainText().split(":");
-    qint64 durationTime = durlist[0].toInt()*1000*60 +durlist[1].toInt()*1000;
 
+    QString beginContent = beginEdit->text();
+    QString duraContent = durationEdit->text();
+
+    QStringList beginTimes = beginContent.split(tr(":"));
+    QStringList durTimes = duraContent.split(tr(":"));
+
+    qint64 beginAnnotation = beginTimes[0].toInt()*1000*60*60 + beginTimes[1].toInt()*1000*60 + beginTimes[2].toInt()*1000;
+    qint64 durationTime = durTimes[0].toInt()*1000*60 +durTimes[1].toInt()*1000;
+
+    this->setAppearance_time(beginAnnotation);
     this->setDuration(durationTime);
     update();
     delete durDialog;
