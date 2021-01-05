@@ -7,7 +7,7 @@ Jednostavan video player za reprodukciju videa. Sadrzi komande koje se najcesce 
 Takodje ima mogucnost dodavanja i cuvanja anotacija  u vremenskim intervalima, tako da ukoliko je anotacija sacuvana pri ponovnom pustanju videa ta anotacija ce se pojaviti u zadatom vremenskom intervalu.
 
 ## :hammer: Pokretanje
-Sa obzirom da je ceo projekat uradjen u QT-u, program se pokrece u QT Creatoru gde je potrebno ucitati .pro fajl koji se nalazi u src folderu.
+Projekat je radjen u QT-u. Potrebno je ucitati .pro fajl koji se nalazi u src direktorijumu, nakon toga se projekat moze buildovati i pokrenuti sa CTRL + R.
 
 ## :memo: Izvestaji                     
 [Link ka izvestajima](https://gitlab.com/matf-bg-ac-rs/course-rs/projects-2020-2021/27-media-player/-/wikis/Izvestaji)
