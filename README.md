@@ -14,6 +14,12 @@ Projekat je radjen u QT-u. Potrebno je ucitati .pro fajl koji se nalazi u src di
 ## :memo: Izvestaji                     
 [Link ka izvestajima](https://gitlab.com/matf-bg-ac-rs/course-rs/projects-2020-2021/27-media-player/-/wikis/Izvestaji)
 
+<figure class="video_container">
+  <video controls="true" allowfullscreen="true">
+    <source src="/home/sara/Downloads/demo.mp4" type="video/mp4">
+  </video>
+</figure>
+
 ## Developers
 
 - [Mladen Dilparić, 201/2015](https://gitlab.com/giomla93)
