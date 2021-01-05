@@ -343,8 +343,6 @@ void videoplayer::createMenuBar(){
     file->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
 
     //audio padajuci meni
-    QAction* incVol = playback->addAction("Increase volume");
-    QAction* decVol = playback->addAction("Decrease volume");
     QAction* mute = playback->addAction("Mute");
     QAction* seekBack = playback->addAction("Seek backward");
     QAction* seekFwd = playback->addAction("Seek forward");
@@ -357,8 +355,6 @@ void videoplayer::createMenuBar(){
     //povezivanje akcija sa funkcijama pri kliku
     connect(openFile, &QAction::triggered, this, &videoplayer::openFile);
     connect(exit, &QAction::triggered, this, &videoplayer::exit);
-    connect(incVol, &QAction::triggered, this, &videoplayer::volumeIncrease);
-    connect(decVol, &QAction::triggered, this, &videoplayer::volumeDecrease);
     connect(mute, &QAction::triggered, this, &videoplayer::muteClicked);
     connect(seekBack, &QAction::triggered, this, &videoplayer::seekBackwardClicked);
     connect(seekFwd, &QAction::triggered, this, &videoplayer::seekForwardClicked);
