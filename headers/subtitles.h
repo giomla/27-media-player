@@ -9,7 +9,7 @@ class subtitles
 {
      public:
 	subtitles(){};
-	subtitles(QString line, QString beginTime, QString endTime);
+    subtitles(const QString &line, const QString &beginTime, const QString &endTime);
 
 	QList<subtitles> subs;
 	void getSubtitles(QFile &file);
