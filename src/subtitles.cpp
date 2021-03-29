@@ -2,7 +2,7 @@
 
 #include <QTextStream>
 #include <QTime>
-subtitles::subtitles(QString line, QString beginTime, QString endTime)
+subtitles::subtitles(const QString &line, const QString &beginTime, const QString &endTime)
     : m_line(line), m_beginTime(beginTime), m_endTime(endTime)
 {
 }
@@ -10,7 +10,6 @@ subtitles::subtitles(QString line, QString beginTime, QString endTime)
 void subtitles::getSubtitles(QFile &file)
 {
 	QTextStream in(&file);
-	QString num = in.readLine();
 	QString tmp = in.readLine();
 	QStringList times = tmp.split(" --> ");
 	QString beginT = times.at(0);
@@ -35,7 +34,7 @@ void subtitles::getSubtitles(QFile &file)
 			fullSentence.append(line).append("\n");
 		} else {
 			subs.append(
-			    subtitles(fullSentence, pocetnoVreme, zavrsnoVreme));
+                subtitles(fullSentence, pocetnoVreme, zavrsnoVreme));
 			fullSentence.clear();
 			times.clear();
 			QString num = in.readLine();
@@ -43,8 +42,8 @@ void subtitles::getSubtitles(QFile &file)
 			if (!num.contains(QRegExp("^[0-9]+$"))) {
 				break;
 			}
-			QString tmp = in.readLine();
-			QStringList times = tmp.split(" --> ");
+             tmp = in.readLine();
+             times = tmp.split(" --> ");
 			beginT = times.at(0);
 			endT = times.at(1);
 
