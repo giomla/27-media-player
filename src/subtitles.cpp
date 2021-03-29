@@ -10,6 +10,7 @@ subtitles::subtitles(const QString &line, const QString &beginTime, const QStrin
 void subtitles::getSubtitles(QFile &file)
 {
 	QTextStream in(&file);
+    in.readLine();
 	QString tmp = in.readLine();
 	QStringList times = tmp.split(" --> ");
 	QString beginT = times.at(0);
