@@ -34,6 +34,7 @@ void playlist::loadPlaylist(QList<QUrl> urls)
 	m_player->play();
 }
 
+/*! function that shows/hides the playlist based on the playlist visibility */
 void playlist::showPlaylist()
 {
 	if (m_playlist_entries->isHidden()) {
@@ -44,3 +45,5 @@ void playlist::showPlaylist()
 		this->focusNextChild();
 	}
 }
+
+

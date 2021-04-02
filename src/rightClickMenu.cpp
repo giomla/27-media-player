@@ -85,6 +85,7 @@ rightClickMenu::rightClickMenu(QWidget* parent) : QWidget(parent)
 
 rightClickMenu::~rightClickMenu() { delete m_RCMenu; }
 
+/*! If the video is playing switch from play to pause, enable adding subtitles and annotations, and enable stop next and previous */
 void rightClickMenu::playingState()
 {
 	m_playOrPause->setEnabled(true);

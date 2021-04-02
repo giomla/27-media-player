@@ -13,9 +13,12 @@ class playlist : public QWidget
 	QMediaPlaylist* m_playlist;
 	QListWidget* m_playlist_entries;
 	QMediaPlayer* m_player;
+    /*! fuction that loads playlist */
 	void loadPlaylist(QList<QUrl> urls);
-	void showPlaylist();
+    /*! function that shows playlist after the button is pressed */
+    void showPlaylist();
 	QList<QUrl> listUrls;
+
 };
 
 #endif  // PLAYLIST_H

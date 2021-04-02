@@ -12,8 +12,11 @@ class rightClickMenu : public QWidget
 	~rightClickMenu();
 
 	QMenu* m_RCMenu = new QMenu();
+    /*! fuction that switches from play to pause while video is being played */
 	void playingState();
+    /*! fuction that switches from pause to play when video is paused */
 	void PausedState();
+    /*! fuction that enables Stop after video is loaded */
 	void StoppedState();
 
      private:

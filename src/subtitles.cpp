@@ -7,6 +7,7 @@ subtitles::subtitles(const QString &line, const QString &beginTime, const QStrin
 {
 }
 
+/*! Function that reads .srt file line by line and stores the begin time of a line, line itself and the end time of a line. */
 void subtitles::getSubtitles(QFile &file)
 {
 	QTextStream in(&file);
@@ -57,6 +58,7 @@ void subtitles::getSubtitles(QFile &file)
 			times.clear();
 		}
 	}
+
 }
 
 subtitles::~subtitles() {}

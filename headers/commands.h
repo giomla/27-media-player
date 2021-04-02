@@ -28,9 +28,14 @@ class commands : public QWidget
 	QHBoxLayout* commandsLayout = nullptr;
 	QHBoxLayout* sliderLayout = nullptr;
 
+    /*! function that hides gui commands when video player is at full screen */
 	void hideCommands();
+    /*! fuction that shows back commands after exiting full screen */
 	void showCommands();
-	void enableAllCommands();
-	void createCommandLayout();
-	void createSliderLayout();
+    /*! fuction that enables all commands after video is loaded */
+    void enableAllCommands();
+    /*! fuction that creates command layout */
+    void createCommandLayout();
+    /*! function that creates slider layout */
+    void createSliderLayout();
 };
