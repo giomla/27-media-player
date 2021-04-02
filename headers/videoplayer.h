@@ -49,21 +49,36 @@ class videoplayer : public QWidget
 
 	    public : videoplayer(QWidget* parent = nullptr);
 	~videoplayer();
+
 	bool isAvaliable() const;
 	QMediaPlayer::State state() const;
-	bool isMuted() const;
+    /*! function that tells us if video is muted */
+    bool isMuted() const;
+    /*! fuction that creates upper menu bar */
 	void createMenuBar();
+    /*! fuction that returns current volume */
 	int volume() const;
+    /*! function that updates duration of a video when a video is loaded */
 	void updateDurationInfo(qint64 currInfo);
+    /*! function that fits the view of the video player */
 	void fitView();
+    /*! function that updates volume slider according to volume */
 	void updateVolumeSlider();
+    /*! function that loads playlist */
 	void loadPlaylist(QList<QUrl> urls);
+    /*! function that adds a video to playlist */
 	void addToPlaylist(QList<QUrl> urls);
+    /*! function that holds all connections so that readabilty is better */
 	void connections();
+    /*! function that sets the title */
 	void setTitle(QList<QUrl> urls);
+    /*! function that adds buttons to the video player */
 	void addButtons(QRect screenGeometry);
+    /*! function that loads a video from playlist after the name of the video is double clicked */
 	void playlistDoubleClickPlay();
+    /*! function that loads a video */
 	bool loadFile(const QString& fileName);
+    /*! function that checks regex */
 	bool annotationFieldRegexCheck(QLineEdit* widthLineEdit,
 	                               QLineEdit* heightLineEdit,
 	                               QLineEdit* durationLineEdit,
@@ -103,11 +118,10 @@ class videoplayer : public QWidget
 	void mediaStateChanged(QMediaPlayer::State state);
 	void onVolumeSliderChanged();
 
-	// TODO
+
 
      private:
 	QMediaPlayer* m_mediaPlayer = nullptr;
-	// QMediaPlaylist *m_playlist = nullptr;
 	bool m_playerMuted = false;
 	QMediaPlayer::State m_playerState = QMediaPlayer::StoppedState;
 	QGraphicsVideoItem* m_videoItem = nullptr;

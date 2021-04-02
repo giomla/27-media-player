@@ -496,6 +496,7 @@ void videoplayer::onVolumeSliderChanged()
 
 void videoplayer::exit() { std::exit(EXIT_SUCCESS); }
 
+/*! Function that that checks for keyboard shortcuts */
 void videoplayer::keyPressEvent(QKeyEvent *event)
 {
 	if (event->key() == Qt::Key_Space)

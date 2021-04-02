@@ -85,6 +85,8 @@ commands::commands(QWidget *parent) : QWidget(parent)
 	sliderLayout = new QHBoxLayout;
 }
 
+
+/*! hides each button, used when going to fullscreen */
 void commands::hideCommands()
 {
 	m_playButton->hide();
