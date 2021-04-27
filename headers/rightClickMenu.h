@@ -20,7 +20,7 @@ class rightClickMenu : public QWidget
 	void StoppedState();
 
      private:
-	QAction* m_playOrPause = nullptr;
+    QAction* m_playOrPause = nullptr;
 	QAction* m_stop = nullptr;
 	QAction* m_previous = nullptr;
 	QAction* m_next = nullptr;

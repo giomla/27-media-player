@@ -143,7 +143,7 @@ void videoplayer::updateDurationInfo(qint64 currInfo)
 	QString tStr;
 
 	if (currInfo || m_duration) {
-		QTime currentTime((currInfo / 3600) % 60, (currInfo / 60) % 60,
+        QTime currentTime((currInfo / 3600) % 60, (currInfo / 60) % 60,
 		                  currInfo % 60, (currInfo * 1000) % 1000);
 		QTime totalTime((m_duration / 3600) % 60, (m_duration / 60) % 60,
 		                m_duration % 60, (m_duration * 1000) % 1000);
@@ -315,7 +315,7 @@ void videoplayer::volumeIncrease()
 
 void videoplayer::volumeDecrease()
 {
-	m_mediaPlayer->setVolume(m_mediaPlayer->volume() - VOLUME_STEP);
+    m_mediaPlayer->setVolume(m_mediaPlayer->volume() - VOLUME_STEP);
 }
 
 void videoplayer::seek(int seconds)
@@ -685,7 +685,7 @@ void videoplayer::addAnnotation()
 		if (durationLineEdit->text().isEmpty()) {
 			QString durationLabel = cmnds->m_durationInfo->text();
 			QStringList durationList = durationLabel.split(" / ");
-			annDuration = durationList[1];
+            annDuration = durationList[1];
 		}
 		QStringList times = beginAt.split(tr(":"));
 		QStringList durations = annDuration.split(tr(":"));
@@ -718,7 +718,7 @@ void videoplayer::addAnnotation()
 		QStringList durVideoList = durationList[1].split(":");
 		qint64 dur = 0;
 		if (durVideoList.length() == 2) {
-			dur = durVideoList[0].toInt() * 1000 * 60 +
+            dur = durVideoList[0].toInt() * 1000 * 60 +
 			      durVideoList[1].toInt() * 1000;
 		} else {
 			dur = durVideoList[0].toInt() * 1000 * 60 * 60 +
@@ -726,7 +726,7 @@ void videoplayer::addAnnotation()
 			      durVideoList[2].toInt() * 1000;
 		}
 		if (beginAnnotation + durationTime > dur) {
-			durationTime = dur - beginAnnotation;
+            durationTime = dur - beginAnnotation;
 		}
 
 		// TODO brisanje svih unosa u vektoru

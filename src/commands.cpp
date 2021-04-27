@@ -72,7 +72,7 @@ commands::commands(QWidget *parent) : QWidget(parent)
 	m_volumeSlider->setEnabled(false);
 
 	m_durationInfo = new QLabel("00:00:00/00:00:00", this);
-	m_durationInfo->setEnabled(false);
+    m_durationInfo->setEnabled(false);
 	m_durationInfo->setStyleSheet("color:rgb(255,255,255)");
 	m_durationInfo->setAlignment(Qt::AlignCenter);
 	m_durationInfo->setMinimumSize(2 * screenGeometry.width() / 15,

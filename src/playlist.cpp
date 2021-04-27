@@ -3,7 +3,7 @@
 #include <qset.h>
 
 #include <QItemSelectionModel>
-playlist::playlist(QWidget* parent, QMediaPlayer* player)
+playlist::playlist(QWidget *parent, QMediaPlayer* player)
     : QWidget(parent), m_player(player)
 {
 	m_playlist = new QMediaPlaylist(this);
@@ -16,11 +16,11 @@ void playlist::loadPlaylist(QList<QUrl> urls)
 	m_playlist_entries->setStyleSheet("color:white");
 	int i = 0;
 
-	for (auto url : urls) {
-		if (listUrls.contains(url)) {
+    for (auto url : urls) {
+        if (listUrls.contains(url)) {
 			continue;
 		}
-		listUrls.append(url);
+        listUrls.append(url);
 		m_playlist->addMedia(url);
 		m_playlist_entries->addItem(
 		    url.fileName().left(url.fileName().lastIndexOf('.')));
@@ -37,7 +37,7 @@ void playlist::loadPlaylist(QList<QUrl> urls)
 /*! function that shows/hides the playlist based on the playlist visibility */
 void playlist::showPlaylist()
 {
-	if (m_playlist_entries->isHidden()) {
+    if (m_playlist_entries->isHidden()) {
 		m_playlist_entries->show();
 		m_playlist_entries->setFocus();
 	} else {

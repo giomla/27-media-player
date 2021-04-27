@@ -131,8 +131,8 @@ class videoplayer : public QWidget
 	QMenuBar* m_menuBar = nullptr;
 	subtitles* subtitle;
 	commands* cmnds;
-	qint64 m_duration = 0;
-	int volumeBeforeMute = -1;
+    qint64 m_duration = 0;
+    int volumeBeforeMute = -1;
 	QLabel* m_text = nullptr;
 	const QBrush* darkGrayColor = nullptr;
 	QAction* addSubtitles = nullptr;
