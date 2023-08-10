@@ -683,8 +683,7 @@ void videoplayer::addAnnotation()
 		QString content = textLineEdit->text();
 		QString beginAt = beginLineEdit->text();
 		if (beginLineEdit->text().isEmpty()) {
-            //ovde bi trebalo defaultovati na neku promenljivu
-            beginAt = "00:00:00";
+            currentTime.toString("hh:mm:ss");
 		}
 		QString annDuration = durationLineEdit->text();
 		if (durationLineEdit->text().isEmpty()) {
