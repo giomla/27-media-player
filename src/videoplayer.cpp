@@ -363,7 +363,7 @@ void videoplayer::createMenuBar()
 	QAction *openFile = file->addAction("Open file");
 	QAction *exit =
 	    file->addAction("Abort");  // iz nekog razloga ne izbacuje EXIT akciju
-	file->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
+    file->setStyleSheet(" QMenu {Background-color: #111111;color:white;}");
 
 	// audio padajuci meni
 	QAction *mute = playback->addAction("Mute");
@@ -596,7 +596,8 @@ void videoplayer::addSubtitle()
 
 void videoplayer::addAnnotation()
 {
-	numOfAnnotations++;
+    //TODO: uvecavamo broj anotacije pre nego sto ga sacuvamo
+    numOfAnnotations++;
 	if (numOfAnnotations > 30) {
 		std::cerr << "Can't have more than 30 annotations" << std::endl;
 		std::exit(EXIT_FAILURE);
@@ -657,9 +658,12 @@ void videoplayer::addAnnotation()
 	bool okWidth = true;
 	bool okHeight = true;
 
-	qint64 defaultSize = 200;
+    qint64 defaultSize = 200;
+    int currTime = cmnds->m_Slider->value();
+    QTime currentTime((currTime / 3600) % 60, (currTime / 60) % 60,
+                      currTime % 60, (currTime * 1000) % 1000);
 
-	beginLineEdit->setText("00:00:00");
+    beginLineEdit->setText(currentTime.toString("hh:mm:ss"));
 	durationLineEdit->setText("00:10");
 	widthLineEdit->setText("200");
 	heightLineEdit->setText("200");
@@ -679,7 +683,8 @@ void videoplayer::addAnnotation()
 		QString content = textLineEdit->text();
 		QString beginAt = beginLineEdit->text();
 		if (beginLineEdit->text().isEmpty()) {
-			beginAt = "00:00:00";
+            //ovde bi trebalo defaultovati na neku promenljivu
+            beginAt = "00:00:00";
 		}
 		QString annDuration = durationLineEdit->text();
 		if (durationLineEdit->text().isEmpty()) {
