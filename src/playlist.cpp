@@ -16,7 +16,7 @@ void playlist::loadPlaylist(QList<QUrl> urls)
 	m_playlist_entries->setStyleSheet("color:white");
 	int i = 0;
 
-    for (auto url : urls) {
+    for (const auto &url : urls) {
         if (listUrls.contains(url)) {
 			continue;
 		}

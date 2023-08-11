@@ -576,8 +576,6 @@ void videoplayer::wheelEvent(QWheelEvent *event)
     }else if (event->angleDelta().x() >= 0) {
         m_mediaPlayer->setVolume(m_mediaPlayer->volume() + VOLUME_STEP);
 	}
-    //TODO: force redraw of slider as its not updated
-    //when using the mouse
     setVolume(m_mediaPlayer->volume());
 	event->accept();
 }
