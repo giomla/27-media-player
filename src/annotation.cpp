@@ -19,7 +19,7 @@ Annotation::Annotation(QGraphicsItem *parent, QString name, qint64 width, qint64
 	this->setFlag(QGraphicsItem::ItemIsSelectable, true);
 	this->setFocus(Qt::MouseFocusReason);
 	this->setAcceptHoverEvents(true);
-    this->setName(&name);
+    this->setName(name);
 	this->setText_content(content);
 	this->setHeight(height);
 	this->setWidth(width);
@@ -396,9 +396,9 @@ void Annotation::setAppearance_time(const qint64 &appearance_time)
 	m_appearance_time = appearance_time;
 }
 
-QString *Annotation::name() const { return m_name; }
+const QString& Annotation::name() const { return m_name; }
 
-void Annotation::setName(QString *name) { m_name = name; }
+void Annotation::setName(QString name) { m_name = name; }
 
 QString Annotation::text_content() const { return m_text_content; }
 

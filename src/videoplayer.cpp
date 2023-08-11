@@ -69,7 +69,7 @@ videoplayer::~videoplayer()
 	delete subtitle;
     delete blackBackgroundColor;
 	delete m_mediaPlayer;
-	for (auto it : m_videoAnnotations) {
+    for (auto it : qAsConst(m_videoAnnotations)) {
 		delete it;
 	}
 }
@@ -124,7 +124,7 @@ void videoplayer::positionChanged(qint64 progress)
 	// update annotations for video, go through the vector and update for each
 	// accordingly
 	if (!m_videoAnnotations.empty()) {
-		for (auto it : m_videoAnnotations) {
+        for (auto it : qAsConst(m_videoAnnotations)) {
 			it->setCurrTimeOfVideo(progress);
 			it->update();
 		}
@@ -227,7 +227,7 @@ void videoplayer::fitView()
 	m_videoItem->setSize(QSizeF(rect.width(), rect.height()));
 	m_graphicsView->fitInView(rect, Qt::AspectRatioMode::KeepAspectRatio);
 	m_graphicsView->setSceneRect(rect);
-	for (auto it : m_videoAnnotations)
+    for (auto it : qAsConst(m_videoAnnotations))
 		it->resizeOccured();
 
 	if (isMaximized()) {
@@ -576,7 +576,6 @@ void videoplayer::wheelEvent(QWheelEvent *event)
 	}
     if (event->angleDelta().x() >= 0) {
         m_mediaPlayer->setVolume(m_mediaPlayer->volume() + VOLUME_STEP);
-        m_mediaPlayer->volumeChanged(m_mediaPlayer->volume());
 	}
 	setVolume(m_mediaPlayer->volume());
 	event->accept();
@@ -794,9 +793,9 @@ void videoplayer::saveAnnotationsToJsonFile()
 	if (m_videoAnnotations.isEmpty()) return;
 
 	QJsonArray jsonArr = QJsonArray();
-	for (auto anno : m_videoAnnotations) {
+    for (auto anno : qAsConst( m_videoAnnotations )) {
 		QJsonObject obj = QJsonObject();
-        obj.insert("name", *anno->name());
+        obj.insert("name", anno->name());
 		obj.insert("width", anno->width());
 		obj.insert("height", anno->height());
 		obj.insert("content", anno->text_content());

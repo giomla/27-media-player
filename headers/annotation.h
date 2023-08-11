@@ -37,8 +37,8 @@ class Annotation : public QGraphicsObject
 	QString text_content() const;
 	void setText_content(const QString &text_content);
 
-	QString *name() const;
-	void setName(QString *name);
+    const QString& name() const;
+    void setName(QString name);
 
 	qint64 appearance_time() const;
 	void setAppearance_time(const qint64 &appearance_time);
@@ -84,7 +84,7 @@ class Annotation : public QGraphicsObject
 
      private:
 	QRectF *m_rect = nullptr;
-    QString *m_name = new QString("");
+    QString m_name = "";
 	qint64 m_appearance_time;
 	qint64 m_duration;
 	QString m_text_content = "";
