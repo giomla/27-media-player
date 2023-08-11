@@ -567,17 +567,17 @@ void videoplayer::mousePressEvent(QMouseEvent *event)
 
 void videoplayer::wheelEvent(QWheelEvent *event)
 {
-    //Bug: lowering volume with mouse doesnt work
     if (event->angleDelta().y() < 0) {
         if (m_mediaPlayer->volume()>=VOLUME_STEP)
             m_mediaPlayer->setVolume(m_mediaPlayer->volume() - VOLUME_STEP);
         else
             m_mediaPlayer->setVolume(0);
-	}
-    if (event->angleDelta().x() >= 0) {
+    }else if (event->angleDelta().x() >= 0) {
         m_mediaPlayer->setVolume(m_mediaPlayer->volume() + VOLUME_STEP);
 	}
-	setVolume(m_mediaPlayer->volume());
+    //TODO: force redraw of slider as its not updated
+    //when using the mouse
+
 	event->accept();
 }
 
