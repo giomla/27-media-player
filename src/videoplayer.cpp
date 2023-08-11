@@ -260,7 +260,7 @@ void videoplayer::openFile()
 	fileDialog.show();
 
 	if (fileDialog.exec()) {
-		subtitle->subs.clear();
+        subtitle->subs.clear();
 		subtitle->setAddedSubtitle(false);
 		subtitleText->hide();
 		Playlist->loadPlaylist(fileDialog.selectedUrls());
@@ -416,7 +416,7 @@ void videoplayer::forwardClicked()
 	m_text->show();
 	m_text->setText("Forward");
 	QFileInfo fileInfo(
-	    Playlist->m_playlist->currentMedia().canonicalUrl().path());
+        Playlist->m_playlist->currentMedia().request().url().path());
 	QString filename = fileInfo.fileName();
 	this->setWindowTitle(filename.split('.')[0]);
 }
@@ -429,7 +429,7 @@ void videoplayer::backwardClicked()
 	m_text->show();
 	m_text->setText("Backward");
 	QFileInfo fileInfo(
-	    Playlist->m_playlist->currentMedia().canonicalUrl().path());
+        Playlist->m_playlist->currentMedia().request().url().path());
 	QString filename = fileInfo.fileName();
 	this->setWindowTitle(filename.split('.')[0]);
 }
@@ -567,7 +567,7 @@ void videoplayer::mousePressEvent(QMouseEvent *event)
 
 void videoplayer::wheelEvent(QWheelEvent *event)
 {
-	if (event->delta() < 0) {
+    if (event->delta() < 0) {
 		m_mediaPlayer->setVolume(m_mediaPlayer->volume() - VOLUME_STEP);
 	}
 	if (event->delta() >= 0) {
@@ -746,7 +746,7 @@ void videoplayer::playlistDoubleClickPlay()
 	Playlist->m_playlist->setCurrentIndex(Playlist->m_playlist_entries->row(
 	    Playlist->m_playlist_entries->currentItem()));
 	QFileInfo fileInfo(
-	    Playlist->m_playlist->currentMedia().canonicalUrl().path());
+        Playlist->m_playlist->currentMedia().request().url().path());
 	QString filename = fileInfo.fileName();
 	this->setWindowTitle(filename.split('.')[0]);
 }
@@ -754,7 +754,7 @@ void videoplayer::playlistDoubleClickPlay()
 void videoplayer::setAnnotationsFromJson()
 {
 	QString filePath = m_mediaPlayer->currentMedia()
-	                       .canonicalUrl()
+                           .request().url()
 	                       .path()
 	                       .split('/')
 	                       .last() +
@@ -802,7 +802,7 @@ void videoplayer::saveAnnotationsToJsonFile()
 
 	QJsonDocument jsonDoc = QJsonDocument(jsonArr);
 	QFile out = QFile(m_mediaPlayer->currentMedia()
-	                      .canonicalUrl()
+                          .request().url()
 	                      .path()
 	                      .split('/')
 	                      .last() +

@@ -55,7 +55,7 @@ class Annotation : public QGraphicsObject
 	bool getAlreadyModifying() const;
 	void setAlreadyModifying(bool value);
 
-     public slots:
+    public slots:
 	void modified();
 	void modifiedDur();
 	void canceled();
@@ -67,7 +67,7 @@ class Annotation : public QGraphicsObject
 
 
 
-     protected:
+    protected:
 
 
 

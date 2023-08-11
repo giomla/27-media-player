@@ -324,7 +324,6 @@ void Annotation::wheelEvent(QGraphicsSceneWheelEvent *event)
 		event->ignore();
 }
 //TODO: should save the changes in the qvideoplayer
-//how?
 
 void Annotation::modified()
 {
