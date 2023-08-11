@@ -9,7 +9,7 @@
 #include <QString>
 
 
-Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height,
+Annotation::Annotation(QGraphicsItem *parent, QString name, qint64 width, qint64 height,
                        QString content, qint64 beginAt, qint64 duration)
 {
 	this->setParentItem(parent);
@@ -19,6 +19,7 @@ Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height,
 	this->setFlag(QGraphicsItem::ItemIsSelectable, true);
 	this->setFocus(Qt::MouseFocusReason);
 	this->setAcceptHoverEvents(true);
+    this->setName(&name);
 	this->setText_content(content);
 	this->setHeight(height);
 	this->setWidth(width);
@@ -27,7 +28,9 @@ Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height,
 	m_rect = new QRectF(0, 0, width, height);
 }
 
-Annotation::~Annotation() {}
+Annotation::~Annotation() {
+    //delete m_name;
+}
 
 void Annotation::modifyText()
 {

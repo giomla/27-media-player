@@ -22,7 +22,7 @@ class Annotation : public QGraphicsObject
 {
 	Q_OBJECT
      public:
-	Annotation(QGraphicsItem *parent, qint64 width, qint64 height,
+    Annotation(QGraphicsItem *parent, QString name,qint64 width, qint64 height,
 	           QString content, qint64 beginAt, qint64 duration);
 	~Annotation();
 	bool resize_on = false;
@@ -84,7 +84,7 @@ class Annotation : public QGraphicsObject
 
      private:
 	QRectF *m_rect = nullptr;
-	QString *m_name = nullptr;
+    QString *m_name = new QString("");
 	qint64 m_appearance_time;
 	qint64 m_duration;
 	QString m_text_content = "";

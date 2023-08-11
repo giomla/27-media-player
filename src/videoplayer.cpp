@@ -567,11 +567,16 @@ void videoplayer::mousePressEvent(QMouseEvent *event)
 
 void videoplayer::wheelEvent(QWheelEvent *event)
 {
-    if (event->delta() < 0) {
-		m_mediaPlayer->setVolume(m_mediaPlayer->volume() - VOLUME_STEP);
+    //Bug: lowering volume with mouse doesnt work
+    if (event->angleDelta().y() < 0) {
+        if (m_mediaPlayer->volume()>=VOLUME_STEP)
+            m_mediaPlayer->setVolume(m_mediaPlayer->volume() - VOLUME_STEP);
+        else
+            m_mediaPlayer->setVolume(0);
 	}
-	if (event->delta() >= 0) {
-		m_mediaPlayer->setVolume(m_mediaPlayer->volume() + VOLUME_STEP);
+    if (event->angleDelta().x() >= 0) {
+        m_mediaPlayer->setVolume(m_mediaPlayer->volume() + VOLUME_STEP);
+        m_mediaPlayer->volumeChanged(m_mediaPlayer->volume());
 	}
 	setVolume(m_mediaPlayer->volume());
 	event->accept();
@@ -665,7 +670,7 @@ void videoplayer::addAnnotation()
                       currTime % 60, (currTime * 1000) % 1000);
 
     beginLineEdit->setText(currentTime.toString("hh:mm:ss"));
-	durationLineEdit->setText("00:10");
+    durationLineEdit->setText("01:00");
 	widthLineEdit->setText("200");
 	heightLineEdit->setText("200");
 
@@ -735,7 +740,7 @@ void videoplayer::addAnnotation()
 		}
 
 		// TODO brisanje svih unosa u vektoru
-		m_videoAnnotations.append(new Annotation(m_videoItem, width, height,
+        m_videoAnnotations.append(new Annotation(m_videoItem, name, width, height,
 		                                         content, beginAnnotation,
 		                                         durationTime));
 	}
@@ -778,7 +783,7 @@ void videoplayer::setAnnotationsFromJson()
 	for (; jsonBegin < jsonEnd; ++jsonBegin) {
 		QJsonObject obj = jsonBegin->toObject();
 		m_videoAnnotations.append(new Annotation(
-		    m_videoItem, obj.value("width").toInt(),
+            m_videoItem, obj.value("name").toString(),obj.value("width").toInt(),
 		    obj.value("height").toInt(), obj.value("content").toString(),
 		    obj.value("beginAt").toInt(), obj.value("duration").toInt()));
 	}
@@ -791,7 +796,7 @@ void videoplayer::saveAnnotationsToJsonFile()
 	QJsonArray jsonArr = QJsonArray();
 	for (auto anno : m_videoAnnotations) {
 		QJsonObject obj = QJsonObject();
-
+        obj.insert("name", *anno->name());
 		obj.insert("width", anno->width());
 		obj.insert("height", anno->height());
 		obj.insert("content", anno->text_content());
