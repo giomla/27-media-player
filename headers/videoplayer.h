@@ -32,6 +32,7 @@
 #include <QWheelEvent>
 #include <QWidget>
 #include <string>
+#include <QStandardPaths>
 
 #include "../headers/annotation.h"
 #include "../headers/commands.h"

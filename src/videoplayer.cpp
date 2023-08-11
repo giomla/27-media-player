@@ -249,12 +249,13 @@ void videoplayer::fitView()
 
 void videoplayer::openFile()
 {
-	QFileDialog fileDialog;
+    QFileDialog fileDialog(this);
 	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
 	fileDialog.setWindowTitle(tr("Open Files"));
-	fileDialog.setDirectory(
-	    QStandardPaths::standardLocations(QStandardPaths::MoviesLocation)
-	        .value(0, QDir::homePath()));
+    //Defaulting to the home location, prevents possible empty string
+    //being returned, as moviesLocation may not be set on system
+    QString path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).value(0,QDir::homePath());
+    fileDialog.setDirectory(path);
 	fileDialog.setNameFilter(tr("Video File(*.mkv *.mp4 *.avi)"));
 	fileDialog.setFileMode(QFileDialog::ExistingFiles);
 	fileDialog.show();
