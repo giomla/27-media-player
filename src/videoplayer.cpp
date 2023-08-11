@@ -577,7 +577,7 @@ void videoplayer::wheelEvent(QWheelEvent *event)
 	}
     //TODO: force redraw of slider as its not updated
     //when using the mouse
-
+    setVolume(m_mediaPlayer->volume());
 	event->accept();
 }
 
