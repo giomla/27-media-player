@@ -134,7 +134,7 @@ class videoplayer : public QWidget
     qint64 m_duration = 0;
     int volumeBeforeMute = -1;
 	QLabel* m_text = nullptr;
-	const QBrush* darkGrayColor = nullptr;
+    const QBrush* blackBackgroundColor = nullptr;
 	QAction* addSubtitles = nullptr;
 	QVector<Annotation*> m_videoAnnotations;
 	rightClickMenu* m_rightClickMenu = nullptr;

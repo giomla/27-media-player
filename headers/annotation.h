@@ -65,7 +65,12 @@ class Annotation : public QGraphicsObject
 	void stopResizing();
 	void modifyDur();
 
+
+
      protected:
+
+
+
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	           QWidget *widget = 0) override;
 	QRectF boundingRect() const override;

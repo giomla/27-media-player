@@ -22,11 +22,11 @@ videoplayer::videoplayer(QWidget *parent) : QWidget(parent)
 	m_mediaPlayer->setPlaylist(Playlist->m_playlist);
 	m_mediaPlayer->setVideoOutput(m_videoItem);
 
-	darkGrayColor = new QBrush(QColor(50, 50, 50));
+    blackBackgroundColor = new QBrush(QColor(0, 0, 0));
 
 	m_scene = new QGraphicsScene(this);
 	m_scene->addItem(m_videoItem);
-	m_scene->setBackgroundBrush(*darkGrayColor);
+    m_scene->setBackgroundBrush(*blackBackgroundColor);
 
 	m_graphicsView = new QGraphicsView(m_scene);
 	m_graphicsView->setContentsMargins(0, 0, 0, 0);
@@ -67,7 +67,7 @@ videoplayer::videoplayer(QWidget *parent) : QWidget(parent)
 videoplayer::~videoplayer()
 {
 	delete subtitle;
-	delete darkGrayColor;
+    delete blackBackgroundColor;
 	delete m_mediaPlayer;
 	for (auto it : m_videoAnnotations) {
 		delete it;
@@ -533,6 +533,7 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
 	if (event->buttons() == Qt::MouseEventCreatedDoubleClick &&
 	    m_graphicsView->underMouse()) {
 		if (!isFullScreen()) {
+            this->layout()->setContentsMargins(0,0,0,0);
 			cmnds->hideCommands();
 			Playlist->m_playlist_entries->hide();
 			m_menuBar->hide();

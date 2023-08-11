@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QString>
 
+
 Annotation::Annotation(QGraphicsItem *parent, qint64 width, qint64 height,
                        QString content, qint64 beginAt, qint64 duration)
 {
@@ -322,11 +323,13 @@ void Annotation::wheelEvent(QGraphicsSceneWheelEvent *event)
 	} else
 		event->ignore();
 }
+//TODO: should save the changes in the qvideoplayer
+//how?
 
 void Annotation::modified()
 {
-	this->setText_content(editor->toPlainText());
-	update();
+    this->setText_content(editor->toPlainText());
+    update();
 	delete modifyDialog;
 	this->setAlreadyModifying(false);
 }
