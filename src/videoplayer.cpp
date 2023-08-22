@@ -66,6 +66,7 @@ videoplayer::videoplayer(QWidget *parent) : QWidget(parent)
 
 videoplayer::~videoplayer()
 {
+
 	delete subtitle;
     delete blackBackgroundColor;
 	delete m_mediaPlayer;
@@ -287,7 +288,7 @@ void videoplayer::playClicked()
 		case QMediaPlayer::StoppedState:
 		case QMediaPlayer::PausedState:
 			m_mediaPlayer->play();
-			QTimer::singleShot(2000, m_text, &QLabel::hide);
+            QTimer::singleShot(2000, m_text, &QLabel::hide);
 			m_text->show();
 			m_text->setText("Playing");
 			break;
@@ -323,10 +324,6 @@ void videoplayer::seek(int seconds)
 {
 	m_mediaPlayer->setPosition(seconds * 1000);
 }
-
-// for some reason, nothing with emit works on Ubuntu,
-// hence the commented out lines of code, might work just fine on other
-// platforms
 
 void videoplayer::muteClicked()
 {
@@ -510,11 +507,12 @@ void videoplayer::keyPressEvent(QKeyEvent *event)
 		    QAbstractSlider::SliderAction::SliderSingleStepSub);
 	else if (event->key() == Qt::Key_F) {
 		if (!isFullScreen()) {
-			cmnds->hideCommands();
+            QTimer::singleShot(3000,cmnds,&commands::hideCommands);
 			Playlist->m_playlist_entries->hide();
 			m_menuBar->hide();
 			this->layout()->setContentsMargins(0, 0, 0, 0);
 			this->layout()->setMargin(0);
+            setMouseTracking(true);
 			showFullScreen();
 		} else {
 			this->layout()->setContentsMargins(-1, -1, -1, -1);
@@ -522,6 +520,7 @@ void videoplayer::keyPressEvent(QKeyEvent *event)
 			cmnds->showCommands();
 			Playlist->m_playlist_entries->show();
 			m_menuBar->show();
+            setMouseTracking(false);
 		}
 	} else if (event->key() == Qt::Key_Period)
 		cmnds->m_forwardButton->click();
@@ -534,13 +533,17 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
 	if (event->buttons() == Qt::MouseEventCreatedDoubleClick &&
 	    m_graphicsView->underMouse()) {
 		if (!isFullScreen()) {
+            setMouseTracking(true);
             this->layout()->setContentsMargins(0,0,0,0);
-			cmnds->hideCommands();
+            QTimer::singleShot(3000,cmnds,&commands::hideCommands);
 			Playlist->m_playlist_entries->hide();
 			m_menuBar->hide();
 			showFullScreen();
+            if(isFullScreen())
+                qDebug()<<"bla bla";
 			cmnds->m_playButton->click();
 		} else if (isFullScreen()) {
+            setMouseTracking(false);
 			this->layout()->setContentsMargins(-1, -1, -1, -1);
 			showNormal();
 			cmnds->showCommands();
@@ -563,7 +566,11 @@ void videoplayer::contextMenuEvent(QContextMenuEvent *event)
 void videoplayer::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::RightButton && m_graphicsView->underMouse())
-		m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
+        m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
+}
+
+void videoplayer::mouseMoveEvent(QMouseEvent *event)
+{
 }
 
 void videoplayer::wheelEvent(QWheelEvent *event)

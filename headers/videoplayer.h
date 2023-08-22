@@ -141,6 +141,7 @@ class videoplayer : public QWidget
 	rightClickMenu* m_rightClickMenu = nullptr;
 	playlist* Playlist = nullptr;
 	QFormLayout* formLayout = nullptr;
+    QTimer *commandsHideTimer = nullptr;
 
 	int numOfAnnotations = 0;
 
@@ -149,6 +150,7 @@ class videoplayer : public QWidget
 	void showEvent(QShowEvent*) override;
 	void keyPressEvent(QKeyEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void contextMenuEvent(QContextMenuEvent* event) override;
 

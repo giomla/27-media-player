@@ -80,7 +80,6 @@ commands::commands(QWidget *parent) : QWidget(parent)
 
 	m_Slider = new QSlider(Qt::Horizontal);
 	m_Slider->setEnabled(false);
-
 	commandsLayout = new QHBoxLayout;
 	sliderLayout = new QHBoxLayout;
 }
