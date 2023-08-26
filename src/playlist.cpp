@@ -11,9 +11,9 @@ playlist::playlist(QWidget *parent, QMediaPlayer* player)
 	m_playlist_entries->hide();
 };
 
-void playlist::loadPlaylist(QList<QUrl> urls)
+void playlist::loadPlaylist(const QList<QUrl>& urls)
 {
-	m_playlist_entries->setStyleSheet("color:white");
+	m_playlist_entries->setStyleSheet(QStringLiteral("color:white"));
 	int i = 0;
 
     for (const auto &url : urls) {

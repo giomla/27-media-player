@@ -20,41 +20,41 @@ rightClickMenu::rightClickMenu(QWidget* parent) : QWidget(parent)
 
 	m_playOrPause->setEnabled(false);
 	m_playOrPause->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-	m_playOrPause->setText("Play");
+	m_playOrPause->setText(QStringLiteral("Play"));
 
 	m_stop->setEnabled(false);
 	m_stop->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-	m_stop->setText("Stop");
+	m_stop->setText(QStringLiteral("Stop"));
 
 	m_previous->setEnabled(false);
 	m_previous->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
-	m_previous->setText("Previous");
+	m_previous->setText(QStringLiteral("Previous"));
 
 	m_next->setEnabled(false);
 	m_next->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
-	m_next->setText("Next");
+	m_next->setText(QStringLiteral("Next"));
 
 	m_open->setEnabled(true);
 	m_open->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
-	m_open->setText("Open Media");
+	m_open->setText(QStringLiteral("Open Media"));
 
 	m_exit->setEnabled(true);
 	m_exit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
-	m_exit->setText("Leave");
+	m_exit->setText(QStringLiteral("Leave"));
 
 	m_addSubtitles->setEnabled(false);
 	m_addSubtitles->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
-	m_addSubtitles->setText("Add Subtitle");
+	m_addSubtitles->setText(QStringLiteral("Add Subtitle"));
 
 	m_addAnnotations->setEnabled(false);
 	m_addAnnotations->setIcon(
 	    style()->standardIcon(QStyle::SP_MessageBoxInformation));
-	m_addAnnotations->setText("Add Annotation");
+	m_addAnnotations->setText(QStringLiteral("Add Annotation"));
 
 	m_saveAnnotations->setEnabled(false);
 	m_saveAnnotations->setIcon(
 	    style()->standardIcon(QStyle::SP_DialogSaveButton));
-	m_saveAnnotations->setText("Save Annotation");
+	m_saveAnnotations->setText(QStringLiteral("Save Annotation"));
 
 	m_RCMenu->addAction(m_playOrPause);
 	m_RCMenu->addAction(m_stop);
@@ -90,7 +90,7 @@ void rightClickMenu::playingState()
 {
 	m_playOrPause->setEnabled(true);
 	m_playOrPause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-	m_playOrPause->setText("Pause");
+	m_playOrPause->setText(QStringLiteral("Pause"));
 	m_stop->setEnabled(true);
 	m_previous->setEnabled(true);
 	m_next->setEnabled(true);
@@ -103,7 +103,7 @@ void rightClickMenu::PausedState()
 {
 	m_playOrPause->setEnabled(true);
 	m_playOrPause->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-	m_playOrPause->setText("Play");
+	m_playOrPause->setText(QStringLiteral("Play"));
 	m_stop->setEnabled(true);
 	m_previous->setEnabled(true);
 	m_next->setEnabled(true);
@@ -116,7 +116,7 @@ void rightClickMenu::StoppedState()
 {
 	m_playOrPause->setEnabled(true);
 	m_playOrPause->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-	m_playOrPause->setText("Play");
+	m_playOrPause->setText(QStringLiteral("Play"));
 	m_addAnnotations->setEnabled(false);
 	m_saveAnnotations->setEnabled(false);
 	m_stop->setEnabled(false);

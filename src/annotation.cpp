@@ -7,10 +7,11 @@
 #include <QMenu>
 #include <QPushButton>
 #include <QString>
+#include <utility>
 
 
-Annotation::Annotation(QGraphicsItem *parent, QString name, qint64 width, qint64 height,
-                       QString content, qint64 beginAt, qint64 duration)
+Annotation::Annotation(QGraphicsItem *parent, const QString &name, qint64 width, qint64 height,
+                       const QString& content, qint64 beginAt, qint64 duration)
 {
 	this->setParentItem(parent);
 	this->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -19,7 +20,7 @@ Annotation::Annotation(QGraphicsItem *parent, QString name, qint64 width, qint64
 	this->setFlag(QGraphicsItem::ItemIsSelectable, true);
 	this->setFocus(Qt::MouseFocusReason);
 	this->setAcceptHoverEvents(true);
-    this->setName(name);
+    this->setName(std::move(name));
 	this->setText_content(content);
 	this->setHeight(height);
 	this->setWidth(width);
@@ -40,9 +41,9 @@ void Annotation::modifyText()
 		modifyDialog->setMinimumSize(300, 300);
 		modifyDialog->activateWindow();
 
-		QVBoxLayout *hlayout = new QVBoxLayout;
-		QPushButton *saveButton = new QPushButton("Save changes");
-		QPushButton *cancelButton = new QPushButton("Cancel changes");
+		auto *hlayout = new QVBoxLayout;
+		auto *saveButton = new QPushButton(QStringLiteral("Save changes"));
+		auto *cancelButton = new QPushButton(QStringLiteral("Cancel changes"));
 		cancelButton->setShortcut(QKeySequence::Cancel);
 
 		editor = new QPlainTextEdit(this->text_content());
@@ -76,7 +77,7 @@ void Annotation::modifyDur()
 		qint64 mins = (durationMils) / (60 * 1000);
 		qint64 secs = (durationMils - mins * (60 * 1000)) / 1000;
 
-		QString durationText = QString("%1:%2").arg(mins).arg(secs);
+		QString durationText = QStringLiteral("%1:%2").arg(mins).arg(secs);
 
 		qint64 beginMils = this->appearance_time();
 		qint64 bhours = beginMils / (60 * 60 * 1000);
@@ -87,29 +88,29 @@ void Annotation::modifyDur()
 		    1000;
 
 		QString beginText =
-		    QString("%1:%2:%3").arg(bhours).arg(bmins).arg(bsecs);
+		    QStringLiteral("%1:%2:%3").arg(bhours).arg(bmins).arg(bsecs);
 
-		QVBoxLayout *vlayout = new QVBoxLayout;
-		QPushButton *saveButton = new QPushButton("Save changes");
-		QPushButton *cancelButton = new QPushButton("Cancel changes");
+		auto *vlayout = new QVBoxLayout;
+		auto *saveButton = new QPushButton(QStringLiteral("Save changes"));
+		auto *cancelButton = new QPushButton(QStringLiteral("Cancel changes"));
 		cancelButton->setShortcut(QKeySequence::Cancel);
 
 		beginEdit = new QLineEdit();
 		beginEdit->setText(beginText);
-		QLabel *beginLabel = new QLabel();
-		beginLabel->setText("Annotation beginning(hh:mm:ss): ");
+		auto *beginLabel = new QLabel();
+		beginLabel->setText(QStringLiteral("Annotation beginning(hh:mm:ss): "));
 
 		durationEdit = new QLineEdit();
 
-		QLabel *durationLabel = new QLabel();
+		auto *durationLabel = new QLabel();
 		durationEdit->setText(durationText);
-		durationLabel->setText("Annotation duration(mm:ss): ");
+		durationLabel->setText(QStringLiteral("Annotation duration(mm:ss): "));
 
-		QHBoxLayout *hlayout1 = new QHBoxLayout();
+		auto *hlayout1 = new QHBoxLayout();
 		hlayout1->addWidget(beginLabel);
 		hlayout1->addWidget(beginEdit);
 
-		QHBoxLayout *hlayout2 = new QHBoxLayout();
+		auto *hlayout2 = new QHBoxLayout();
 		hlayout2->addWidget(durationLabel);
 		hlayout2->addWidget(durationEdit);
 
@@ -216,7 +217,7 @@ void Annotation::paint(QPainter *painter,
 	}
 }
 
-QRectF Annotation::boundingRect() const
+auto Annotation::boundingRect() const -> QRectF
 {
 	QRectF rect = QRectF(0, 0, width(), height());
 	return rect;
@@ -272,11 +273,11 @@ void Annotation::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	if (!this->getAlreadyModifying() && this->getCurrActive()) {
 		menu = new QMenu;
 		if (!resize_on)
-			menu->addAction("Resize annotation", this, SLOT(resizing()));
+			menu->addAction(QStringLiteral("Resize annotation"), this, &Annotation::resizing);
 		else
-			menu->addAction("End resizing", this, SLOT(stopResizing()));
-		menu->addAction("Edit text", this, SLOT(modifyText()));
-		menu->addAction("Edit Duration", this, SLOT(modifyDur()));
+			menu->addAction(QStringLiteral("End resizing"), this, &Annotation::stopResizing);
+		menu->addAction(QStringLiteral("Edit text"), this, &Annotation::modifyText);
+		menu->addAction(QStringLiteral("Edit Duration"), this, &Annotation::modifyDur);
 		menu->popup(event->screenPos());
 		event->setAccepted(true);
 	} else
@@ -370,47 +371,47 @@ void Annotation::canceledDur()
 
 // geters and seters
 
-bool Annotation::getAlreadyModifying() const { return alreadyModifying; }
+auto Annotation::getAlreadyModifying() const -> bool { return alreadyModifying; }
 
 void Annotation::setAlreadyModifying(bool value) { alreadyModifying = value; }
 
-bool Annotation::getCurrActive() const { return currActive; }
+auto Annotation::getCurrActive() const -> bool { return currActive; }
 
 void Annotation::setCurrActive(bool value) { currActive = value; }
 
-qint64 Annotation::getCurrTimeOfVideo() const { return currTimeOfVideo; }
+auto Annotation::getCurrTimeOfVideo() const -> qint64 { return currTimeOfVideo; }
 
-void Annotation::setCurrTimeOfVideo(const qint64 &value)
+void Annotation::setCurrTimeOfVideo(qint64 value)
 {
 	currTimeOfVideo = value;
 }
 
-qint64 Annotation::duration() const { return m_duration; }
+auto Annotation::duration() const -> qint64 { return m_duration; }
 
-void Annotation::setDuration(const qint64 &duration) { m_duration = duration; }
+void Annotation::setDuration(qint64 duration) { m_duration = duration; }
 
-qint64 Annotation::appearance_time() const { return m_appearance_time; }
+auto Annotation::appearance_time() const -> qint64 { return m_appearance_time; }
 
-void Annotation::setAppearance_time(const qint64 &appearance_time)
+void Annotation::setAppearance_time(qint64 appearance_time)
 {
 	m_appearance_time = appearance_time;
 }
 
-const QString& Annotation::name() const { return m_name; }
+auto Annotation::name() const -> const QString& { return m_name; }
 
-void Annotation::setName(QString name) { m_name = name; }
+void Annotation::setName(const QString &name) { m_name = std::move(name); }
 
-QString Annotation::text_content() const { return m_text_content; }
+auto Annotation::text_content() const -> QString { return m_text_content; }
 
 void Annotation::setText_content(const QString &text_content)
 {
 	m_text_content = text_content;
 }
 
-qint64 Annotation::height() const { return m_height; }
+auto Annotation::height() const -> qint64 { return m_height; }
 
-void Annotation::setHeight(const qint64 &height) { m_height = height; }
+void Annotation::setHeight(qint64 height) { m_height = height; }
 
-qint64 Annotation::width() const { return m_width; }
+auto Annotation::width() const -> qint64 { return m_width; }
 
-void Annotation::setWidth(const qint64 &width) { m_width = width; }
+void Annotation::setWidth(qint64 width) { m_width = width; }

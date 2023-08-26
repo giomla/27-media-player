@@ -2,8 +2,9 @@
 
 #include <QTextStream>
 #include <QTime>
-subtitles::subtitles(const QString &line, const QString &beginTime, const QString &endTime)
-    : m_line(line), m_beginTime(beginTime), m_endTime(endTime)
+#include <utility>
+subtitles::subtitles(QString line, QString beginTime, QString endTime)
+    : m_line(std::move(line)), m_beginTime(std::move(beginTime)), m_endTime(std::move(endTime))
 {
 }
 
@@ -13,7 +14,7 @@ void subtitles::getSubtitles(QFile &file)
 	QTextStream in(&file);
     in.readLine();
 	QString tmp = in.readLine();
-	QStringList times = tmp.split(" --> ");
+	QStringList times = tmp.split(QStringLiteral(" --> "));
 	QString beginT = times.at(0);
 	QString endT = times.at(1);
 	QTime pocetnoVremeTmp;
@@ -21,11 +22,11 @@ void subtitles::getSubtitles(QFile &file)
 	QString zavrsnoVreme;
 	QTime zavrsnoVremeTmp;
 
-	pocetnoVremeTmp = QTime::fromString(beginT, "hh:mm:ss,zzz");
-	pocetnoVreme = pocetnoVremeTmp.toString("hh:mm:ss");
+	pocetnoVremeTmp = QTime::fromString(beginT, QStringLiteral("hh:mm:ss,zzz"));
+	pocetnoVreme = pocetnoVremeTmp.toString(QStringLiteral("hh:mm:ss"));
 
-	zavrsnoVremeTmp = QTime::fromString(endT, "hh:mm:ss,zzz");
-	zavrsnoVreme = zavrsnoVremeTmp.toString("hh:mm:ss");
+	zavrsnoVremeTmp = QTime::fromString(endT, QStringLiteral("hh:mm:ss,zzz"));
+	zavrsnoVreme = zavrsnoVremeTmp.toString(QStringLiteral("hh:mm:ss"));
 
 	QString fullSentence;
 	QString line;
@@ -45,15 +46,15 @@ void subtitles::getSubtitles(QFile &file)
 				break;
 			}
              tmp = in.readLine();
-             times = tmp.split(" --> ");
+             times = tmp.split(QStringLiteral(" --> "));
 			beginT = times.at(0);
 			endT = times.at(1);
 
-			pocetnoVremeTmp = QTime::fromString(beginT, "hh:mm:ss,zzz");
-			pocetnoVreme = pocetnoVremeTmp.toString("hh:mm:ss");
+			pocetnoVremeTmp = QTime::fromString(beginT, QStringLiteral("hh:mm:ss,zzz"));
+			pocetnoVreme = pocetnoVremeTmp.toString(QStringLiteral("hh:mm:ss"));
 
-			zavrsnoVremeTmp = QTime::fromString(endT, "hh:mm:ss,zzz");
-			zavrsnoVreme = zavrsnoVremeTmp.toString("hh:mm:ss");
+			zavrsnoVremeTmp = QTime::fromString(endT, QStringLiteral("hh:mm:ss,zzz"));
+			zavrsnoVreme = zavrsnoVremeTmp.toString(QStringLiteral("hh:mm:ss"));
 
 			times.clear();
 		}
@@ -61,4 +62,4 @@ void subtitles::getSubtitles(QFile &file)
 
 }
 
-subtitles::~subtitles() {}
+subtitles::~subtitles() = default;

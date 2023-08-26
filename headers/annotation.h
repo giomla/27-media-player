@@ -22,32 +22,32 @@ class Annotation : public QGraphicsObject
 {
 	Q_OBJECT
      public:
-    Annotation(QGraphicsItem *parent, QString name,qint64 width, qint64 height,
-	           QString content, qint64 beginAt, qint64 duration);
+    Annotation(QGraphicsItem *parent, const QString &name,qint64 width, qint64 height,
+                const QString& content, qint64 beginAt, qint64 duration);
 	~Annotation();
 	bool resize_on = false;
 
 	void resizeOccured();
 	void setRect(QRectF rect);
 	qint64 width() const;
-	void setWidth(const qint64 &width);
+	void setWidth(qint64 width);
 	qint64 height() const;
-	void setHeight(const qint64 &height);
+	void setHeight(qint64 height);
 
 	QString text_content() const;
 	void setText_content(const QString &text_content);
 
     const QString& name() const;
-    void setName(QString name);
+    void setName(const QString &name);
 
 	qint64 appearance_time() const;
-	void setAppearance_time(const qint64 &appearance_time);
+	void setAppearance_time(qint64 appearance_time);
 
 	qint64 duration() const;
-	void setDuration(const qint64 &duration);
+	void setDuration(qint64 duration);
 
 	qint64 getCurrTimeOfVideo() const;
-	void setCurrTimeOfVideo(const qint64 &value);
+	void setCurrTimeOfVideo(qint64 value);
 
 	bool getCurrActive() const;
 	void setCurrActive(bool value);
@@ -84,10 +84,10 @@ class Annotation : public QGraphicsObject
 
      private:
 	QRectF *m_rect = nullptr;
-    QString m_name = "";
+    QString m_name = QLatin1String("");
 	qint64 m_appearance_time;
 	qint64 m_duration;
-	QString m_text_content = "";
+	QString m_text_content = QLatin1String("");
 	qint64 m_width, m_height;
 	QMenu *menu = nullptr;
 

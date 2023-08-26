@@ -80,7 +80,7 @@ class videoplayer : public QWidget
     /*! function that loads a video */
 	bool loadFile(const QString& fileName);
     /*! function that checks regex */
-	bool annotationFieldRegexCheck(QLineEdit* widthLineEdit,
+	static bool annotationFieldRegexCheck(QLineEdit* widthLineEdit,
 	                               QLineEdit* heightLineEdit,
 	                               QLineEdit* durationLineEdit,
 	                               QLineEdit* beginLineEdit,
@@ -102,13 +102,13 @@ class videoplayer : public QWidget
 	void volumeDecrease();
 	void setMuted(bool muted);
 	void seek(int seconds);
-	void exit();
+	static void exit();
 	void setVolume(qint64 vol);
 	void addSubtitle();
 	void addAnnotation();
 	void setAnnotationsFromJson();
 	void saveAnnotationsToJsonFile();
-	void aboutPlayer();
+	static void aboutPlayer();
      signals:
 	void play();
 	void stop();

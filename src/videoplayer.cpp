@@ -41,7 +41,7 @@ videoplayer::videoplayer(QWidget *parent) : QWidget(parent)
 
 	this->createMenuBar();
 
-	this->setStyleSheet("background-color:#222222");
+	this->setStyleSheet(QStringLiteral("background-color:#222222"));
 	this->setAcceptDrops(true);
 
 	cmnds->m_Slider->setRange(
@@ -51,7 +51,7 @@ videoplayer::videoplayer(QWidget *parent) : QWidget(parent)
 	cmnds->createCommandLayout();
 
 	// vertical box with all elements
-	QVBoxLayout *layout = new QVBoxLayout(this);
+	auto *layout = new QVBoxLayout(this);
 	layout->setSpacing(0);
 	layout->addWidget(m_menuBar);
 	layout->addWidget(m_graphicsView);
@@ -80,7 +80,7 @@ videoplayer::~videoplayer()
 	}
 }
 
-bool videoplayer::isAvaliable() const { return m_mediaPlayer->isAvailable(); }
+auto videoplayer::isAvaliable() const -> bool { return m_mediaPlayer->isAvailable(); }
 
 void videoplayer::connections()
 {
@@ -148,24 +148,24 @@ void videoplayer::updateDurationInfo(qint64 currInfo)
 {
 	QString tStr;
 
-	if (currInfo || m_duration) {
+	if ((currInfo != 0) || (m_duration != 0)) {
         QTime currentTime((currInfo / 3600) % 60, (currInfo / 60) % 60,
 		                  currInfo % 60, (currInfo * 1000) % 1000);
 		QTime totalTime((m_duration / 3600) % 60, (m_duration / 60) % 60,
 		                m_duration % 60, (m_duration * 1000) % 1000);
-		QString format = "mm:ss";
+		QString format = QStringLiteral("mm:ss");
 
-		if (m_duration > 3600) format = "hh:mm:ss";
+		if (m_duration > 3600) format = QLatin1String("hh:mm:ss");
 
 		if (subtitle->isAddedSubtitle()) {
 			for (auto &sub : subtitle->subs) {
-				if (currentTime.toString("hh:mm:ss") ==
+				if (currentTime.toString(QStringLiteral("hh:mm:ss")) ==
 				    sub.getBeginTime()) {
 					subtitleText->setHtml("<p align='center'>" +
 					                      sub.getLine());
 					subtitleText->show();
 				}
-				if (currentTime.toString("hh:mm:ss") ==
+				if (currentTime.toString(QStringLiteral("hh:mm:ss")) ==
 				    sub.getEndTime()) {
 					subtitleText->hide();
 				}
@@ -177,7 +177,7 @@ void videoplayer::updateDurationInfo(qint64 currInfo)
 	}
 }
 
-QMediaPlayer::State videoplayer::state() const { return m_playerState; }
+auto videoplayer::state() const -> QMediaPlayer::State { return m_playerState; }
 
 void videoplayer::mediaStateChanged(QMediaPlayer::State state)
 {
@@ -222,9 +222,9 @@ void videoplayer::calcVideoFactor(QSizeF size)
 	fitView();
 }
 
-void videoplayer::showEvent(QShowEvent *) { fitView(); }
+void videoplayer::showEvent(QShowEvent * /*event*/) { fitView(); }
 
-void videoplayer::resizeEvent(QResizeEvent *) { fitView(); }
+void videoplayer::resizeEvent(QResizeEvent * /*event*/) { fitView(); }
 
 void videoplayer::fitView()
 {
@@ -237,18 +237,18 @@ void videoplayer::fitView()
 		it->resizeOccured();
 
 	if (isMaximized()) {
-		subtitleText->setFont(QFont("Times", 25));
+		subtitleText->setFont(QFont(QStringLiteral("Times"), 25));
 		subtitleText->setTextWidth(rect.width() / 2);
 		subtitleText->setPos(rect.width() / 4, rect.height() - 110);
 
 	} else if (isFullScreen()) {
 		subtitleText->setPos(rect.width() / 4, rect.height() - 150);
-		subtitleText->setFont(QFont("Times", 35));
+		subtitleText->setFont(QFont(QStringLiteral("Times"), 35));
 		subtitleText->setTextWidth(rect.width() / 2);
 
 	} else {
 		subtitleText->setPos(rect.width() / 4, rect.height() - 70);
-		subtitleText->setFont(QFont("Times", 20));
+		subtitleText->setFont(QFont(QStringLiteral("Times"), 20));
 		subtitleText->setTextWidth(rect.width() / 2);
 	}
 }
@@ -266,7 +266,7 @@ void videoplayer::openFile()
 	fileDialog.setFileMode(QFileDialog::ExistingFiles);
 	fileDialog.show();
 
-	if (fileDialog.exec()) {
+	if (fileDialog.exec() != 0) {
         subtitle->subs.clear();
 		subtitle->setAddedSubtitle(false);
 		subtitleText->hide();
@@ -295,18 +295,18 @@ void videoplayer::playClicked()
 			m_mediaPlayer->play();
             QTimer::singleShot(2000, m_text, &QLabel::hide);
 			m_text->show();
-			m_text->setText("Playing");
+			m_text->setText(QStringLiteral("Playing"));
 			break;
 		case QMediaPlayer::PlayingState:
 			m_mediaPlayer->pause();
 			m_text->show();
-			m_text->setText("Paused");
+			m_text->setText(QStringLiteral("Paused"));
 			QTimer::singleShot(2000, m_text, &QLabel::hide);
 			break;
 	}
 }
 
-bool videoplayer::isMuted() const { return m_playerMuted; }
+auto videoplayer::isMuted() const -> bool { return m_playerMuted; }
 
 void videoplayer::setMuted(bool muted)
 {
@@ -332,52 +332,52 @@ void videoplayer::seek(int seconds)
 
 void videoplayer::muteClicked()
 {
-	if (m_mediaPlayer->isMuted() == false) {
+	if (!m_mediaPlayer->isMuted()) {
 		m_mediaPlayer->setMuted(true);
 		cmnds->m_muteButton->setIcon(
 		    style()->standardIcon(QStyle::SP_MediaVolumeMuted));
 		QTimer::singleShot(2000, m_text, &QLabel::hide);
 		m_text->show();
-		m_text->setText("Muted");
+		m_text->setText(QStringLiteral("Muted"));
 	} else {
 		m_mediaPlayer->setMuted(false);
 		cmnds->m_muteButton->setIcon(
 		    style()->standardIcon(QStyle::SP_MediaVolume));
 		QTimer::singleShot(2000, m_text, &QLabel::hide);
 		m_text->show();
-		m_text->setText("Unmuted");
+		m_text->setText(QStringLiteral("Unmuted"));
 	}
 }
 
 void videoplayer::createMenuBar()
 {
 	m_menuBar = new QMenuBar();
-	m_menuBar->setStyleSheet("color:white");
+	m_menuBar->setStyleSheet(QStringLiteral("color:white"));
 	m_text = new QLabel();
-	m_text->setStyleSheet("background-color:rgba(255,255,255,0)");
+	m_text->setStyleSheet(QStringLiteral("background-color:rgba(255,255,255,0)"));
 	m_text->setFixedSize(150, 20);
 	m_text->hide();
 	m_menuBar->setCornerWidget(m_text);
-	QMenu *file = new QMenu("File");
-	QMenu *playback = new QMenu("Playback");
-	QMenu *help = new QMenu("Help");
+	auto *file = new QMenu(QStringLiteral("File"));
+	auto *playback = new QMenu(QStringLiteral("Playback"));
+	auto *help = new QMenu(QStringLiteral("Help"));
 
 	// file padajuci meni
-	QAction *openFile = file->addAction("Open file");
+	QAction *openFile = file->addAction(QStringLiteral("Open file"));
 	QAction *exit =
-	    file->addAction("Abort");  // iz nekog razloga ne izbacuje EXIT akciju
-    file->setStyleSheet(" QMenu {Background-color: #111111;color:white;}");
+	    file->addAction(QStringLiteral("Abort"));  // iz nekog razloga ne izbacuje EXIT akciju
+    file->setStyleSheet(QStringLiteral(" QMenu {Background-color: #111111;color:white;}"));
 
 	// audio padajuci meni
-	QAction *mute = playback->addAction("Mute");
-	QAction *seekBack = playback->addAction("Seek backward");
-	QAction *seekFwd = playback->addAction("Seek forward");
+	QAction *mute = playback->addAction(QStringLiteral("Mute"));
+	QAction *seekBack = playback->addAction(QStringLiteral("Seek backward"));
+	QAction *seekFwd = playback->addAction(QStringLiteral("Seek forward"));
 	playback->setStyleSheet(
-	    " QMenu {Background-color: #222222;color:white;}");
+	    QStringLiteral(" QMenu {Background-color: #222222;color:white;}"));
 
 	// help padajuci meni
-	QAction *about = help->addAction("About player");
-	help->setStyleSheet(" QMenu {Background-color: #222222;color:white;}");
+	QAction *about = help->addAction(QStringLiteral("About player"));
+	help->setStyleSheet(QStringLiteral(" QMenu {Background-color: #222222;color:white;}"));
 
 	// povezivanje akcija sa funkcijama pri kliku
 	connect(openFile, &QAction::triggered, this, &videoplayer::openFile);
@@ -409,7 +409,7 @@ void videoplayer::stopClicked()
 	m_mediaPlayer->stop();
 	QTimer::singleShot(2000, m_text, &QLabel::hide);
 	m_text->show();
-	m_text->setText("Stopped");
+	m_text->setText(QStringLiteral("Stopped"));
 }
 
 void videoplayer::forwardClicked()
@@ -417,7 +417,7 @@ void videoplayer::forwardClicked()
 	Playlist->m_playlist->next();
 	QTimer::singleShot(2000, m_text, &QLabel::hide);
 	m_text->show();
-	m_text->setText("Forward");
+	m_text->setText(QStringLiteral("Forward"));
 	QFileInfo fileInfo(
         Playlist->m_playlist->currentMedia().canonicalUrl().path());
 	QString filename = fileInfo.fileName();
@@ -430,7 +430,7 @@ void videoplayer::backwardClicked()
 	m_mediaPlayer->play();
 	QTimer::singleShot(2000, m_text, &QLabel::hide);
 	m_text->show();
-	m_text->setText("Backward");
+	m_text->setText(QStringLiteral("Backward"));
 	QFileInfo fileInfo(
         Playlist->m_playlist->currentMedia().canonicalUrl().path());
 	QString filename = fileInfo.fileName();
@@ -449,7 +449,7 @@ void videoplayer::seekBackwardClicked()
 	m_mediaPlayer->setPosition(value);
 	QTimer::singleShot(2000, m_text, &QLabel::hide);
 	m_text->show();
-	m_text->setText("Seek backward");
+	m_text->setText(QStringLiteral("Seek backward"));
 }
 
 void videoplayer::seekForwardClicked()
@@ -463,10 +463,10 @@ void videoplayer::seekForwardClicked()
 
 	QTimer::singleShot(2000, m_text, &QLabel::hide);
 	m_text->show();
-	m_text->setText("Seek forward");
+	m_text->setText(QStringLiteral("Seek forward"));
 }
 
-int videoplayer::volume() const
+auto videoplayer::volume() const -> int
 {
 	qreal linearVolume = QAudio::convertVolume(
 	    cmnds->m_volumeSlider->value() / qreal(100),
@@ -494,7 +494,7 @@ void videoplayer::onVolumeSliderChanged()
 	m_mediaPlayer->setVolume(volume());
 	QTimer::singleShot(2000, m_text, &QLabel::hide);
 	m_text->show();
-	m_text->setText("Volume changed");
+	m_text->setText(QStringLiteral("Volume changed"));
 }
 
 void videoplayer::exit() { std::exit(EXIT_SUCCESS); }
@@ -604,11 +604,10 @@ void videoplayer::wheelEvent(QWheelEvent *event)
 void videoplayer::addSubtitle()
 {
 	QString fileName = QFileDialog::getOpenFileName(
-	    this, tr("Select a Subtitle"), "", tr("*.srt"));
+	    this, tr("Select a Subtitle"), QLatin1String(""), tr("*.srt"));
 	if (fileName.isEmpty()) {
 		return;
-	} else {
-		QFile file(fileName);
+	} 		QFile file(fileName);
 		if (!file.open(QIODevice::ReadOnly)) {
 			QMessageBox::information(this, tr("Unable to open file"),
 			                         file.errorString());
@@ -616,7 +615,7 @@ void videoplayer::addSubtitle()
 		}
 		subtitle->getSubtitles(file);
 		subtitle->setAddedSubtitle(true);
-	}
+
 }
 
 void videoplayer::addAnnotation()
@@ -639,18 +638,18 @@ void videoplayer::addAnnotation()
 	formLayout = new QFormLayout();
 	formLayout->setFormAlignment(Qt::AlignTop);
 
-	QLineEdit *nameLineEdit = new QLineEdit();
-	QLineEdit *beginLineEdit = new QLineEdit();
-	QLineEdit *durationLineEdit = new QLineEdit();
-	QLineEdit *textLineEdit = new QLineEdit();
-	QLineEdit *heightLineEdit = new QLineEdit();
-	QLineEdit *widthLineEdit = new QLineEdit();
-	nameLineEdit->setStyleSheet("background-color:#303030");
-	beginLineEdit->setStyleSheet("background-color:#303030");
-	durationLineEdit->setStyleSheet("background-color:#303030");
-	textLineEdit->setStyleSheet("background-color:#303030");
-	heightLineEdit->setStyleSheet("background-color:#303030");
-	widthLineEdit->setStyleSheet("background-color:#303030");
+	auto *nameLineEdit = new QLineEdit();
+	auto *beginLineEdit = new QLineEdit();
+	auto *durationLineEdit = new QLineEdit();
+	auto *textLineEdit = new QLineEdit();
+	auto *heightLineEdit = new QLineEdit();
+	auto *widthLineEdit = new QLineEdit();
+	nameLineEdit->setStyleSheet(QStringLiteral("background-color:#303030"));
+	beginLineEdit->setStyleSheet(QStringLiteral("background-color:#303030"));
+	durationLineEdit->setStyleSheet(QStringLiteral("background-color:#303030"));
+	textLineEdit->setStyleSheet(QStringLiteral("background-color:#303030"));
+	heightLineEdit->setStyleSheet(QStringLiteral("background-color:#303030"));
+	widthLineEdit->setStyleSheet(QStringLiteral("background-color:#303030"));
 
 	QDialogButtonBox formButtonBox = new QDialogButtonBox();
 	formButtonBox.addButton(tr("Accept"), QDialogButtonBox::AcceptRole);
@@ -669,10 +668,10 @@ void videoplayer::addAnnotation()
 
 	formLayout->setContentsMargins(10, 10, 10, 10);
 
-	connect(&formButtonBox, SIGNAL(accepted()), &popupAnnotationMenu,
-	        SLOT(accept()));
-	connect(&formButtonBox, SIGNAL(rejected()), &popupAnnotationMenu,
-	        SLOT(reject()));
+	connect(&formButtonBox, &QDialogButtonBox::accepted, &popupAnnotationMenu,
+	        &QDialog::accept);
+	connect(&formButtonBox, &QDialogButtonBox::rejected, &popupAnnotationMenu,
+	        &QDialog::reject);
 
 	popupAnnotationMenu.setLayout(formLayout);
 	formLayout->addWidget(&formButtonBox);
@@ -688,12 +687,12 @@ void videoplayer::addAnnotation()
     QTime currentTime((currTime / 3600) % 60, (currTime / 60) % 60,
                       currTime % 60, (currTime * 1000) % 1000);
 
-    beginLineEdit->setText(currentTime.toString("hh:mm:ss"));
-    durationLineEdit->setText("01:00");
-	widthLineEdit->setText("200");
-	heightLineEdit->setText("200");
+    beginLineEdit->setText(currentTime.toString(QStringLiteral("hh:mm:ss")));
+    durationLineEdit->setText(QStringLiteral("01:00"));
+	widthLineEdit->setText(QStringLiteral("200"));
+	heightLineEdit->setText(QStringLiteral("200"));
 
-	if (popupAnnotationMenu.exec() &&
+	if ((popupAnnotationMenu.exec() != 0) &&
 	    formButtonBox.AcceptRole == QDialogButtonBox::AcceptRole) {
 		// regex provere
 		if (!annotationFieldRegexCheck(widthLineEdit, heightLineEdit,
@@ -708,12 +707,12 @@ void videoplayer::addAnnotation()
 		QString content = textLineEdit->text();
 		QString beginAt = beginLineEdit->text();
 		if (beginLineEdit->text().isEmpty()) {
-            currentTime.toString("hh:mm:ss");
+            currentTime.toString(QStringLiteral("hh:mm:ss"));
 		}
 		QString annDuration = durationLineEdit->text();
 		if (durationLineEdit->text().isEmpty()) {
 			QString durationLabel = cmnds->m_durationInfo->text();
-			QStringList durationList = durationLabel.split(" / ");
+			QStringList durationList = durationLabel.split(QStringLiteral(" / "));
             annDuration = durationList[1];
 		}
 		QStringList times = beginAt.split(tr(":"));
@@ -743,8 +742,8 @@ void videoplayer::addAnnotation()
 		}
 
 		QString durationLabel = cmnds->m_durationInfo->text();
-		QStringList durationList = durationLabel.split(" / ");
-		QStringList durVideoList = durationList[1].split(":");
+		QStringList durationList = durationLabel.split(QStringLiteral(" / "));
+		QStringList durVideoList = durationList[1].split(QStringLiteral(":"));
 		qint64 dur = 0;
 		if (durVideoList.length() == 2) {
             dur = durVideoList[0].toInt() * 1000 * 60 +
@@ -802,9 +801,9 @@ void videoplayer::setAnnotationsFromJson()
 	for (; jsonBegin < jsonEnd; ++jsonBegin) {
 		QJsonObject obj = jsonBegin->toObject();
 		m_videoAnnotations.append(new Annotation(
-            m_videoItem, obj.value("name").toString(),obj.value("width").toInt(),
-		    obj.value("height").toInt(), obj.value("content").toString(),
-		    obj.value("beginAt").toInt(), obj.value("duration").toInt()));
+            m_videoItem, obj.value(QStringLiteral("name")).toString(),obj.value(QStringLiteral("width")).toInt(),
+		    obj.value(QStringLiteral("height")).toInt(), obj.value(QStringLiteral("content")).toString(),
+		    obj.value(QStringLiteral("beginAt")).toInt(), obj.value(QStringLiteral("duration")).toInt()));
 	}
 }
 
@@ -815,12 +814,12 @@ void videoplayer::saveAnnotationsToJsonFile()
 	QJsonArray jsonArr = QJsonArray();
     for (auto anno : qAsConst( m_videoAnnotations )) {
 		QJsonObject obj = QJsonObject();
-        obj.insert("name", anno->name());
-		obj.insert("width", anno->width());
-		obj.insert("height", anno->height());
-		obj.insert("content", anno->text_content());
-		obj.insert("beginAt", anno->appearance_time());
-		obj.insert("duration", anno->duration());
+        obj.insert(QStringLiteral("name"), anno->name());
+		obj.insert(QStringLiteral("width"), anno->width());
+		obj.insert(QStringLiteral("height"), anno->height());
+		obj.insert(QStringLiteral("content"), anno->text_content());
+		obj.insert(QStringLiteral("beginAt"), anno->appearance_time());
+		obj.insert(QStringLiteral("duration"), anno->duration());
 		jsonArr.append(obj);
 	}
 
@@ -840,54 +839,54 @@ void videoplayer::saveAnnotationsToJsonFile()
 	out.close();
 }
 
-bool videoplayer::annotationFieldRegexCheck(QLineEdit *widthLineEdit,
+auto videoplayer::annotationFieldRegexCheck(QLineEdit *widthLineEdit,
                                             QLineEdit *heightLineEdit,
                                             QLineEdit *durationLineEdit,
                                             QLineEdit *beginLineEdit,
-                                            QLineEdit *contentLineEdit)
+                                            QLineEdit *contentLineEdit) -> bool
 {
 	// provera vreme pocetka anotacija
-	QRegularExpression *re =
-	    new QRegularExpression("[0-9]{2}:[0-9]{2}:[0-9]{2}");
+	auto *re =
+	    new QRegularExpression(QStringLiteral("[0-9]{2}:[0-9]{2}:[0-9]{2}"));
 
 	if (!re->match(beginLineEdit->text()).hasMatch()) {
 		std::cerr << "Invalid format for annotation start time"
 		          << "\n";
-		beginLineEdit->setText("");
+		beginLineEdit->setText(QLatin1String(""));
 		return false;
 	}
 
 	// provera duzine trajanja
-	re->setPattern("[0-9]{2}:[0-9]{2}");
+	re->setPattern(QStringLiteral("[0-9]{2}:[0-9]{2}"));
 
 	if (!re->match(durationLineEdit->text()).hasMatch()) {
 		std::cerr << "Invalid format for annotation duration"
 		          << "\n";
-		durationLineEdit->setText("");
+		durationLineEdit->setText(QLatin1String(""));
 		return false;
 	}
 	// provera sirine i visine
-	re->setPattern("[12]?[0-9]{2}");
+	re->setPattern(QStringLiteral("[12]?[0-9]{2}"));
 
 	if (!re->match(widthLineEdit->text()).hasMatch()) {
 		std::cerr << "Invalid format for text width"
 		          << "\n";
-		widthLineEdit->setText("");
+		widthLineEdit->setText(QLatin1String(""));
 		return false;
 	}
 
 	if (!re->match(heightLineEdit->text()).hasMatch()) {
 		std::cerr << "Invalid format for text height";
-		heightLineEdit->setText("");
+		heightLineEdit->setText(QLatin1String(""));
 		return false;
 	}
 	// Tekst
-	re->setPattern("[a-zA-Z0-9]+");
+	re->setPattern(QStringLiteral("[a-zA-Z0-9]+"));
 
 	if (!re->match(contentLineEdit->text()).hasMatch()) {
 		std::cerr << "Annotation content can't be empty"
 		          << "\n";
-		contentLineEdit->setText("");
+		contentLineEdit->setText(QLatin1String(""));
 		return false;
 	}
 
@@ -898,7 +897,7 @@ void videoplayer::aboutPlayer()
 {
 	QMessageBox messBox;
 	messBox.setText(
-	    "Dobro dosli u nas videoplayer!\nOvo su uputstva i precice koje mozete koristiti:\n \
+	    QStringLiteral("Dobro dosli u nas videoplayer!\nOvo su uputstva i precice koje mozete koristiti:\n \
                     -Volume increase/decrease: +/-\n\
                     -Mute: M\n\
                     -Pause/Play: Space\n\
@@ -907,6 +906,6 @@ void videoplayer::aboutPlayer()
                     -Moving through playlist: comma/dot\n\
                     -Fullscreen: F\n\
                     -Exit: CTRL + Q\n\
-                    ");
+                    "));
 	messBox.exec();
 }

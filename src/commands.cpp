@@ -56,7 +56,7 @@ commands::commands(QWidget *parent) : QWidget(parent)
 	m_muteButton->setFixedSize(30, 30);
 
 	m_openButton = new QPushButton(tr("Open"));
-	m_openButton->setStyleSheet("color:white");
+	m_openButton->setStyleSheet(QStringLiteral("color:white"));
 
 	m_showPlaylistButton = new QPushButton;
 	m_showPlaylistButton->setIcon(
@@ -71,9 +71,9 @@ commands::commands(QWidget *parent) : QWidget(parent)
 	m_volumeSlider->setValue(100);
 	m_volumeSlider->setEnabled(false);
 
-	m_durationInfo = new QLabel("00:00:00/00:00:00", this);
+	m_durationInfo = new QLabel(QStringLiteral("00:00:00/00:00:00"), this);
     m_durationInfo->setEnabled(false);
-	m_durationInfo->setStyleSheet("color:rgb(255,255,255)");
+	m_durationInfo->setStyleSheet(QStringLiteral("color:rgb(255,255,255)"));
 	m_durationInfo->setAlignment(Qt::AlignCenter);
 	m_durationInfo->setMinimumSize(2 * screenGeometry.width() / 15,
 	                               screenGeometry.height() / 20);
