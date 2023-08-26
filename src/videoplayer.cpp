@@ -61,6 +61,11 @@ videoplayer::videoplayer(QWidget *parent) : QWidget(parent)
 	layout->setSpacing(0);
 
 	m_graphicsView->setFocus();
+
+    mouseHideTimer=new QTimer();
+    mouseHideTimer->setInterval(2000);
+    mouseHideTimer->setSingleShot(true);
+
 	this->connections();
 }
 
@@ -112,7 +117,7 @@ void videoplayer::connections()
 	        &playlist::showPlaylist);
 	connect(cmnds->m_showPlaylistButton, &QAbstractButton::clicked, this,
 	        &videoplayer::fitView);
-
+    connect(mouseHideTimer,&QTimer::timeout,this,&videoplayer::hideMouse);
 	// when another video is loaded up, the native resolution of the video
 	// changes so we monitor for that, so we can adjust the resolution
 	// accordingly
@@ -414,7 +419,7 @@ void videoplayer::forwardClicked()
 	m_text->show();
 	m_text->setText("Forward");
 	QFileInfo fileInfo(
-        Playlist->m_playlist->currentMedia().request().url().path());
+        Playlist->m_playlist->currentMedia().canonicalUrl().path());
 	QString filename = fileInfo.fileName();
 	this->setWindowTitle(filename.split('.')[0]);
 }
@@ -427,7 +432,7 @@ void videoplayer::backwardClicked()
 	m_text->show();
 	m_text->setText("Backward");
 	QFileInfo fileInfo(
-        Playlist->m_playlist->currentMedia().request().url().path());
+        Playlist->m_playlist->currentMedia().canonicalUrl().path());
 	QString filename = fileInfo.fileName();
 	this->setWindowTitle(filename.split('.')[0]);
 }
@@ -508,7 +513,8 @@ void videoplayer::keyPressEvent(QKeyEvent *event)
 	else if (event->key() == Qt::Key_F) {
 		if (!isFullScreen()) {
             QTimer::singleShot(3000,cmnds,&commands::hideCommands);
-			Playlist->m_playlist_entries->hide();
+            //cmnds->hideCommands();
+            Playlist->m_playlist_entries->hide();
 			m_menuBar->hide();
 			this->layout()->setContentsMargins(0, 0, 0, 0);
 			this->layout()->setMargin(0);
@@ -533,16 +539,16 @@ void videoplayer::mouseDoubleClickEvent(QMouseEvent *event)
 	if (event->buttons() == Qt::MouseEventCreatedDoubleClick &&
 	    m_graphicsView->underMouse()) {
 		if (!isFullScreen()) {
+            cmnds->hideCommands();
             setMouseTracking(true);
             this->layout()->setContentsMargins(0,0,0,0);
-            QTimer::singleShot(3000,cmnds,&commands::hideCommands);
+            //QTimer::singleShot(3000,cmnds,&commands::hideCommands);
 			Playlist->m_playlist_entries->hide();
 			m_menuBar->hide();
 			showFullScreen();
-            if(isFullScreen())
-                qDebug()<<"bla bla";
 			cmnds->m_playButton->click();
 		} else if (isFullScreen()) {
+            unsetCursor();
             setMouseTracking(false);
 			this->layout()->setContentsMargins(-1, -1, -1, -1);
 			showNormal();
@@ -560,7 +566,12 @@ void videoplayer::contextMenuEvent(QContextMenuEvent *event)
 	// events from annotations works
 
 	if (m_graphicsView->underMouse())
-		m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
+        m_rightClickMenu->m_RCMenu->popup(QCursor::pos());
+}
+
+void videoplayer::hideMouse()
+{
+
 }
 
 void videoplayer::mousePressEvent(QMouseEvent *event)
@@ -571,6 +582,9 @@ void videoplayer::mousePressEvent(QMouseEvent *event)
 
 void videoplayer::mouseMoveEvent(QMouseEvent *event)
 {
+    //resetuj tajmer ako je postavljen
+    //pokrenem skrivanje komandi i misha
+   mouseHideTimer->start();
 }
 
 void videoplayer::wheelEvent(QWheelEvent *event)
@@ -756,7 +770,7 @@ void videoplayer::playlistDoubleClickPlay()
 	Playlist->m_playlist->setCurrentIndex(Playlist->m_playlist_entries->row(
 	    Playlist->m_playlist_entries->currentItem()));
 	QFileInfo fileInfo(
-        Playlist->m_playlist->currentMedia().request().url().path());
+        Playlist->m_playlist->currentMedia().canonicalUrl().path());
 	QString filename = fileInfo.fileName();
 	this->setWindowTitle(filename.split('.')[0]);
 }
@@ -764,7 +778,7 @@ void videoplayer::playlistDoubleClickPlay()
 void videoplayer::setAnnotationsFromJson()
 {
 	QString filePath = m_mediaPlayer->currentMedia()
-                           .request().url()
+                           .canonicalUrl()
 	                       .path()
 	                       .split('/')
 	                       .last() +
@@ -812,7 +826,7 @@ void videoplayer::saveAnnotationsToJsonFile()
 
 	QJsonDocument jsonDoc = QJsonDocument(jsonArr);
 	QFile out = QFile(m_mediaPlayer->currentMedia()
-                          .request().url()
+                          .canonicalUrl()
 	                      .path()
 	                      .split('/')
 	                      .last() +
