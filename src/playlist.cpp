@@ -3,47 +3,42 @@
 #include <qset.h>
 
 #include <QItemSelectionModel>
-playlist::playlist(QWidget *parent, QMediaPlayer* player)
-    : QWidget(parent), m_player(player)
-{
-	m_playlist = new QMediaPlaylist(this);
-	m_playlist_entries = new QListWidget(this);
-	m_playlist_entries->hide();
+playlist::playlist(QWidget *parent, QMediaPlayer *player)
+    : QWidget(parent), m_player(player) {
+  m_playlist = new QMediaPlaylist(this);
+  m_playlist_entries = new QListWidget(this);
+  m_playlist_entries->hide();
 };
 
-void playlist::loadPlaylist(const QList<QUrl>& urls)
-{
-	m_playlist_entries->setStyleSheet(QStringLiteral("color:white"));
-	int i = 0;
+void playlist::loadPlaylist(const QList<QUrl> &urls) {
+  m_playlist_entries->setStyleSheet(QStringLiteral("color:white"));
+  int i = 0;
 
-    for (const auto &url : urls) {
-        if (listUrls.contains(url)) {
-			continue;
-		}
-        listUrls.append(url);
-		m_playlist->addMedia(url);
-		m_playlist_entries->addItem(
-		    url.fileName().left(url.fileName().lastIndexOf('.')));
-		// this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
-		this->parentWidget()->setWindowTitle(
-		    url.fileName().left(url.fileName().lastIndexOf('.')));
-		i++;
-	}
-	m_playlist->setCurrentIndex(m_playlist->currentIndex() + 1);
-	m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
-	m_player->play();
+  for (const auto &url : urls) {
+    if (listUrls.contains(url)) {
+      continue;
+    }
+    listUrls.append(url);
+    m_playlist->addMedia(url);
+    m_playlist_entries->addItem(
+        url.fileName().left(url.fileName().lastIndexOf('.')));
+    // this->setWindowTitle(url.fileName().left(url.fileName().lastIndexOf('.')));
+    this->parentWidget()->setWindowTitle(
+        url.fileName().left(url.fileName().lastIndexOf('.')));
+    i++;
+  }
+  m_playlist->setCurrentIndex(m_playlist->currentIndex() + 1);
+  m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
+  m_player->play();
 }
 
 /*! function that shows/hides the playlist based on the playlist visibility */
-void playlist::showPlaylist()
-{
-    if (m_playlist_entries->isHidden()) {
-		m_playlist_entries->show();
-		m_playlist_entries->setFocus();
-	} else {
-		m_playlist_entries->hide();
-		this->focusNextChild();
-	}
+void playlist::showPlaylist() {
+  if (m_playlist_entries->isHidden()) {
+    m_playlist_entries->show();
+    m_playlist_entries->setFocus();
+  } else {
+    m_playlist_entries->hide();
+    this->focusNextChild();
+  }
 }
-
-
