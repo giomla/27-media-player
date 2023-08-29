@@ -18,90 +18,85 @@
 
 #include "../headers/videoplayer.h"
 
-class Annotation : public QGraphicsObject
-{
-	Q_OBJECT
-     public:
-    Annotation(QGraphicsItem *parent, const QString &name,qint64 width, qint64 height,
-                const QString& content, qint64 beginAt, qint64 duration);
-	~Annotation();
-	bool resize_on = false;
+class Annotation : public QGraphicsObject {
+  Q_OBJECT
+public:
+  Annotation(QGraphicsItem *parent, const QString &name, qint64 width,
+             qint64 height, const QString &content, qint64 beginAt,
+             qint64 duration);
+  ~Annotation();
+  bool resize_on = false;
 
-	void resizeOccured();
-	void setRect(QRectF rect);
-	qint64 width() const;
-	void setWidth(qint64 width);
-	qint64 height() const;
-	void setHeight(qint64 height);
+  void resizeOccured();
+  void setRect(QRectF rect);
+  qint64 width() const;
+  void setWidth(qint64 width);
+  qint64 height() const;
+  void setHeight(qint64 height);
 
-	QString text_content() const;
-	void setText_content(const QString &text_content);
+  QString text_content() const;
+  void setText_content(const QString &text_content);
 
-    const QString& name() const;
-    void setName(const QString &name);
+  const QString &name() const;
+  void setName(const QString &name);
 
-	qint64 appearance_time() const;
-	void setAppearance_time(qint64 appearance_time);
+  qint64 appearance_time() const;
+  void setAppearance_time(qint64 appearance_time);
 
-	qint64 duration() const;
-	void setDuration(qint64 duration);
+  qint64 duration() const;
+  void setDuration(qint64 duration);
 
-	qint64 getCurrTimeOfVideo() const;
-	void setCurrTimeOfVideo(qint64 value);
+  qint64 getCurrTimeOfVideo() const;
+  void setCurrTimeOfVideo(qint64 value);
 
-	bool getCurrActive() const;
-	void setCurrActive(bool value);
+  bool getCurrActive() const;
+  void setCurrActive(bool value);
 
-	bool getAlreadyModifying() const;
-	void setAlreadyModifying(bool value);
+  bool getAlreadyModifying() const;
+  void setAlreadyModifying(bool value);
 
-    public slots:
-	void modified();
-	void modifiedDur();
-	void canceled();
-	void canceledDur();
-	void modifyText();
-	void resizing();
-	void stopResizing();
-	void modifyDur();
+public slots:
+  void modified();
+  void modifiedDur();
+  void canceled();
+  void canceledDur();
+  void modifyText();
+  void resizing();
+  void stopResizing();
+  void modifyDur();
 
+protected:
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+             QWidget *widget = 0) override;
+  QRectF boundingRect() const override;
+  void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+  void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
+  void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+  void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+  void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+  void wheelEvent(QGraphicsSceneWheelEvent *event) override;
 
+private:
+  QRectF *m_rect = nullptr;
+  QString m_name = QLatin1String("");
+  qint64 m_appearance_time;
+  qint64 m_duration;
+  QString m_text_content = QLatin1String("");
+  qint64 m_width, m_height;
+  QMenu *menu = nullptr;
 
-    protected:
+  qint64 m_currDisplayPos = 0;
 
+  QLineEdit *beginEdit = nullptr;
+  QLineEdit *durationEdit = nullptr;
 
-
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-	           QWidget *widget = 0) override;
-	QRectF boundingRect() const override;
-	void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
-	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
-	void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
-	void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
-	void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
-	void wheelEvent(QGraphicsSceneWheelEvent *event) override;
-
-     private:
-	QRectF *m_rect = nullptr;
-    QString m_name = QLatin1String("");
-	qint64 m_appearance_time;
-	qint64 m_duration;
-	QString m_text_content = QLatin1String("");
-	qint64 m_width, m_height;
-	QMenu *menu = nullptr;
-
-	qint64 m_currDisplayPos = 0;
-
-	QLineEdit *beginEdit = nullptr;
-	QLineEdit *durationEdit = nullptr;
-
-	QPlainTextEdit *editor = nullptr;
-	QDialog *modifyDialog = nullptr;
-	QDialog *durDialog = nullptr;
-	qint64 currTimeOfVideo = 0;
-	bool currActive = true;
-	bool alreadyModifying = false;
+  QPlainTextEdit *editor = nullptr;
+  QDialog *modifyDialog = nullptr;
+  QDialog *durDialog = nullptr;
+  qint64 currTimeOfVideo = 0;
+  bool currActive = true;
+  bool alreadyModifying = false;
 };
 
-#endif  // ANNOTATION_H
+#endif // ANNOTATION_H
